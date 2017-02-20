@@ -6,7 +6,7 @@ from __future__ import division
 import time
 
 # Import the PCA9685 module.
-import Adafruit_PCA9685
+import Adafruit_PCA9685 as PWM
 
 import CHIP_IO.GPIO as GPIO
 
@@ -20,15 +20,13 @@ PWM_CH_SERVO = 15
 #import logging
 #logging.basicConfig(level=logging.DEBUG)
 
-# Initialise the PCA9685 using the default address (0x40).
-#pwm = Adafruit_PCA9685.PCA9685()
-
-# Alternatively specify a different address and/or bus:
-pwm = Adafruit_PCA9685.PCA9685(address=0x40, busnum=2)
+# Initialise the PCA9685 at the appropriate address and
+# bus (0x40 and 2, respectively)
+pwm = PWM.PCA9685(address=0x40, busnum=2)
 
 # Configure min and max servo pulse lengths
 servo_min = 150  # Min pulse length out of 4096
-servo_max = 580  # (600 torqued one servo too much) Max pulse length out of 4096
+servo_max = 580  # Max pulse length out of 4096 (600 torqued one servo too much)
 
 # Helper function to make setting a servo pulse width simpler.
 def set_servo_pulse(channel, pulse):
@@ -45,9 +43,9 @@ def set_servo_pulse(channel, pulse):
 pwm.set_pwm_freq(60)
 
 try:
+  # Move servos between extremes in a loop.
   print('Moving servos, press Ctrl-C to quit...')
   while True:
-    # Move servos between extremes.
     print('FNB MIN...')
     pwm.set_pwm(PWM_CH_FNB, 0, servo_min)
     time.sleep(1)
