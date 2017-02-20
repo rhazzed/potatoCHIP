@@ -1,7 +1,14 @@
-# Before we got everything working on C.H.I.P. we needed to install a few librarires and tools.
+# Before we got everything working on C.H.I.P. we needed to
+# install a few librarires and tools.
 
-# Here are a few things we needed before our code would work -
-
+# Here are some commands that we used in order to install
+# the things we needed before our code would work.  After
+# these commands are some test programs we ran to check if
+# everything was working properly.  NOTE: Things may be a
+# little out-of-order (I did some as 'root' and some as a
+# regular/unpriviledged user), but everything we did
+# should be shown here, somewhere.
+###########################
 
 
 sudo apt-get install gcc
