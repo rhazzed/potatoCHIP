@@ -1,0 +1,87 @@
+# Before we got everything working on C.H.I.P. we needed to install a few librarires and tools.
+
+# Here are a few things we needed before our code would work -
+
+
+
+sudo apt-get install gcc
+sudo apt-get install make
+sudo apt install git build-essential python-dev python-pip flex bison -y
+
+i2cdetect -y 2
+i2cdump 2 0x40
+i2cdump 2 0x70
+cd /home
+apt-get install build-essential python-pip python-dev python-smbus git
+git clone https://github.com/adafruit/Adafruit_Python_GPIO.git
+cd Adafruit_Python_GPIO/
+python setup.py install
+pip2 install mock
+cd tests
+export PYTHONPATH=/home/Adafruit_Python_GPIO/tests
+export PYTHONPATH=$PYTHONPATH:/home/Adafruit_Python_GPIO/Adafruit_GPIO
+pip2 install python-smbus
+apt-get install python-smbus
+apt-get autoremove
+python test_GPIO.py
+python test_Platform.py
+python test_GPIO.py 
+python test_Platform.py
+python test_PWM.py
+cd ..
+   
+cd Adafruit_GPIO
+cd ..
+cd tests/
+python test_I2C.py
+cd /home
+git clone https://github.com/adafruit/Adafruit_Python_PCA9685
+cd Adafruit_Python_PCA9685/
+apt-get install git build-essential python-dev
+python setup.py install
+cd examples/
+python simpletest.py 
+  
+git clone https://github.com/atenart/dtc
+cd dtc
+make
+make install PREFIX=/usr
+cd ..
+git clone git://github.com/xtacocorex/CHIP_IO.git
+cd CHIP_IO/
+python setup.py install
+cd ..
+  
+cd gpio
+vi csido_on.py
+python ./csido_on.py
+python ./csido_off.py 
+python distance.py
+python cleanup.py
+python distance.py
+ 
+cd robot
+python cleanup.py
+python distance.py
+
+
+
+
+# To see if the 16-channel I2C PWM control board is detected -
+i2cdetect -y 2
+
+# If found, dump registers from the board
+i2cdump 2 0x40
+i2cdump 2 0x70
+
+
+
+# Some example code we used to test if everything was working as expected
+cd Adafruit_Python_PCA9685/examples
+sudo python ./simpletest.py
+
+sudo python csido_on.py
+sudo python csido_off.py
+sudo python getrange.py
+sudo python getrange.py -c
+
