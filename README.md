@@ -1,1 +1,1 @@
-# CHIP code development for Durpa and Nimrod
+# CHIP code development for Derpa and Nimrod
