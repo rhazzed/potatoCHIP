@@ -1,18 +1,19 @@
 # Simple demo of of the PCA9685 PWM servo/LED controller library.
-# This will move various channels from min to max position in
-# sequence, repeatedly.
+# This will repeatedly move various channels from min to max
+# position in sequence until the user presses Ctrl-C
+######################################
 from __future__ import division
 import time
 
 # Import the PCA9685 module.
 import Adafruit_PCA9685
 
+import CHIP_IO.GPIO as GPIO
 
 #set PWM Controller channels
 PWM_CH_FNB = 0
 PWM_CH_FNA = 2
 PWM_CH_SERVO = 15
-
 
 
 # Uncomment to enable debug output.
@@ -43,18 +44,36 @@ def set_servo_pulse(channel, pulse):
 # Set frequency to 60hz, good for servos.
 pwm.set_pwm_freq(60)
 
-print('Moving servos, press Ctrl-C to quit...')
-while True:
+try:
+  print('Moving servos, press Ctrl-C to quit...')
+  while True:
     # Move servos between extremes.
+    print('FNB MIN...')
     pwm.set_pwm(PWM_CH_FNB, 0, servo_min)
     time.sleep(1)
+
+    print('FNA MIN...')
     pwm.set_pwm(PWM_CH_FNA, 0, servo_min)
     time.sleep(1)
+
+    print('ULTRASONIC RANGE SENSOR SERVO MIN...')
     pwm.set_pwm(PWM_CH_SERVO, 0, servo_min)
     time.sleep(1)
+
+    print('FNB MAX...')
     pwm.set_pwm(PWM_CH_FNB, 0, servo_max)
     time.sleep(1)
+
+    print('FNA MAX...')
     pwm.set_pwm(PWM_CH_FNA, 0, servo_max)
     time.sleep(1)
+
+    print('ULTRASONIC RANGE SENSOR SERVO MAX...')
     pwm.set_pwm(PWM_CH_SERVO, 0, servo_max)
     time.sleep(1)
+
+except KeyboardInterrupt:
+  print("Stopped by User")
+  print("Cleaning up GPIO")
+  GPIO.cleanup()
+
