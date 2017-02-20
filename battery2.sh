@@ -2,8 +2,8 @@
 # This program gets the battery info from PMU 
 # Voltage and current charging/discharging
 #
-# Nota : temperature can be more than real 
-# because of self heating
+# Note : temperature can be more than ambient
+# because of self-heating
 #######################################################################
 # Copyright (c) 2014 by RzBo, Bellesserre, France
 #
