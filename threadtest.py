@@ -165,9 +165,9 @@ pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round( servo_min + ((servo_max - servo_min)/2
 time.sleep(1)
 
 # Stop the left track
+pwm.set_pwm(PWM_CH_ENA, 0, TRACK_STOP)
 GPIO.output(GPIO_IN1, GPIO.LOW)
 GPIO.output(GPIO_IN2, GPIO.LOW)
-pwm.set_pwm(PWM_CH_ENA, 0, TRACK_STOP)
 
 print("Cleaning up GPIO...")
 GPIO.cleanup()
