@@ -98,7 +98,7 @@ TEMP_LSB=$(i2cget -y -f 0 0x34 0x5f)
 TEMP_BIN=$(( $(($TEMP_MSB << 4)) | $(($(($TEMP_LSB & 0x0F)) )) ))
 TEMP_C=$(echo "($TEMP_BIN*0.1-144.7)"|bc)
 TEMP_F=$(echo "(($TEMP_C*1.8)+32)"|bc) 
-echo "Battery temp: = "$TEMP_F"f"
+echo "Internal temp: = "$TEMP_F"f"
 
 ###################
 #read fuel gauge B9h

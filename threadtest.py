@@ -141,6 +141,11 @@ thread1.join()
 lookout.join()
 
 print("All threads stopped")
+
+# Center the servo
+pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round( servo_min + ((servo_max - servo_min)/2) )))
+time.sleep(1)
+
 print("Cleaning up GPIO...")
 GPIO.cleanup()
 print("Done")
