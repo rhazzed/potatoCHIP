@@ -14,9 +14,17 @@ import CHIP_IO.GPIO as GPIO
 GPIO_TRIGGER = "CSID0"
 GPIO_ECHO = "CSID1"
 
+#set GPIO for Tracks
+GPIO_IN1 = "XIO-P2"
+GPIO_IN2 = "XIO-P3"
+
 #set GPIO pin directions (IN / OUT) for Ultrasonic Range Detector
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
 GPIO.setup(GPIO_ECHO, GPIO.IN)
+
+#set GPIO pin directions (IN / OUT) for Tracks
+GPIO.setup(GPIO_IN1, GPIO.OUT)
+GPIO.setup(GPIO_IN2, GPIO.OUT)
 
 #set PWM Controller channels
 PWM_CH_FNB = 0
@@ -80,21 +88,27 @@ def lookout(threadname):
     servo_pos = servo_min
     pwm.set_pwm(PWM_CH_SERVO, 0, servo_pos)
 
+
+    # Make left track go FORWARD
+    direction = GPIO.HIGH
+    GPIO.output(GPIO_IN1, GPIO.HIGH)
+    GPIO.output(GPIO_IN2, GPIO.LOW)
+
     while run:
 
 	# Settle the trigger to zero
-	GPIO.output(GPIO_TRIGGER, False)
+	GPIO.output(GPIO_TRIGGER, GPIO.LOW)
 
 	# Wait for trigger to settle
 	time.sleep(0.25)
 
 	# Send trigger pulse
 	# set Trigger to HIGH
-	GPIO.output(GPIO_TRIGGER, True)
+	GPIO.output(GPIO_TRIGGER, GPIO.HIGH)
 
 	# set Trigger after 0.01ms to LOW
 	time.sleep(0.00001)
-	GPIO.output(GPIO_TRIGGER, False)
+	GPIO.output(GPIO_TRIGGER, GPIO.LOW)
 
 	StartTime = time.time()
 	# save StartTime
@@ -145,6 +159,10 @@ print("All threads stopped")
 # Center the servo
 pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round( servo_min + ((servo_max - servo_min)/2) )))
 time.sleep(1)
+
+# Stop the left track
+GPIO.output(GPIO_IN1, GPIO.LOW)
+GPIO.output(GPIO_IN2, GPIO.LOW)
 
 print("Cleaning up GPIO...")
 GPIO.cleanup()
