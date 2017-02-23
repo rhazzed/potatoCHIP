@@ -27,10 +27,13 @@ GPIO.setup(GPIO_IN1, GPIO.OUT)
 GPIO.setup(GPIO_IN2, GPIO.OUT)
 
 #set PWM Controller channels
-PWM_CH_FNB = 0
-PWM_CH_FNA = 2
+PWM_CH_ENB = 0
+PWM_CH_ENA = 2
 PWM_CH_SERVO = 15
 
+# REAL VALUES BELOW -
+TRACK_FULL = 4095	# Full-power (100% "on") PWM to track motors
+TRACK_STOP = 0		# Power OFF (0% "on") PWM to track motors
 
 range = 999	# Global variable that holds the ultrasonic range
 		# detector's latest distance measurement
@@ -93,6 +96,7 @@ def lookout(threadname):
     direction = GPIO.HIGH
     GPIO.output(GPIO_IN1, GPIO.HIGH)
     GPIO.output(GPIO_IN2, GPIO.LOW)
+    pwm.set_pwm(PWM_CH_ENA, 0, TRACK_FULL)
 
     while run:
 
@@ -163,6 +167,7 @@ time.sleep(1)
 # Stop the left track
 GPIO.output(GPIO_IN1, GPIO.LOW)
 GPIO.output(GPIO_IN2, GPIO.LOW)
+pwm.set_pwm(PWM_CH_ENA, 0, TRACK_STOP)
 
 print("Cleaning up GPIO...")
 GPIO.cleanup()
