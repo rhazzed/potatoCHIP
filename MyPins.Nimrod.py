@@ -20,6 +20,7 @@ PWM_CH_SERVO = 15
 
 # REAL VALUES BELOW -
 TRACK_FULL = 4095	# Full-power (100% "on") PWM to track motors
+TRACK_HALF = 1000	# (Roughly) Half-power PWM to track motors
 TRACK_STOP = 0		# Power OFF (0% "on") PWM to track motors
 
 # Configure min and max servo pulse lengths

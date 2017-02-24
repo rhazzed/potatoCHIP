@@ -82,12 +82,12 @@ def lookout(threadname):
     # Make left track go BACKWARDS
     GPIO.output(GPIO_LREAR, GPIO.HIGH)
     GPIO.output(GPIO_LFRONT, GPIO.LOW)
-    pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_FULL)
+    pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_HALF)
 
     # Make right track go FORWARD
     GPIO.output(GPIO_RFRONT, GPIO.HIGH)
     GPIO.output(GPIO_RREAR, GPIO.LOW)
-    pwm.set_pwm(PWM_CH_RIGHT, 0, TRACK_FULL)
+    pwm.set_pwm(PWM_CH_RIGHT, 0, TRACK_HALF)
 
     while run:
 
@@ -140,11 +140,9 @@ lookout = Thread( target=lookout, args=("Thread-2", ) )
 thread1.start()
 lookout.start()
 
-try:
-  time.sleep(100)
-except KeyboardInterrupt:
-  print("Stopping all threads...")
-  run=0
+raw_input('\n\t******** Press Enter to stop ********\n\n')
+print("Stopping all threads...")
+run=0
 
 thread1.join()
 lookout.join()
