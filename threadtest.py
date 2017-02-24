@@ -79,10 +79,10 @@ def lookout(threadname):
     pwm.set_pwm(PWM_CH_SERVO, 0, servo_pos)
 
 
-    # Make left track go FORWARD
-    #GPIO.output(GPIO_LFRONT, GPIO.HIGH)
-    #GPIO.output(GPIO_LREAR, GPIO.LOW)
-    #pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_FULL)
+    # Make left track go BACKWARDS
+    GPIO.output(GPIO_LREAR, GPIO.HIGH)
+    GPIO.output(GPIO_LFRONT, GPIO.LOW)
+    pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_FULL)
 
     # Make right track go FORWARD
     GPIO.output(GPIO_RFRONT, GPIO.HIGH)
@@ -156,9 +156,9 @@ pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round( servo_min + ((servo_max - servo_min)/2
 time.sleep(1)
 
 # Stop the left track
-#pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_STOP)
-#GPIO.output(GPIO_LFRONT, GPIO.LOW)
-#GPIO.output(GPIO_LREAR, GPIO.LOW)
+pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_STOP)
+GPIO.output(GPIO_LFRONT, GPIO.LOW)
+GPIO.output(GPIO_LREAR, GPIO.LOW)
 
 # Stop the right track
 pwm.set_pwm(PWM_CH_RIGHT, 0, TRACK_STOP)

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #############
-# Python include file for Derpa
+# Python include file for Nimrod
 #############
 
 #set GPIO pins for Ultrasonic Range Detector
