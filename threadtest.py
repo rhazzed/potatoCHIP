@@ -8,32 +8,21 @@ import Adafruit_PCA9685 as PWM
 # Import the GPIO library
 import CHIP_IO.GPIO as GPIO
 
+# Import the pin definition (a symbolic link to MyPins.<RobotName>.py)
+# for your particular robot -
+from MyPins import *
 
 
-#set GPIO pins for Ultrasonic Range Detector
-GPIO_TRIGGER = "CSID0"
-GPIO_ECHO = "CSID1"
-
-#set GPIO for Tracks
-GPIO_IN1 = "XIO-P2"
-GPIO_IN2 = "XIO-P3"
 
 #set GPIO pin directions (IN / OUT) for Ultrasonic Range Detector
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
 GPIO.setup(GPIO_ECHO, GPIO.IN)
 
 #set GPIO pin directions (IN / OUT) for Tracks
-GPIO.setup(GPIO_IN1, GPIO.OUT)
-GPIO.setup(GPIO_IN2, GPIO.OUT)
-
-#set PWM Controller channels
-PWM_CH_ENB = 0
-PWM_CH_ENA = 2
-PWM_CH_SERVO = 15
-
-# REAL VALUES BELOW -
-TRACK_FULL = 4095	# Full-power (100% "on") PWM to track motors
-TRACK_STOP = 0		# Power OFF (0% "on") PWM to track motors
+GPIO.setup(GPIO_RFRONT, GPIO.OUT)
+GPIO.setup(GPIO_RREAR, GPIO.OUT)
+GPIO.setup(GPIO_LFRONT, GPIO.OUT)
+GPIO.setup(GPIO_LREAR, GPIO.OUT)
 
 range = 999	# Global variable that holds the ultrasonic range
 		# detector's latest distance measurement
@@ -46,9 +35,7 @@ run=1		# Global "keep going" variable. Set to "0" to stop
 # bus (0x40 and 2, respectively)
 pwm = PWM.PCA9685(address=0x40, busnum=2)
 
-# Configure min and max servo pulse lengths
-servo_min = 150  # Min pulse length out of 4096
-servo_max = 580  # Max pulse length out of 4096 (600 torqued one servo too much)
+# Configure servo pulse lengths given (externall-defined) min and max
 servo_step = ((servo_max - servo_min)/5)
 
 # Helper function to make setting a servo pulse width simpler.
@@ -93,10 +80,14 @@ def lookout(threadname):
 
 
     # Make left track go FORWARD
-    direction = GPIO.HIGH
-    GPIO.output(GPIO_IN1, GPIO.HIGH)
-    GPIO.output(GPIO_IN2, GPIO.LOW)
-    pwm.set_pwm(PWM_CH_ENA, 0, TRACK_FULL)
+    #GPIO.output(GPIO_LFRONT, GPIO.HIGH)
+    #GPIO.output(GPIO_LREAR, GPIO.LOW)
+    #pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_FULL)
+
+    # Make right track go FORWARD
+    GPIO.output(GPIO_RFRONT, GPIO.HIGH)
+    GPIO.output(GPIO_RREAR, GPIO.LOW)
+    pwm.set_pwm(PWM_CH_RIGHT, 0, TRACK_FULL)
 
     while run:
 
@@ -165,9 +156,14 @@ pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round( servo_min + ((servo_max - servo_min)/2
 time.sleep(1)
 
 # Stop the left track
-pwm.set_pwm(PWM_CH_ENA, 0, TRACK_STOP)
-GPIO.output(GPIO_IN1, GPIO.LOW)
-GPIO.output(GPIO_IN2, GPIO.LOW)
+#pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_STOP)
+#GPIO.output(GPIO_LFRONT, GPIO.LOW)
+#GPIO.output(GPIO_LREAR, GPIO.LOW)
+
+# Stop the right track
+pwm.set_pwm(PWM_CH_RIGHT, 0, TRACK_STOP)
+GPIO.output(GPIO_RFRONT, GPIO.LOW)
+GPIO.output(GPIO_RREAR, GPIO.LOW)
 
 print("Cleaning up GPIO...")
 GPIO.cleanup()
