@@ -140,11 +140,8 @@ def lookout(threadname):
     pwm.set_pwm(PWM_CH_SERVO, 0, servo_pos)
 
 
-    # Make left track go FORWARD
-    left_forward()
-
-    # Make right track go FORWARD
-    right_forward()
+    # Go FORWARD
+    go_forward()
 
     while run:
 
@@ -191,6 +188,7 @@ def lookout(threadname):
 		print("(You should press <Enter> now...)\n")
 		stop_tracks()
 		turn_right(65)
+		go_forward()
 		#run = 0
 
 	# Calculate new servo position
