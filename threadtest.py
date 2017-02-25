@@ -53,6 +53,54 @@ def set_servo_pulse(channel, pulse):
 pwm.set_pwm_freq(60)
 
 
+######################
+# UTILITY FUNCTIONS -
+######################
+
+def right_forward():
+    # Make right track go FORWARD
+    GPIO.output(GPIO_RFRONT, GPIO.HIGH)
+    GPIO.output(GPIO_RREAR, GPIO.LOW)
+    pwm.set_pwm(PWM_CH_RIGHT, 0, TRACK_FULL)
+
+def right_backwards():
+    # Make right track go BACKWARDS
+    GPIO.output(GPIO_RFRONT, GPIO.LOW)
+    GPIO.output(GPIO_RREAR, GPIO.HIGH)
+    pwm.set_pwm(PWM_CH_RIGHT, 0, TRACK_FULL)
+
+def left_forward():
+    # Make left track go FORWARD
+    GPIO.output(GPIO_LFRONT, GPIO.HIGH)
+    GPIO.output(GPIO_LREAR, GPIO.LOW)
+    pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_FULL)
+
+def left_backwards():
+    # Make left track go BACKWARDS
+    GPIO.output(GPIO_LFRONT, GPIO.LOW)
+    GPIO.output(GPIO_LREAR, GPIO.HIGH)
+    pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_FULL)
+
+def go_forward():
+    right_forward()
+    left_forward()
+
+def go_backwards():
+    right_backwards()
+    left_backwards()
+
+def stop_tracks():
+    # Stop the left track
+    pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_STOP)
+    GPIO.output(GPIO_LFRONT, GPIO.LOW)
+    GPIO.output(GPIO_LREAR, GPIO.LOW)
+
+    # Stop the right track
+    pwm.set_pwm(PWM_CH_RIGHT, 0, TRACK_STOP)
+    GPIO.output(GPIO_RFRONT, GPIO.LOW)
+    GPIO.output(GPIO_RREAR, GPIO.LOW)
+
+
 
 
 def thread1(threadname):
@@ -80,14 +128,10 @@ def lookout(threadname):
 
 
     # Make left track go BACKWARDS
-    GPIO.output(GPIO_LREAR, GPIO.HIGH)
-    GPIO.output(GPIO_LFRONT, GPIO.LOW)
-    pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_HALF)
+    left_backwards()
 
     # Make right track go FORWARD
-    GPIO.output(GPIO_RFRONT, GPIO.HIGH)
-    GPIO.output(GPIO_RREAR, GPIO.LOW)
-    pwm.set_pwm(PWM_CH_RIGHT, 0, TRACK_HALF)
+    right_forward()
 
     while run:
 
@@ -140,7 +184,11 @@ lookout = Thread( target=lookout, args=("Thread-2", ) )
 thread1.start()
 lookout.start()
 
-raw_input('\n\t******** Press Enter to stop ********\n\n')
+try:
+    raw_input('\n\t******** Press Enter to stop ********\n\n')
+except KeyboardInterrupt:
+    print("\n\n\t******** CAUTION: Next time press <Enter>! ********\n")
+
 print("Stopping all threads...")
 run=0
 
@@ -153,15 +201,7 @@ print("All threads stopped")
 pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round( servo_min + ((servo_max - servo_min)/2) )))
 time.sleep(1)
 
-# Stop the left track
-pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_STOP)
-GPIO.output(GPIO_LFRONT, GPIO.LOW)
-GPIO.output(GPIO_LREAR, GPIO.LOW)
-
-# Stop the right track
-pwm.set_pwm(PWM_CH_RIGHT, 0, TRACK_STOP)
-GPIO.output(GPIO_RFRONT, GPIO.LOW)
-GPIO.output(GPIO_RREAR, GPIO.LOW)
+stop_tracks()
 
 print("Cleaning up GPIO...")
 GPIO.cleanup()
