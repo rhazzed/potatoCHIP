@@ -104,6 +104,15 @@ def stop_tracks():
     GPIO.output(GPIO_RFRONT, GPIO.LOW)
     GPIO.output(GPIO_RREAR, GPIO.LOW)
 
+def turn_right(degrees):
+    print("Turning right %d degrees\n" % degrees)
+    left_forward()
+    right_backwards()
+    duration = (degrees*SECONDS_PER_DEGREE)
+    print('Sleeping for {0} seconds'.format(duration))
+    time.sleep(degrees*SECONDS_PER_DEGREE)
+    stop_tracks()
+
 
 
 
@@ -181,7 +190,8 @@ def lookout(threadname):
 		print("\nFound something in the way!\n")
 		print("(You should press <Enter> now...)\n")
 		stop_tracks()
-		run = 0
+		turn_right(65)
+		#run = 0
 
 	# Calculate new servo position
 	servo_pos += servo_step
