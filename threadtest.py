@@ -147,7 +147,7 @@ def lookout(threadname):
 
     print('ULTRASONIC RANGE SENSOR SERVO MIN...')
     servo_pos = servo_min
-    servo_step = 1
+    servo_stop = 1
     pwm.set_pwm(PWM_CH_SERVO, 0, servo_pos)
 
 
@@ -200,19 +200,19 @@ def lookout(threadname):
 		stop_tracks()
 		# Use the current servo position to decide
 		# whether to turn right or left
-		if (servo_step < ((NUM_STEPS+1)/2)):
-			turn_right(65)
-		else:
+		if (servo_stop <= ((NUM_STEPS+1)/2)):
 			turn_left(65)
+		else:
+			turn_right(65)
 		go_forward()
 		#run = 0
 
 	# Calculate new servo position
 	servo_pos += servo_step
-	servo_step += 1
+	servo_stop += 1
 	if (servo_pos > servo_max):
 		servo_pos = servo_min
-		servo_step = 1
+		servo_stop = 1
 	pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round(servo_pos)))
 
 thread1 = Thread( target=thread1, args=("Thread-1", ) )
