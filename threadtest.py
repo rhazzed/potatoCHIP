@@ -30,9 +30,10 @@ range = 999	# Global variable that holds the ultrasonic range
 run=1		# Global "keep going" variable. Set to "0" to stop
 		# all threads (e.g. to shut down the program)
 
-track_speed=TRACK_FULL	# Global variable to control how fast the tracks
+track_speed=TRACK_HALF	# Global variable to control how fast the tracks
 			# will spin when activated
 
+NUM_STEPS = 5	# Number of servo steps to move Ultrasonic Range Detector in
 
 
 # Initialise the PCA9685 at the appropriate address and
@@ -40,7 +41,7 @@ track_speed=TRACK_FULL	# Global variable to control how fast the tracks
 pwm = PWM.PCA9685(address=0x40, busnum=2)
 
 # Configure servo pulse lengths given (externall-defined) min and max
-servo_step = ((servo_max - servo_min)/5)
+servo_step = ((servo_max - servo_min)/NUM_STEPS)
 
 # Helper function to make setting a servo pulse width simpler.
 def set_servo_pulse(channel, pulse):
@@ -113,6 +114,15 @@ def turn_right(degrees):
     time.sleep(degrees*SECONDS_PER_DEGREE)
     stop_tracks()
 
+def turn_left(degrees):
+    print("Turning left %d degrees\n" % degrees)
+    left_backwards()
+    right_forward()
+    duration = (degrees*SECONDS_PER_DEGREE)
+    print('Sleeping for {0} seconds'.format(duration))
+    time.sleep(degrees*SECONDS_PER_DEGREE)
+    stop_tracks()
+
 
 
 
@@ -137,6 +147,7 @@ def lookout(threadname):
 
     print('ULTRASONIC RANGE SENSOR SERVO MIN...')
     servo_pos = servo_min
+    servo_step = 1
     pwm.set_pwm(PWM_CH_SERVO, 0, servo_pos)
 
 
@@ -185,16 +196,23 @@ def lookout(threadname):
 	# If distance is "danger close", stop moving!
 	if (range <= 20):
 		print("\nFound something in the way!\n")
-		print("(You should press <Enter> now...)\n")
+		#print("(You should press <Enter> now...)\n")
 		stop_tracks()
-		turn_right(65)
+		# Use the current servo position to decide
+		# whether to turn right or left
+		if (servo_step < ((NUM_STEPS+1)/2)):
+			turn_right(65)
+		else:
+			turn_left(65)
 		go_forward()
 		#run = 0
 
 	# Calculate new servo position
 	servo_pos += servo_step
+	servo_step += 1
 	if (servo_pos > servo_max):
 		servo_pos = servo_min
+		servo_step = 1
 	pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round(servo_pos)))
 
 thread1 = Thread( target=thread1, args=("Thread-1", ) )
