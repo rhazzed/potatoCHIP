@@ -26,8 +26,12 @@ GPIO.setup(GPIO_LREAR, GPIO.OUT)
 
 range = 999	# Global variable that holds the ultrasonic range
 		# detector's latest distance measurement
+
 run=1		# Global "keep going" variable. Set to "0" to stop
 		# all threads (e.g. to shut down the program)
+
+track_speed=TRACK_FULL	# Global variable to control how fast the tracks
+			# will spin when activated
 
 
 
@@ -61,25 +65,25 @@ def right_forward():
     # Make right track go FORWARD
     GPIO.output(GPIO_RFRONT, GPIO.HIGH)
     GPIO.output(GPIO_RREAR, GPIO.LOW)
-    pwm.set_pwm(PWM_CH_RIGHT, 0, TRACK_FULL)
+    pwm.set_pwm(PWM_CH_RIGHT, 0, track_speed)
 
 def right_backwards():
     # Make right track go BACKWARDS
     GPIO.output(GPIO_RFRONT, GPIO.LOW)
     GPIO.output(GPIO_RREAR, GPIO.HIGH)
-    pwm.set_pwm(PWM_CH_RIGHT, 0, TRACK_FULL)
+    pwm.set_pwm(PWM_CH_RIGHT, 0, track_speed)
 
 def left_forward():
     # Make left track go FORWARD
     GPIO.output(GPIO_LFRONT, GPIO.HIGH)
     GPIO.output(GPIO_LREAR, GPIO.LOW)
-    pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_FULL)
+    pwm.set_pwm(PWM_CH_LEFT, 0, track_speed)
 
 def left_backwards():
     # Make left track go BACKWARDS
     GPIO.output(GPIO_LFRONT, GPIO.LOW)
     GPIO.output(GPIO_LREAR, GPIO.HIGH)
-    pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_FULL)
+    pwm.set_pwm(PWM_CH_LEFT, 0, track_speed)
 
 def go_forward():
     right_forward()
@@ -91,12 +95,12 @@ def go_backwards():
 
 def stop_tracks():
     # Stop the left track
-    pwm.set_pwm(PWM_CH_LEFT, 0, TRACK_STOP)
+    pwm.set_pwm(PWM_CH_LEFT, 0, track_speed)
     GPIO.output(GPIO_LFRONT, GPIO.LOW)
     GPIO.output(GPIO_LREAR, GPIO.LOW)
 
     # Stop the right track
-    pwm.set_pwm(PWM_CH_RIGHT, 0, TRACK_STOP)
+    pwm.set_pwm(PWM_CH_RIGHT, 0, track_speed)
     GPIO.output(GPIO_RFRONT, GPIO.LOW)
     GPIO.output(GPIO_RREAR, GPIO.LOW)
 
@@ -120,15 +124,15 @@ def lookout(threadname):
     # Uncomment the following line if THIS THREAD
     # will need to modify the "run" variable. DO NOT
     # need to uncomment it to just READ it...
-    #global run
+    global run
 
     print('ULTRASONIC RANGE SENSOR SERVO MIN...')
     servo_pos = servo_min
     pwm.set_pwm(PWM_CH_SERVO, 0, servo_pos)
 
 
-    # Make left track go BACKWARDS
-    left_backwards()
+    # Make left track go FORWARD
+    left_forward()
 
     # Make right track go FORWARD
     right_forward()
@@ -171,6 +175,13 @@ def lookout(threadname):
 		distance = 999
 
 	range = distance
+
+	# If distance is "danger close", stop moving!
+	if (range <= 20):
+		print("\nFound something in the way!\n")
+		print("(You should press <Enter> now...)\n")
+		stop_tracks()
+		run = 0
 
 	# Calculate new servo position
 	servo_pos += servo_step
