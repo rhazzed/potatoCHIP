@@ -1,7 +1,6 @@
 #!/bin/sh
 ############################
-# moveclaw.sh - Move the (first) claw I 3D printed open and
-#               shut repeatedly.
+# moveclaw.sh - Move the 3D printed claw open and shut repeatedly.
 ############################
 
 # Settings for original claw I printed (uses Micro SG90 servo) -
