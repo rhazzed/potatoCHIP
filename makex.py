@@ -1,3 +1,5 @@
+#!/usr/bin/python
+######################################
 # Use the PCA9685 PWM servo/LED controller library to set one
 # servo to the position specified on the command line.
 ######################################
