@@ -1,6 +1,6 @@
 # Before we got everything working on C.H.I.P. we needed to
 # install a few librarires and tools.
-
+####
 # Here are some commands that we used in order to install
 # the things we needed before our code would work.  After
 # these commands are some test programs we ran to check if
