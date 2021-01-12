@@ -34,6 +34,8 @@ run=1		# Global "keep going" variable. Set to "0" to stop
 		# all threads (e.g. to shut down the program)
 
 track_speed=TRACK_HALF	# Global variable to control how fast the tracks
+#track_speed=TRACK_FULL  # Global variable to control how fast the tracks
+#track_speed=TRACK_SLOW	# Global variable to control how fast the tracks
 			# will spin when activated
 
 NUM_STEPS = 5	# Number of servo steps to move Ultrasonic Range Detector in
@@ -114,7 +116,7 @@ def turn_right(degrees):
     right_backwards()
     duration = (degrees*SECONDS_PER_DEGREE)
     print('Sleeping for {0} seconds'.format(duration))
-    time.sleep(degrees*SECONDS_PER_DEGREE)
+    time.sleep(duration)
     stop_tracks()
 
 def turn_left(degrees):
@@ -123,7 +125,7 @@ def turn_left(degrees):
     right_forward()
     duration = (degrees*SECONDS_PER_DEGREE)
     print('Sleeping for {0} seconds'.format(duration))
-    time.sleep(degrees*SECONDS_PER_DEGREE)
+    time.sleep(duration)
     stop_tracks()
 
 
@@ -197,16 +199,16 @@ def lookout(threadname):
 	range = distance
 
 	# If distance is "danger close", stop moving!
-	if (range <= 20):
+	if (range <= 15):
 		print("\nFound something in the way!\n")
 		#print("(You should press <Enter> now...)\n")
 		stop_tracks()
 		# Use the current servo position to decide
 		# whether to turn right or left
 		if (servo_stop <= ((NUM_STEPS+1)/2)):
-			turn_left(65)
-		else:
 			turn_right(65)
+		else:
+			turn_left(65)
 		go_forward()
 		#run = 0
 

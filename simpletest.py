@@ -25,7 +25,8 @@ PWM_CH_SERVO = 15
 pwm = PWM.PCA9685(address=0x40, busnum=1)
 
 # Configure min and max servo pulse lengths
-servo_min = 150  # Min pulse length out of 4096
+#servo_min = 150  # Min pulse length out of 4096
+servo_min = 250  # Min pulse length out of 4096
 servo_max = 580  # Max pulse length out of 4096 (600 torqued one servo too much)
 
 # Helper function to make setting a servo pulse width simpler.
