@@ -8,7 +8,7 @@ import time
 # Import the PCA9685 module.
 import Adafruit_PCA9685 as PWM
 
-import CHIP_IO.GPIO as GPIO
+## import CHIP_IO.GPIO as GPIO
 
 #set PWM Controller channels
 PWM_CH_FNB = 0
@@ -22,7 +22,7 @@ PWM_CH_SERVO = 15
 
 # Initialise the PCA9685 at the appropriate address and
 # bus (0x40 and 2, respectively)
-pwm = PWM.PCA9685(address=0x40, busnum=2)
+pwm = PWM.PCA9685(address=0x40, busnum=1)
 
 # Configure min and max servo pulse lengths
 servo_min = 150  # Min pulse length out of 4096
@@ -72,6 +72,6 @@ try:
 
 except KeyboardInterrupt:
   print("Stopped by User")
-  print("Cleaning up GPIO")
-  GPIO.cleanup()
+##  print("Cleaning up GPIO")
+##  GPIO.cleanup()
 

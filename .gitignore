@@ -1,3 +1,4 @@
 MyPins.py
 .idea
 .gitignore
+*.pyc

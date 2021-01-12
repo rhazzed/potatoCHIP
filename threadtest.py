@@ -6,7 +6,10 @@ import time
 # Import the PCA9685 16-channel I2C PWM module.
 import Adafruit_PCA9685 as PWM
 # Import the GPIO library
-import CHIP_IO.GPIO as GPIO
+## import CHIP_IO.GPIO as GPIO
+import Adafruit_GPIO as gpio
+GPIO = gpio.get_platform_gpio()
+
 
 # Import the pin definition (a symbolic link to MyPins.<RobotName>.py)
 # for your particular robot -
@@ -15,14 +18,14 @@ from MyPins import *
 
 
 #set GPIO pin directions (IN / OUT) for Ultrasonic Range Detector
-GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
-GPIO.setup(GPIO_ECHO, GPIO.IN)
+GPIO.setup(GPIO_TRIGGER, gpio.OUT)
+GPIO.setup(GPIO_ECHO, gpio.IN)
 
 #set GPIO pin directions (IN / OUT) for Tracks
-GPIO.setup(GPIO_RFRONT, GPIO.OUT)
-GPIO.setup(GPIO_RREAR, GPIO.OUT)
-GPIO.setup(GPIO_LFRONT, GPIO.OUT)
-GPIO.setup(GPIO_LREAR, GPIO.OUT)
+GPIO.setup(GPIO_RFRONT, gpio.OUT)
+GPIO.setup(GPIO_RREAR, gpio.OUT)
+GPIO.setup(GPIO_LFRONT, gpio.OUT)
+GPIO.setup(GPIO_LREAR, gpio.OUT)
 
 range = 999	# Global variable that holds the ultrasonic range
 		# detector's latest distance measurement
@@ -38,7 +41,7 @@ NUM_STEPS = 5	# Number of servo steps to move Ultrasonic Range Detector in
 
 # Initialise the PCA9685 at the appropriate address and
 # bus (0x40 and 2, respectively)
-pwm = PWM.PCA9685(address=0x40, busnum=2)
+pwm = PWM.PCA9685(address=0x40, busnum=1)
 
 # Configure servo pulse lengths given (externall-defined) min and max
 servo_step = ((servo_max - servo_min)/NUM_STEPS)
@@ -64,26 +67,26 @@ pwm.set_pwm_freq(60)
 
 def right_forward():
     # Make right track go FORWARD
-    GPIO.output(GPIO_RFRONT, GPIO.HIGH)
-    GPIO.output(GPIO_RREAR, GPIO.LOW)
+    GPIO.output(GPIO_RFRONT, gpio.HIGH)
+    GPIO.output(GPIO_RREAR, gpio.LOW)
     pwm.set_pwm(PWM_CH_RIGHT, 0, track_speed)
 
 def right_backwards():
     # Make right track go BACKWARDS
-    GPIO.output(GPIO_RFRONT, GPIO.LOW)
-    GPIO.output(GPIO_RREAR, GPIO.HIGH)
+    GPIO.output(GPIO_RFRONT, gpio.LOW)
+    GPIO.output(GPIO_RREAR, gpio.HIGH)
     pwm.set_pwm(PWM_CH_RIGHT, 0, track_speed)
 
 def left_forward():
     # Make left track go FORWARD
-    GPIO.output(GPIO_LFRONT, GPIO.HIGH)
-    GPIO.output(GPIO_LREAR, GPIO.LOW)
+    GPIO.output(GPIO_LFRONT, gpio.HIGH)
+    GPIO.output(GPIO_LREAR, gpio.LOW)
     pwm.set_pwm(PWM_CH_LEFT, 0, track_speed)
 
 def left_backwards():
     # Make left track go BACKWARDS
-    GPIO.output(GPIO_LFRONT, GPIO.LOW)
-    GPIO.output(GPIO_LREAR, GPIO.HIGH)
+    GPIO.output(GPIO_LFRONT, gpio.LOW)
+    GPIO.output(GPIO_LREAR, gpio.HIGH)
     pwm.set_pwm(PWM_CH_LEFT, 0, track_speed)
 
 def go_forward():
@@ -97,13 +100,13 @@ def go_backwards():
 def stop_tracks():
     # Stop the left track
     pwm.set_pwm(PWM_CH_LEFT, 0, track_speed)
-    GPIO.output(GPIO_LFRONT, GPIO.LOW)
-    GPIO.output(GPIO_LREAR, GPIO.LOW)
+    GPIO.output(GPIO_LFRONT, gpio.LOW)
+    GPIO.output(GPIO_LREAR, gpio.LOW)
 
     # Stop the right track
     pwm.set_pwm(PWM_CH_RIGHT, 0, track_speed)
-    GPIO.output(GPIO_RFRONT, GPIO.LOW)
-    GPIO.output(GPIO_RREAR, GPIO.LOW)
+    GPIO.output(GPIO_RFRONT, gpio.LOW)
+    GPIO.output(GPIO_RREAR, gpio.LOW)
 
 def turn_right(degrees):
     print("Turning right %d degrees\n" % degrees)
@@ -157,18 +160,18 @@ def lookout(threadname):
     while run:
 
 	# Settle the trigger to zero
-	GPIO.output(GPIO_TRIGGER, GPIO.LOW)
+	GPIO.output(GPIO_TRIGGER, gpio.LOW)
 
 	# Wait for trigger to settle
 	time.sleep(0.25)
 
 	# Send trigger pulse
 	# set Trigger to HIGH
-	GPIO.output(GPIO_TRIGGER, GPIO.HIGH)
+	GPIO.output(GPIO_TRIGGER, gpio.HIGH)
 
 	# set Trigger after 0.01ms to LOW
 	time.sleep(0.00001)
-	GPIO.output(GPIO_TRIGGER, GPIO.LOW)
+	GPIO.output(GPIO_TRIGGER, gpio.LOW)
 
 	StartTime = time.time()
 	# save StartTime
