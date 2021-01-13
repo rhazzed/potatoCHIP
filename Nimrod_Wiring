@@ -1,0 +1,79 @@
+##########################################################################
+#
+#	EPP - 1/12/21
+#	Current Wiring Configuration
+#	
+#	Adafruit PCA9658 16 channel i2c PWM board
+#	L298N Driver Board
+#	9V Battery Pack - 6 AA Batteries
+#	18650 Charging Pack for 5v output for Pi 3B+
+#
+#
+#
+#
+##########################################################################
+
+
+----------------------------------------------------------------------------
+Adafruit PCA9658 16 channel i2c PWM board:
+
+PWM		Pi 3B+
+
+Gnd	->	Pin 6
+SCL	->	Pin 5
+SCA	->	Pin 3
+VCC	->	Pin 1
+V+	->	EMPTY  (this is servo power,  6v MAX, typical 5v used)
+                       use power block instead, its polarity protected.
+
+Power Block (servo input)
+[ o       o  ]
+  Gnd     5v
+ 
+Connections:
+Gnd: from Motor Driver/Batt terminal block
+Pwr: 5v in from Motor Driver's 5v output.
+     5v out continues on to Ultrasonic power
+
+--------------------------------------------------------------------------
+
+
+L298N Driver Board:
+
+Power Block
+
+[ 0        0      0 ]
+  9v(in)  Gnd    5v(out)
+  batt   
+
+Connections:
+PWR: Batt +  (12v max)
+Gnd: Batt -, Pi Gnd, PWM
+5V(out): Power to PWM
+
+
+[  X     0      0       0       0      X ]
+   ENA   IN1    IN2     IN3     IN4    ENB
+
+Driver
+ENA	->	PWM Channel 2 (on PWM Board)
+ENB	->	PWM Channel 0 (on PWM Board)
+
+IN1	->	Pin 38 of Pi
+IN2	->	Pin 40 of Pi
+IN3	->	Pin 32 of Pi
+IN4	->	Pin 35 of Pi
+
+-------------------------------------------------------------------------
+
+Ultrasonic Sensor
+
+Sensor		Pi 3B+
+Echo	->	Pin 31 ? (may have them reversed)
+Trigger	->	Pin 29 ? {may have them reversed)
+Gnd	->	From PWM Grd
+Vcc	->	From PWN V+ Power Block
+
+Servo	->	PWM Board, Channel 15
+-------------------------------------------------------------------------
+
