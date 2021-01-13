@@ -64,13 +64,23 @@ IN2	->	Pin 40 of Pi
 IN3	->	Pin 32 of Pi
 IN4	->	Pin 35 of Pi
 
+Out terminal arrangement:
+out1		out4	
+out2		out3
+
+Out 1	->	Drivers Side motor white wire
+Out 2	->	Drivers Side motor striped wire
+
+Out 3   ->      Drivers Side motor striped wire
+Out 4   ->      Drivers Side motor white wire
+
 -------------------------------------------------------------------------
 
 Ultrasonic Sensor
 
 Sensor		Pi 3B+
-Echo	->	Pin 31 ? (may have them reversed)
-Trigger	->	Pin 29 ? {may have them reversed)
+Echo	->	Pin 29 (GPIO 05)
+Trigger	->	Pin 31 (GPIO 06)
 Gnd	->	From PWM Grd
 Vcc	->	From PWN V+ Power Block
 
