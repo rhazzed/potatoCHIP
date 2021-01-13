@@ -71,8 +71,8 @@ out2		out3
 Out 1	->	Drivers Side motor white wire
 Out 2	->	Drivers Side motor striped wire
 
-Out 3   ->      Drivers Side motor striped wire
-Out 4   ->      Drivers Side motor white wire
+Out 3   ->      Passenger Side motor striped wire
+Out 4   ->      Passenger Side motor white wire
 
 -------------------------------------------------------------------------
 
