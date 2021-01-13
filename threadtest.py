@@ -206,9 +206,17 @@ def lookout(threadname):
 		# Use the current servo position to decide
 		# whether to turn right or left
 		if (servo_stop <= ((NUM_STEPS+1)/2)):
-			turn_right(65)
+			# Turn type (Mike's = 0, Eric's = 1)
+			if TURN_TYPE == 0:
+				turn_left(65) # Mike's driver board
+			else:
+				turn_right(65) # Eric's driver board
 		else:
-			turn_left(65)
+			# Turn type (Mike's = 0, Eric's = 1)
+			if TURN_TYPE == 0:
+				turn_right(65) # Mike's driver board
+			else:
+				turn_left(65) # Eric's driver board
 		go_forward()
 		#run = 0
 

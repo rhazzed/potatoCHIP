@@ -18,6 +18,9 @@ PWM_CH_RIGHT = 0
 PWM_CH_LEFT = 2
 PWM_CH_SERVO = 15
 
+# Turn type (Mike's = 0, Eric's = 1)
+TURN_TYPE=1
+
 # REAL VALUES BELOW -
 TRACK_FULL = 4095	# Full-power (100% "on") PWM to track motors
 TRACK_HALF = 1900	# (Roughly) Half-power PWM to track motors
