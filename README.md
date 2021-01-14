@@ -1,3 +1,6 @@
-# C.H.I.P. code development for Derpa and Nimrod
+# Raspberry Pi 3B+ code development for Derpa and Nimrod
+# (Originally used a C.H.I.P. single board computer)
 
-Both are tracked robots. This is a Python codebase to get various things going with C.H.I.P. -- like a 16-channel I2C PWM controller board, Ultrasonic Range Sensors, IR and Laser range finders, and more.
+Both are tracked robots based on the OSEPP TANK-01 (https://www.digikey.com/en/products/detail/osepp-electronics-ltd/TANK-01/11198516).
+
+This is a (mostly) Python codebase to get various things going with -- like a 16-channel I2C PWM controller board, Ultrasonic Range Sensors, LIDAR, IR, Laser range finders and more.
