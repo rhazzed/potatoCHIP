@@ -1,5 +1,5 @@
 # Raspberry Pi 3B+ code development for Derpa and Nimrod
-  (We originally used a C.H.I.P. single board computer, so you may see remnants of that...)
+  (We originally used a C.H.I.P. single board computer, so you may see remnants of that in the codebase...)
 
 Both are tracked robots based on the OSEPP TANK-01 (https://www.digikey.com/en/products/detail/osepp-electronics-ltd/TANK-01/11198516).
 
