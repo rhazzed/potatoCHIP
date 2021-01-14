@@ -2,3 +2,4 @@ MyPins.py
 .idea
 .gitignore
 *.pyc
+cmds.*.txt
