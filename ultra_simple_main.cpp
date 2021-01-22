@@ -75,7 +75,7 @@ bool checkRPLIDARHealth(RPlidarDriver * drv)
 }
 
 #include <signal.h>
-bool ctrl_c_pressed;
+bool ctrl_c_pressed=false;
 void ctrlc(int)
 {
     // Reassert signal control, in case a new signal arrives before we're done
@@ -201,26 +201,88 @@ int main(int argc, const char * argv[]) {
     // start scan...
     drv->startScan(0,1);
 
+
+
     // fetech result and print it out...
-    while (1) {
+    while (!ctrl_c_pressed) {
+
         rplidar_response_measurement_node_hq_t nodes[8192];
         size_t   count = _countof(nodes);
 
         op_result = drv->grabScanDataHq(nodes, count);
         if (IS_OK(op_result)) {
             drv->ascendScanData(nodes, count);
-            for (int pos = 0; pos < (int)count ; ++pos) {
-                printf("%s theta: %03.2f Dist: %08.2f Q: %d \n", 
-                    (nodes[pos].flag & RPLIDAR_RESP_MEASUREMENT_SYNCBIT) ?"S ":"  ", 
-                    (nodes[pos].angle_z_q14 * 90.f / (1 << 14)), 
-                    nodes[pos].dist_mm_q2/4.0f,
-                    nodes[pos].quality);
-            }
-        }
+            printf("\n\tCOUNT: %d\n\n",(int)count);
 
-        if (ctrl_c_pressed){ 
-            break;
-        }
+            //  printf("%s angle: %3.2f Dist(mm): %8.2f Quality: %d \n", 
+            //      (nodes[pos].flag & RPLIDAR_RESP_MEASUREMENT_SYNCBIT) ?"S ":"  ", 
+            //      (nodes[pos].angle_z_q14 * 90.f / (1 << 14)), 
+            //      nodes[pos].dist_mm_q2/4.0f,
+            //      nodes[pos].quality);
+
+            // Initialize heading to 0
+            int hdg = 0;
+
+            // Initialize pos to 0
+            int pos = 0;
+
+            // For headingd from 0 t0 360 degrees...
+            for (hdg=0;hdg <= 360;hdg++) {
+
+                // Initialize total_distance to 0
+                float total_dist = 0.0;
+
+                // Initialize total_quality to 0
+                float total_quality = 0.0;
+
+                // Initialize Number-of-samples to 0
+                int num_samples = 0;
+
+                // Initialize theta to current heading
+                float theta = hdg;
+do {
+                    // Calculate range
+                    float distance = -1.0f;
+                    if (pos < (int)count) {
+                        // Calculate theta
+                        theta = (nodes[pos].angle_z_q14 * 90.f / (1 << 14)); 
+                        if (nodes[pos].quality > 0.0) {
+                            distance = nodes[pos].dist_mm_q2/4.0f;
+                        }
+                    }
+
+                    // If ((((int)theta) <= hdg) and (pos < (int)count))...
+                    if ((((int)theta) <= hdg) && (pos < (int)count)) {
+                        // Add this distance to total_distance
+                        total_dist += distance;
+                        // Add this quality to total_quality
+                        total_quality += nodes[pos].quality;
+                        // Add one to Number-of-samples
+                        num_samples++;
+                    }
+
+                    float range=-1.0f;
+                    float quality=0.0f;
+                    // If either ((theta > hdg) or (pos >= (int)count))...
+                    if (((int)theta > hdg) || (pos >= (int)count)) {
+                        // Calculate average distance
+                        if (num_samples > 0) {
+                            range = (total_dist/num_samples);
+                            quality = (total_quality/num_samples);
+
+                        }
+                        // Print heading, range, quality
+                        printf("HDG: %3d  RNG: %8.2f  QUALITY: %d\n", hdg, range, (int)quality);
+                    }
+
+                    pos++;
+
+                } while ((pos < (int)count) and ((int)theta <= hdg));
+
+            } // Done, heading from 0 to 360 degrees
+
+        } // op_rslt is OK
+
     }
 
     drv->stop();
