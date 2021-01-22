@@ -11,6 +11,27 @@
 #  2021-01-22  msipin  Created
 ##########################################
 
+# Where to look for range values (*MUST* MATCH the directory used in "ultra_simple"!!!)
+RANGE_DIR=/dev/shm
+
+########################################
+# Robot-specific values START here
+########################################
+########################################
+
+FWD_OFF_ANGLE=30  # 0 +/- this is considered "forward-looking"
+FWD_THRESHOLD=30  # If there is nothing in front of the LIDAR closer than this value, it is safe to move forward
+
+MAX_OFF_ANGLE=45  # Beyond FWD_OFF_ANGLE and up to (this) is considered "right-" or "left-looking"
+SIDE_THRESHOLD=30 # If there is something to the side of the LIDAR that is closer than this value, a turn is necessary!
+
+########################################
+########################################
+# Robot-specific values END here
+########################################
+
+
+
 # Constants that could be returned upon exit
 EXIT_DIR_UNKNOWN=0
 EXIT_DIR_ERROR=1
@@ -23,26 +44,62 @@ EXIT_DIR_STUCK=404
 # Default to throwing an error
 DIRECTION=$EXIT_DIR_ERROR
 
-# Where to look for range values (*MUST* MATCH the directory used in "ultra_simple"!!!)
-RANGE_DIR=/dev/shm
 
-FWD_OFF_ANGLE=30  # 0 +/- this is considered "forward-looking"
-FWD_THRESHOLD=30  # If there is nothing in front of the LIDAR closer than this value, it is safe to move forward
+# Function to compute average range from a selection of files
+get_avg() {
 
-MAX_OFF_ANGLE=45  # Beyond FWD_OFF_ANGLE and up to (this) is considered "right-" or "left-looking"
-SIDE_THRESHOLD=30 # If there is something to the side of the LIDAR that is closer than this value, a turn is necessary!
+grep -v "\-1" $* | awk 'BEGIN { count=0; val=0; }{
+   split($1,arr,":")
+   #printf("\tDEBUG: File: %s  Val: %s\n",arr[1],arr[2]);
+   count++;
+   val+=int(arr[2]);
+} END {
+   printf("%0.2f",(val/count));
+}'
+
+}
+
 
 # 1) Average out the valid (-FWD_OFF_ANGLE --to-- +FWD_OFF_ANGLE) valid LIDAR distance-sensor readings, and call this the "forward value"
+files1=`ls /dev/shm/[0-9][0-9][0-9] | head -${FWD_OFF_ANGLE};`
+files2=`ls /dev/shm/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE};`
+files=`echo $files1 $files2`
+fwd_val=`get_avg $files`
+
+echo "DEBUG: fwd_val = $fwd_val"
+exit 2
+
+
 # 2) Average out the valid (-MAX_OFF_ANGLE --to-- -FWD_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "left value"
+
+
 # 3) Average out the valid (+FWD_OFF_ANGLE --to-- +MAX_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "right value"
+
+
 # 4) If "forward value" is greater than FWD_THRESHOLD, it is safe to move forward
+
+
 # 5) If either "left value" or "right value" is closer than SIDE_THRESHOLD...
+
+
 #    6a) If "left value" *AND* "right value" are closer than SIDE_THRESHOLD...
+
+
 #       7a) Backup a little and turn (randomly left or right)
+
+
 #    6b) If "left value" is lower than "right value"...
+
+
 #       7b) Turn right
+
+
 #    6c) If "right value" is lower than "left value"...
+
+
 #       7c) Turn left
+
+
 
 exit $DIRECTION
 
