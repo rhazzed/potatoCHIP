@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "rplidar.h" //RPLIDAR standard sdk, all-in-one header
 
@@ -273,6 +274,17 @@ do {
                         }
                         // Print heading, range, quality
                         printf("HDG: %3d  RNG: %8.2f  QUALITY: %d\n", hdg, range, (int)quality);
+
+                        // Save range in filesystem
+                        char filename[99+1];
+                        sprintf(filename,"/dev/shm/%03d",hdg);
+                        filename[99] = '\0';
+                        FILE *fp = fopen(filename,"w");
+                        if (fp != NULL) {
+                            fprintf(fp,"%0.2f",range);
+                            // Close file
+                            fclose(fp);
+                        }
                     }
 
                     pos++;
