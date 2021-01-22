@@ -38,8 +38,8 @@ EXIT_DIR_ERROR=1
 EXIT_DIR_LEFT=2
 EXIT_DIR_FWD=3
 EXIT_DIR_RIGHT=4
-EXIT_DIR_BACKUP_AND_TURN=400
-EXIT_DIR_STUCK=404
+EXIT_DIR_BACKUP_AND_TURN=100
+EXIT_DIR_STUCK=124
 
 # Default to throwing an error
 DIRECTION=$EXIT_DIR_ERROR
@@ -54,52 +54,92 @@ grep -v "\-1" $* | awk 'BEGIN { count=0; val=0; }{
    count++;
    val+=int(arr[2]);
 } END {
-   printf("%0.2f",(val/count));
+   printf("%0d",int(val/count));
 }'
 
 }
 
 
 # 1) Average out the valid (-FWD_OFF_ANGLE --to-- +FWD_OFF_ANGLE) valid LIDAR distance-sensor readings, and call this the "forward value"
-files1=`ls /dev/shm/[0-9][0-9][0-9] | head -${FWD_OFF_ANGLE};`
-files2=`ls /dev/shm/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE};`
+files1=`ls /dev/shm/[0-9][0-9][0-9] | head -${FWD_OFF_ANGLE}`
+files2=`ls /dev/shm/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE}`
 files=`echo $files1 $files2`
 fwd_val=`get_avg $files`
 
 echo "DEBUG: fwd_val = $fwd_val"
-exit 2
+##exit 2
 
 
-# 2) Average out the valid (-MAX_OFF_ANGLE --to-- -FWD_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "left value"
+NUM_FILES=`expr $MAX_OFF_ANGLE - $FWD_OFF_ANGLE`
+
+echo "DEBUG: NUM_FILES=$NUM_FILES"
+##exit 2
 
 
-# 3) Average out the valid (+FWD_OFF_ANGLE --to-- +MAX_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "right value"
+# 2) Average out the valid (+FWD_OFF_ANGLE --to-- +MAX_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "right value"
+files=`ls /dev/shm/[0-9][0-9][0-9] | head -${MAX_OFF_ANGLE} | tail -$NUM_FILES`
+right_val=`get_avg $files`
+
+echo "DEBUG: right_val = $right_val"
+##exit 2
 
 
-# 4) If "forward value" is greater than FWD_THRESHOLD, it is safe to move forward
+# 3) Average out the valid (-MAX_OFF_ANGLE --to-- -FWD_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "left value"
+files=`ls /dev/shm/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE} | head -$NUM_FILES`
+left_val=`get_avg $files`
+
+echo "DEBUG: left_val = $left_val"
+##exit 2
 
 
-# 5) If either "left value" or "right value" is closer than SIDE_THRESHOLD...
+
+# 4) If either "left value" or "right value" is closer than SIDE_THRESHOLD...
+if [ ""$left_val"" -le $SIDE_THRESHOLD -o ""$right_val"" -le $SIDE_THRESHOLD ]
+then
+	echo "SOMETHING ON LEFT or RIGHT "
 
 
-#    6a) If "left value" *AND* "right value" are closer than SIDE_THRESHOLD...
+#    5a) If "left value" *AND* "right value" are closer than SIDE_THRESHOLD...
+	if [ ""$left_val"" -le $SIDE_THRESHOLD -a ""$right_val"" -le $SIDE_THRESHOLD ]
+	then
+		echo "SOMETHING ON *BOTH* LEFT *AND* RIGHT "
+#       6a) Backup a bit and turn (randomly left or right)
+		echo "Need to BACK OUT"
+		DIRECTION=$EXIT_DIR_BACKUP_AND_TURN
+	else
 
+#    5b) If "left value" is lower than (or equal-to) "right value"...
+		if [ ""$left_val"" -le ""$right_val"" ]
+		then
+#       6b) Turn right
+			echo "Need to turn RIGHT"
+			DIRECTION=$EXIT_DIR_RIGHT
+		else
 
-#       7a) Backup a little and turn (randomly left or right)
-
-
-#    6b) If "left value" is lower than "right value"...
-
-
-#       7b) Turn right
-
-
-#    6c) If "right value" is lower than "left value"...
-
-
-#       7c) Turn left
-
-
+#    5c) If "right value" is lower than (only!) "left value"...
+			if [ ""$right_val"" -lt ""$left_val"" ]
+			then
+#       6c) Turn left
+				echo "Need to turn LEFT"
+				DIRECTION=$EXIT_DIR_LEFT
+			else
+				echo "STUCK 1"
+				DIRECTION=$EXIT_DIR_STUCK
+			fi
+		fi
+	fi
+else
+# 7) If "forward value" is greater than FWD_THRESHOLD...
+	if [ ""$fwd_val"" -gt $FWD_THRESHOLD ]
+	then
+# 8a) It is safe to move forward
+		echo "Can MOVE FORWARD"
+		DIRECTION=$EXIT_DIR_FWD
+	else
+		echo "STUCK 2"
+		DIRECTION=$EXIT_DIR_STUCK
+	fi
+fi
 
 exit $DIRECTION
 
