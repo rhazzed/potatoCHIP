@@ -1,0 +1,39 @@
+#!/bin/bash
+###############################################
+# fixLidarOffset - Create symbolic links between the "real" LIDAR range compass-point files and "adjusted"
+#                  compass-point files to compensate for any misalignment between the LIDAR's zero-degree-point
+#                  and the platform's (robot's) zero-degree-point.
+###############################################
+
+# Where to look for range values (*MUST* MATCH the directory used in "ultra_simple"!!!)
+RANGE_DIR=/dev/shm
+
+# Where to put the "adjusted" compass files
+ADJUSTED_DIR=/home/pi/potatoCHIP/RANGE
+
+# Create "adjustment directory", if it doesn't already exist
+mkdir -p $ADJUSTED_DIR
+
+# Remove any "old" adjustment files, if any
+rm -f ${ADJUSTED_DIR}/[0-9][0-9][0-9]
+
+# The "lidar compass-point" that aligns with the platform's (robot's) zero-degree-point
+RH=92
+
+for HDG in {0..360}
+do
+	echo "HDG=$HDG"
+	lh=`echo $HDG | awk '{ printf "%03d",$1 }'`
+	rh=`echo $RH | awk '{ printf "%03d",$1 }'`
+	if [ ""$rh"" -gt "360" ]
+	then
+		th=`expr $rh - 361`
+		rh=`echo $th | awk '{ printf "%03d",$1 }'`
+	fi
+	#echo ln -s ${RANGE_DIR}/$lh ${ADJUSTED_DIR}/$rh
+	ln -s ${RANGE_DIR}/$lh ${ADJUSTED_DIR}/$rh
+
+	RH=`expr $RH + 1`
+done
+
+exit 0
