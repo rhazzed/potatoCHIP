@@ -270,7 +270,7 @@ def ultrasonic(threadname):
 
 	# If lidar doesn't think we should keep going forward, stop moving!
 	if (lidar_dir != 3):
-		print("\nLidar sees something in our path!\n")
+		print("\nLidar sees something in our path! (%d)\n" % lidar_dir)
 		stop_tracks()
 
         # If the ultrasonic sensor stopped us...
@@ -297,6 +297,17 @@ def ultrasonic(threadname):
 	if ((ultrasonic_dir == 4 and lidar_dir == 2) or (ultrasonic_dir == 2 and lidar_dir == 4) or (ultrasonic_dir == 2 and lidar_dir == 4) or (ultrasonic_dir == 4 and lidar_dir == 2)):
 		print("\t----- B/U Random Turn ------")
 		backup_turn_random()
+
+	# If ultrasonic FWD
+	if (ultrasonic_dir == 3):
+		# if lidar RIGHT
+		if (lidar_dir == 4):
+			print("\t----- Turning RIGHT >>>>>>>>")
+			turn_right(65)
+		# else if lidar LEFT
+		if (lidar_dir == 2):
+			print("\t<<<<<<<< Turning LEFT  -----")
+			turn_left(65)
 
 	print("Done. Proceeding Forward!")
 	go_forward()
