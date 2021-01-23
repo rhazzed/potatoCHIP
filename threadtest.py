@@ -12,6 +12,7 @@ from threading import Thread
 import time
 import subprocess
 import os
+from random import randrange
 
 # Import the PCA9685 16-channel I2C PWM module.
 import Adafruit_PCA9685 as PWM
@@ -53,7 +54,7 @@ run=1		# Global "keep going" variable. Set to "0" to stop
 #    EXIT_DIR_RIGHT=4
 #    EXIT_DIR_BACKUP_AND_TURN=100
 #    EXIT_DIR_STUCK=124
-lidar_rc=0
+lidar_dir=3
 
 track_speed=TRACK_HALF	# Global variable to control how fast the tracks
 #track_speed=TRACK_FULL  # Global variable to control how fast the tracks
@@ -150,6 +151,16 @@ def turn_left(degrees):
     time.sleep(duration)
     stop_tracks()
 
+def backup_turn_random():
+    degrees = randrange(10,39)
+    print("Turning right %d degrees\n" % degrees)
+    left_forward()
+    right_backwards()
+    duration = (degrees*SECONDS_PER_DEGREE)
+    print('Sleeping for {0} seconds'.format(duration))
+    time.sleep(duration)
+    stop_tracks()
+
 
 
 
@@ -159,7 +170,7 @@ def lidar(threadname):
     # will need to modify the "run" variable. DO NOT
     # need to uncomment it to just READ it...
     #global run
-    global lidar_rc
+    global lidar_dir
     while run:
         # Run LIDAR reader command and display its output
         p = subprocess.Popen(["lidarGo"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -172,8 +183,8 @@ def lidar(threadname):
             # Process hasn't exited yet, let's wait some
             time.sleep(0.25)
 
-        lidar_rc = p.returncode
-        print("LIDAR exit value: %d\n" % lidar_rc)
+        lidar_dir = p.returncode
+        print("LIDAR exit value: %d\n" % lidar_dir)
 
         # Just execute the command
         #os.system("lidarGo");
@@ -188,6 +199,7 @@ def ultrasonic(threadname):
     # will need to modify the "run" variable. DO NOT
     # need to uncomment it to just READ it...
     global run
+    #global lidar_dir
 
     print('ULTRASONIC RANGE SENSOR SERVO MIN...')
     servo_pos = servo_min
@@ -240,19 +252,54 @@ def ultrasonic(threadname):
         # display ultrasonic "range"
         print("ultrasonic: %d" % range)
 
-	# If distance is "danger close", stop moving!
+        # Return codes for the "lidarGo" program (script, actually) -
+        #    EXIT_DIR_UNKNOWN=0
+        #    EXIT_DIR_ERROR=1
+        #    EXIT_DIR_LEFT=2
+        #    EXIT_DIR_FWD=3
+        #    EXIT_DIR_RIGHT=4
+        #    EXIT_DIR_BACKUP_AND_TURN=100
+        #    EXIT_DIR_STUCK=124
+        ultrasonic_dir = 3
+
+	# If ultrasonic distance is "danger close", stop moving!
 	if (range <= 15):
-		print("\nFound something in the way!\n")
-		#print("(You should press <Enter> now...)\n")
+		print("\nUltrasonic sensor sees something in our path!\n")
 		stop_tracks()
+		ultrasonic_dir = 0
+
+	# If lidar doesn't think we should keep going forward, stop moving!
+	if (lidar_dir != 3):
+		print("\nLidar sees something in our path!\n")
+		stop_tracks()
+
+        # If the ultrasonic sensor stopped us...
+        if (range <= 15):
 		# Use the current servo position to decide
 		# whether to turn right or left
 		if (servo_stop <= ((NUM_STEPS+1)/2)):
-			turn_left(65)
+			ultrasonic_dir = 2
 		else:
-			turn_right(65)
-		go_forward()
-		#run = 0
+			ultrasonic_dir = 4
+
+	# if ultrasonic RIGHT and (lidar FWD or lidar RIGHT)...
+        if (ultrasonic_dir == 2 and (lidar_dir == 3 or lidar_dir == 2)):
+		print("\t<<<<<<<< Turning LEFT  -----")
+		turn_left(65)
+
+	# if ultrasonic LEFT and (lidar FWD or lidar LEFT)...
+        if (ultrasonic_dir == 4 and (lidar_dir == 3 or lidar_dir == 4)):
+		print("\t----- Turning RIGHT >>>>>>>>")
+		turn_right(65)
+
+	# if ((ultrasonic RIGHT and lidar LEFT) or (ultrasonic LEFT and lidar RIGHT) or \
+	#     (ultrasonic LEFT and lidar RIGHT) or (ultrasonic RIGHT and lidar LEFT))...
+	if ((ultrasonic_dir == 4 and lidar_dir == 2) or (ultrasonic_dir == 2 and lidar_dir == 4) or (ultrasonic_dir == 2 and lidar_dir == 4) or (ultrasonic_dir == 4 and lidar_dir == 2)):
+		print("\t----- B/U Random Turn ------")
+		backup_turn_random()
+
+	print("Done. Proceeding Forward!")
+	go_forward()
 
 	# Calculate new servo position
 	servo_pos += servo_step
