@@ -37,6 +37,14 @@ SIDE_THRESHOLD=200 # If there is something to the side of the LIDAR that is clos
 # Robot-specific values END here
 ########################################
 
+# Number of files to examine between FRONT and LEFT/RIGHT
+NUM_FILES=`expr $MAX_OFF_ANGLE - $FWD_OFF_ANGLE`
+echo
+echo
+echo "DEBUG: NUM_FILES=$NUM_FILES"
+##exit 2
+echo
+
 
 
 # Constants that could be returned upon exit
@@ -81,37 +89,33 @@ grep -v "\-1" $* | awk 'BEGIN { min=999999; }{
 
 }
 
+# 1) Average out the valid (-MAX_OFF_ANGLE --to-- -FWD_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "left value"
+files=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE} | head -$NUM_FILES`
+left_val=`get_min $files`
 
-# 1) Average out the valid (-FWD_OFF_ANGLE --to-- +FWD_OFF_ANGLE) valid LIDAR distance-sensor readings, and call this the "forward value"
+echo "DEBUG: left_val  = $left_val"
+##exit 2
+
+
+
+# 2) Average out the valid (-FWD_OFF_ANGLE --to-- +FWD_OFF_ANGLE) valid LIDAR distance-sensor readings, and call this the "forward value"
 files1=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | head -${FWD_OFF_ANGLE}`
 files2=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE}`
 files=`echo $files1 $files2`
 fwd_val=`get_min $files`
 
-echo "DEBUG: fwd_val = $fwd_val"
+echo "DEBUG: fwd_val   = $fwd_val"
 ##exit 2
 
 
-NUM_FILES=`expr $MAX_OFF_ANGLE - $FWD_OFF_ANGLE`
 
-echo "DEBUG: NUM_FILES=$NUM_FILES"
-##exit 2
-
-
-# 2) Average out the valid (+FWD_OFF_ANGLE --to-- +MAX_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "right value"
+# 3) Average out the valid (+FWD_OFF_ANGLE --to-- +MAX_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "right value"
 files=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | head -${MAX_OFF_ANGLE} | tail -$NUM_FILES`
 right_val=`get_min $files`
 
 echo "DEBUG: right_val = $right_val"
 ##exit 2
-
-
-# 3) Average out the valid (-MAX_OFF_ANGLE --to-- -FWD_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "left value"
-files=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE} | head -$NUM_FILES`
-left_val=`get_min $files`
-
-echo "DEBUG: left_val = $left_val"
-##exit 2
+echo
 
 
 
