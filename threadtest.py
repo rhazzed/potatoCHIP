@@ -1,12 +1,24 @@
 #!/usr/bin/python
 ##################################
+# threadtest.py - A script to try to merge all robot sensors into movement using multithreading under Python
+#
+# HISTORICAL INFORMATION -
+#
+#  2021-01-22  msipin  Added this header. Added another thread to process LIDAR data
+##################################
+
 from __future__ import division
 from threading import Thread
 import time
+import subprocess
+import os
+
 # Import the PCA9685 16-channel I2C PWM module.
 import Adafruit_PCA9685 as PWM
+
 # Import the GPIO library
 ## import CHIP_IO.GPIO as GPIO
+
 import Adafruit_GPIO as gpio
 GPIO = gpio.get_platform_gpio()
 
@@ -138,11 +150,21 @@ def thread1(threadname):
     # need to uncomment it to just READ it...
     #global run
     while run:
-        # display variable "range" modify by thread 2
-        print range
+        # display variable "range" modified by thread 2
+        print("\nultrasonic: %d" % range)
+
+        # Run LIDAR reader command and display its output
+        p = subprocess.Popen(["lidarGo"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        out = p.stdout.read()
+        print out
+
+        # Just execute the command
+        #os.system("lidarGo");
+
         time.sleep(1)
 
-def lookout(threadname):
+
+def ultrasonic(threadname):
     global range
 
     # Uncomment the following line if THIS THREAD
@@ -221,10 +243,10 @@ def lookout(threadname):
 	pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round(servo_pos)))
 
 thread1 = Thread( target=thread1, args=("Thread-1", ) )
-lookout = Thread( target=lookout, args=("Thread-2", ) )
+ultrasonic = Thread( target=ultrasonic, args=("Thread-2", ) )
 
 thread1.start()
-lookout.start()
+ultrasonic.start()
 
 try:
     raw_input('\n\t******** Press Enter to stop ********\n\n')
@@ -235,7 +257,7 @@ print("Stopping all threads...")
 run=0
 
 thread1.join()
-lookout.join()
+ultrasonic.join()
 
 print("All threads stopped")
 
