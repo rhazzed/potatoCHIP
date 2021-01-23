@@ -19,11 +19,11 @@ RANGE_DIR=/dev/shm
 ########################################
 ########################################
 
-FWD_OFF_ANGLE=30  # 0 +/- this is considered "forward-looking"
-FWD_THRESHOLD=30  # If there is nothing in front of the LIDAR closer than this value, it is safe to move forward
+FWD_OFF_ANGLE=30   # 0 +/- this is considered "forward-looking"
+FWD_THRESHOLD=200  # If there is nothing in front of the LIDAR closer than this value, it is safe to move forward
 
-MAX_OFF_ANGLE=45  # Beyond FWD_OFF_ANGLE and up to (this) is considered "right-" or "left-looking"
-SIDE_THRESHOLD=30 # If there is something to the side of the LIDAR that is closer than this value, a turn is necessary!
+MAX_OFF_ANGLE=45   # Beyond FWD_OFF_ANGLE and up to (this) is considered "right-" or "left-looking"
+SIDE_THRESHOLD=200 # If there is something to the side of the LIDAR that is closer than this value, a turn is necessary!
 
 ########################################
 ########################################
@@ -59,12 +59,27 @@ grep -v "\-1" $* | awk 'BEGIN { count=0; val=0; }{
 
 }
 
+# Function to find minimum range from a selection of files
+get_min() {
+
+grep -v "\-1" $* | awk 'BEGIN { min=999999; }{
+   split($1,arr,":")
+   #printf("\tDEBUG: File: %s  Val: %s\n",arr[1],arr[2]);
+   if ((arr[2] >= 0) && (arr[2] < min)) {
+      min = arr[2];
+   }
+} END {
+   printf("%0d",min);
+}'
+
+}
+
 
 # 1) Average out the valid (-FWD_OFF_ANGLE --to-- +FWD_OFF_ANGLE) valid LIDAR distance-sensor readings, and call this the "forward value"
 files1=`ls /dev/shm/[0-9][0-9][0-9] | head -${FWD_OFF_ANGLE}`
 files2=`ls /dev/shm/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE}`
 files=`echo $files1 $files2`
-fwd_val=`get_avg $files`
+fwd_val=`get_min $files`
 
 echo "DEBUG: fwd_val = $fwd_val"
 ##exit 2
@@ -78,7 +93,7 @@ echo "DEBUG: NUM_FILES=$NUM_FILES"
 
 # 2) Average out the valid (+FWD_OFF_ANGLE --to-- +MAX_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "right value"
 files=`ls /dev/shm/[0-9][0-9][0-9] | head -${MAX_OFF_ANGLE} | tail -$NUM_FILES`
-right_val=`get_avg $files`
+right_val=`get_min $files`
 
 echo "DEBUG: right_val = $right_val"
 ##exit 2
@@ -136,10 +151,28 @@ else
 		echo "Can MOVE FORWARD"
 		DIRECTION=$EXIT_DIR_FWD
 	else
-		echo "STUCK 2"
-		DIRECTION=$EXIT_DIR_STUCK
+# 8b) Make a turn...
+		if [ ""$right_val"" -le ""$left_val"" ]
+		then
+			echo "Turn LEFT"
+			DIRECTION=$EXIT_DIR_LEFT
+		else
+			echo "Turn RIGHT"
+			DIRECTION=$EXIT_DIR_RIGHT
+		fi
 	fi
 fi
 
 exit $DIRECTION
+
+
+#######################################
+TEST RESULTS -
+
+DEBUG: fwd_val = 193	# CAN NOT GO FWD
+DEBUG: NUM_FILES=15
+DEBUG: right_val = 563  # can go LEFT
+DEBUG: left_val = 220   # can go RIGHT
+			## SHOULD go LEFT
+STUCK 2
 
