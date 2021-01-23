@@ -9,6 +9,7 @@
 # HISTORICAL INFORMATION -
 #
 #  2021-01-22  msipin  Created
+#  2021-01-23  msipin  Changed LIDAR threshold from 200 to 350 to give robot more time to react to obstacles.
 ##########################################
 
 # Where to look for range values (*MUST* MATCH the directory used in "ultra_simple"!!!)
@@ -27,10 +28,10 @@ RANGE_DIR=$ADJUSTED_DIR		# Use "adjusted" compass points, not the "actual" Lidar
 ########################################
 
 FWD_OFF_ANGLE=30   # 0 +/- this is considered "forward-looking"
-FWD_THRESHOLD=200  # If there is nothing in front of the LIDAR closer than this value, it is safe to move forward
+FWD_THRESHOLD=350  # If there is nothing in front of the LIDAR closer than this value, it is safe to move forward
 
 MAX_OFF_ANGLE=45   # Beyond FWD_OFF_ANGLE and up to (this) is considered "right-" or "left-looking"
-SIDE_THRESHOLD=200 # If there is something to the side of the LIDAR that is closer than this value, a turn is necessary!
+SIDE_THRESHOLD=350 # If there is something to the side of the LIDAR that is closer than this value, a turn is necessary!
 
 ########################################
 ########################################
