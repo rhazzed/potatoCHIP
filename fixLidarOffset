@@ -23,14 +23,14 @@ RH=92
 for HDG in {0..360}
 do
 	echo "HDG=$HDG"
-	lh=`echo $HDG | awk '{ printf "%03d",$1 }'`
-	rh=`echo $RH | awk '{ printf "%03d",$1 }'`
-	if [ ""$rh"" -gt "360" ]
+	rh=`echo $HDG | awk '{ printf "%03d",$1 }'`
+	lh=`echo $RH | awk '{ printf "%03d",$1 }'`
+	if [ ""$lh"" -gt "360" ]
 	then
-		th=`expr $rh - 361`
-		rh=`echo $th | awk '{ printf "%03d",$1 }'`
+		th=`expr $lh - 361`
+		lh=`echo $th | awk '{ printf "%03d",$1 }'`
 	fi
-	#echo ln -s ${RANGE_DIR}/$lh ${ADJUSTED_DIR}/$rh
+	echo ln -s ${RANGE_DIR}/$lh ${ADJUSTED_DIR}/$rh
 	ln -s ${RANGE_DIR}/$lh ${ADJUSTED_DIR}/$rh
 
 	RH=`expr $RH + 1`

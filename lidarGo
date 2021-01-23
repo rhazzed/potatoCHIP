@@ -14,6 +14,13 @@
 # Where to look for range values (*MUST* MATCH the directory used in "ultra_simple"!!!)
 RANGE_DIR=/dev/shm
 
+# Where to put the "adjusted" compass files (*MUST* MATCH the dierctory used in fixLidarOffset!!!)
+ADJUSTED_DIR=/home/pi/potatoCHIP/RANGE
+
+# IF YOU ARE USING ADJUSTED COMPASS FILES, UNCOMMENT THE FOLLOWING LINE ---
+RANGE_DIR=$ADJUSTED_DIR		# Use "adjusted" compass points, not the "actual" Lidar compass points
+
+
 ########################################
 # Robot-specific values START here
 ########################################
@@ -76,8 +83,8 @@ grep -v "\-1" $* | awk 'BEGIN { min=999999; }{
 
 
 # 1) Average out the valid (-FWD_OFF_ANGLE --to-- +FWD_OFF_ANGLE) valid LIDAR distance-sensor readings, and call this the "forward value"
-files1=`ls /dev/shm/[0-9][0-9][0-9] | head -${FWD_OFF_ANGLE}`
-files2=`ls /dev/shm/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE}`
+files1=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | head -${FWD_OFF_ANGLE}`
+files2=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE}`
 files=`echo $files1 $files2`
 fwd_val=`get_min $files`
 
@@ -92,7 +99,7 @@ echo "DEBUG: NUM_FILES=$NUM_FILES"
 
 
 # 2) Average out the valid (+FWD_OFF_ANGLE --to-- +MAX_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "right value"
-files=`ls /dev/shm/[0-9][0-9][0-9] | head -${MAX_OFF_ANGLE} | tail -$NUM_FILES`
+files=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | head -${MAX_OFF_ANGLE} | tail -$NUM_FILES`
 right_val=`get_min $files`
 
 echo "DEBUG: right_val = $right_val"
@@ -100,7 +107,7 @@ echo "DEBUG: right_val = $right_val"
 
 
 # 3) Average out the valid (-MAX_OFF_ANGLE --to-- -FWD_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "left value"
-files=`ls /dev/shm/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE} | head -$NUM_FILES`
+files=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE} | head -$NUM_FILES`
 left_val=`get_min $files`
 
 echo "DEBUG: left_val = $left_val"
