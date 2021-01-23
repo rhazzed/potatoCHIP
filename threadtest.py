@@ -45,6 +45,16 @@ range = 999	# Global variable that holds the ultrasonic range
 run=1		# Global "keep going" variable. Set to "0" to stop
 		# all threads (e.g. to shut down the program)
 
+# Return codes for the "lidarGo" program (script, actually) -
+#    EXIT_DIR_UNKNOWN=0
+#    EXIT_DIR_ERROR=1
+#    EXIT_DIR_LEFT=2
+#    EXIT_DIR_FWD=3
+#    EXIT_DIR_RIGHT=4
+#    EXIT_DIR_BACKUP_AND_TURN=100
+#    EXIT_DIR_STUCK=124
+lidar_rc=0
+
 track_speed=TRACK_HALF	# Global variable to control how fast the tracks
 #track_speed=TRACK_FULL  # Global variable to control how fast the tracks
 #track_speed=TRACK_SLOW	# Global variable to control how fast the tracks
@@ -143,20 +153,27 @@ def turn_left(degrees):
 
 
 
-def thread1(threadname):
+def lidar(threadname):
 
     # Uncomment the following line if THIS THREAD
     # will need to modify the "run" variable. DO NOT
     # need to uncomment it to just READ it...
     #global run
+    global lidar_rc
     while run:
-        # display variable "range" modified by thread 2
-        print("\nultrasonic: %d" % range)
-
         # Run LIDAR reader command and display its output
         p = subprocess.Popen(["lidarGo"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         out = p.stdout.read()
         print out
+
+        # Get return code from call
+        # Wait until process terminates (without using p.wait())
+        while p.poll() is None:
+            # Process hasn't exited yet, let's wait some
+            time.sleep(0.25)
+
+        lidar_rc = p.returncode
+        print("LIDAR exit value: %d\n" % lidar_rc)
 
         # Just execute the command
         #os.system("lidarGo");
@@ -220,6 +237,9 @@ def ultrasonic(threadname):
 
 	range = distance
 
+        # display ultrasonic "range"
+        print("ultrasonic: %d" % range)
+
 	# If distance is "danger close", stop moving!
 	if (range <= 15):
 		print("\nFound something in the way!\n")
@@ -242,10 +262,10 @@ def ultrasonic(threadname):
 		servo_stop = 1
 	pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round(servo_pos)))
 
-thread1 = Thread( target=thread1, args=("Thread-1", ) )
+lidar = Thread( target=lidar, args=("Thread-1", ) )
 ultrasonic = Thread( target=ultrasonic, args=("Thread-2", ) )
 
-thread1.start()
+lidar.start()
 ultrasonic.start()
 
 try:
@@ -256,7 +276,7 @@ except KeyboardInterrupt:
 print("Stopping all threads...")
 run=0
 
-thread1.join()
+lidar.join()
 ultrasonic.join()
 
 print("All threads stopped")
