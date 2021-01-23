@@ -18,7 +18,8 @@ mkdir -p $ADJUSTED_DIR
 rm -f ${ADJUSTED_DIR}/[0-9][0-9][0-9]
 
 # The "lidar compass-point" that aligns with the platform's (robot's) zero-degree-point
-RH=92
+#RH=92  # Uncomment this and set it to whatever you need, if your LIDAR's zero-degrees is offset from your robot's zero-degrees point
+RH=0	# Uncomment this if the lidar zero-degrees is EQUAL to robot zero-degrees
 
 for HDG in {0..360}
 do
