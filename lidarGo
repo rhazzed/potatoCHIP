@@ -101,7 +101,7 @@ echo "DEBUG: right_val = $right_val"
 
 # 3) Average out the valid (-MAX_OFF_ANGLE --to-- -FWD_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "left value"
 files=`ls /dev/shm/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE} | head -$NUM_FILES`
-left_val=`get_avg $files`
+left_val=`get_min $files`
 
 echo "DEBUG: left_val = $left_val"
 ##exit 2
