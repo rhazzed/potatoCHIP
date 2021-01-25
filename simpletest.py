@@ -10,10 +10,9 @@ import Adafruit_PCA9685 as PWM
 
 ## import CHIP_IO.GPIO as GPIO
 
-#set PWM Controller channels
-PWM_CH_FNB = 0
-PWM_CH_FNA = 2
-PWM_CH_SERVO = 15
+# Import the pin definition (a symbolic link to MyPins.<RobotName>.py)
+# for your particular robot -
+from MyPins import *
 
 
 # Uncomment to enable debug output.
@@ -24,21 +23,6 @@ PWM_CH_SERVO = 15
 # bus (0x40 and 2, respectively)
 pwm = PWM.PCA9685(address=0x40, busnum=1)
 
-# Configure min and max servo pulse lengths
-#servo_min = 150  # Min pulse length out of 4096
-servo_min = 250  # Min pulse length out of 4096
-servo_max = 580  # Max pulse length out of 4096 (600 torqued one servo too much)
-
-# Helper function to make setting a servo pulse width simpler.
-def set_servo_pulse(channel, pulse):
-    pulse_length = 1000000    # 1,000,000 us per second
-    pulse_length //= 60       # 60 Hz
-    print('{0}us per period'.format(pulse_length))
-    pulse_length //= 4096     # 12 bits of resolution
-    print('{0}us per bit'.format(pulse_length))
-    pulse *= 1000
-    pulse //= pulse_length
-    pwm.set_pwm(channel, 0, pulse)
 
 # Set frequency to 60hz, good for servos.
 pwm.set_pwm_freq(60)
@@ -48,11 +32,11 @@ try:
   print('Moving servos, press Ctrl-C to quit...')
   while True:
     print('FNB MIN...')
-    pwm.set_pwm(PWM_CH_FNB, 0, servo_min)
+    pwm.set_pwm(PWM_CH_RIGHT, 0, servo_min)
     time.sleep(1)
 
     print('FNA MIN...')
-    pwm.set_pwm(PWM_CH_FNA, 0, servo_min)
+    pwm.set_pwm(PWM_CH_LEFT, 0, servo_min)
     time.sleep(1)
 
     print('ULTRASONIC RANGE SENSOR SERVO MIN...')
@@ -60,11 +44,11 @@ try:
     time.sleep(1)
 
     print('FNB MAX...')
-    pwm.set_pwm(PWM_CH_FNB, 0, servo_max)
+    pwm.set_pwm(PWM_CH_RIGHT, 0, servo_max)
     time.sleep(1)
 
     print('FNA MAX...')
-    pwm.set_pwm(PWM_CH_FNA, 0, servo_max)
+    pwm.set_pwm(PWM_CH_LEFT, 0, servo_max)
     time.sleep(1)
 
     print('ULTRASONIC RANGE SENSOR SERVO MAX...')
