@@ -30,16 +30,28 @@ GPIO = gpio.get_platform_gpio()
 from MyPins import *
 
 
+ULTRASONIC_MIN_DIST = 17
 
-#set GPIO pin directions (IN / OUT) for Ultrasonic Range Detector
+
+#set GPIO pin directions (IN / OUT) for Ultrasonic Range Detectors
+# LEFT -
+GPIO.setup(GPIO_TRIGGER_L, gpio.OUT)
+GPIO.setup(GPIO_ECHO_L, gpio.IN)
+# FWD -
 GPIO.setup(GPIO_TRIGGER_F, gpio.OUT)
 GPIO.setup(GPIO_ECHO_F, gpio.IN)
+# RIGHT -
+GPIO.setup(GPIO_TRIGGER_R, gpio.OUT)
+GPIO.setup(GPIO_ECHO_R, gpio.IN)
+
 
 #set GPIO pin directions (IN / OUT) for Tracks
 GPIO.setup(GPIO_RFRONT, gpio.OUT)
 GPIO.setup(GPIO_RREAR, gpio.OUT)
 GPIO.setup(GPIO_LFRONT, gpio.OUT)
 GPIO.setup(GPIO_LREAR, gpio.OUT)
+
+
 
 range = 999	# Global variable that holds the ultrasonic range
 		# detector's latest distance measurement
@@ -152,6 +164,45 @@ def backup_turn_random():
     time.sleep(duration)
     stop_tracks()
 
+def distance(trigger_gpio,echo_gpio):
+
+	# Settle the trigger to zero
+	GPIO.output(trigger_gpio, False)
+
+	# Wait for trigger to settle
+	time.sleep(0.25)
+
+	# Send trigger pulse
+	# set Trigger to HIGH
+	GPIO.output(trigger_gpio, True)
+
+	# set Trigger after 0.01ms to LOW
+	time.sleep(0.00001)
+	GPIO.output(trigger_gpio, False)
+
+	StartTime = time.time()
+	StopTime = time.time()
+
+	# save StartTime
+	while GPIO.input(echo_gpio) == 0:
+		StartTime = time.time()
+
+	# save time of arrival
+	while GPIO.input(echo_gpio) == 1:
+		StopTime = time.time()
+
+	# time difference between start and arrival
+	TimeElapsed = StopTime - StartTime
+	# multiply with the sonic speed (34300 cm/s)
+	# and divide by 2, because there and back
+	dist = ((TimeElapsed * 34300) / 2 / 2.54)
+
+	# If distance is beyond the range of this device,
+	# consider it "invalid", and set it to "max. distance" (999)
+	if (dist > 40):
+		dist = 999
+
+	return dist
 
 
 
@@ -203,45 +254,14 @@ def ultrasonic(threadname):
 
     while run:
 
-	# Settle the trigger to zero
-	GPIO.output(GPIO_TRIGGER_F, gpio.LOW)
-
-	# Wait for trigger to settle
-	time.sleep(0.25)
-
-	# Send trigger pulse
-	# set Trigger to HIGH
-	GPIO.output(GPIO_TRIGGER_F, gpio.HIGH)
-
-	# set Trigger after 0.01ms to LOW
-	time.sleep(0.00001)
-	GPIO.output(GPIO_TRIGGER_F, gpio.LOW)
-
-	StartTime = time.time()
-	# save StartTime
-	while GPIO.input(GPIO_ECHO_F) == 0:
-		StartTime = time.time()
-
-	StopTime = time.time()
-	# save time of arrival
-	while GPIO.input(GPIO_ECHO_F) == 1:
-		StopTime = time.time()
-
-	# time difference between start and arrival
-	TimeElapsed = StopTime - StartTime
-	# multiply with the sonic speed (34300 cm/s)
-	# and divide by 2, because there and back
-	distance = ((TimeElapsed * 34300) / 2 / 2.54)
-
-	# If distance is beyond the range of this device,
-	# consider it "invalid", and set it to "max. distance" (999)
-	if (distance > 40):
-		distance = 999
-
-	range = distance
+	rangeL = distance(GPIO_TRIGGER_L, GPIO_ECHO_L)
+	rangeF = distance(GPIO_TRIGGER_F, GPIO_ECHO_F)
+	rangeR = distance(GPIO_TRIGGER_R, GPIO_ECHO_R)
 
         # display ultrasonic "range"
-        print("ultrasonic: %d" % range)
+        print("Left ultrasonic : %d" % rangeL)
+        print("Front ultrasonic: %d" % rangeF)
+        print("Right ultrasonic: %d" % rangeR)
 
         # Return codes for the "lidarGo" program (script, actually) -
         #    EXIT_DIR_UNKNOWN=0
@@ -254,7 +274,7 @@ def ultrasonic(threadname):
         ultrasonic_dir = 3
 
 	# If ultrasonic distance is "danger close", stop moving!
-	if (range <= 17):
+	if (rangeL <= ULTRASONIC_MIN_DIST or rangeF <= ULTRASONIC_MIN_DIST or rangeR <= ULTRASONIC_MIN_DIST):
 		print("\nUltrasonic sensor sees something in our path!\n")
 		stop_tracks()
 		ultrasonic_dir = 0
@@ -265,7 +285,7 @@ def ultrasonic(threadname):
 		stop_tracks()
 
         # If the ultrasonic sensor stopped us...
-        if (range <= 17):
+        if (rangeF <= ULTRASONIC_MIN_DIST):
 		# Use the current servo position to decide
 		# whether to turn right or left
 		if (servo_stop <= ((NUM_STEPS+1)/2)):
