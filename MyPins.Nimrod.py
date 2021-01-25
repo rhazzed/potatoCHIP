@@ -4,8 +4,15 @@
 #############
 
 #set GPIO pins for Ultrasonic Range Detector
-GPIO_TRIGGER = 06
-GPIO_ECHO = 05
+#    FRONT
+GPIO_TRIGGER_F = 06
+GPIO_ECHO_F = 05
+#    LEFT
+GPIO_TRIGGER_L = 13
+GPIO_ECHO_L = 19
+#    RIGHT
+GPIO_TRIGGER_R = 23
+GPIO_ECHO_R = 24
 
 #set GPIO for Tracks
 GPIO_RFRONT = 12

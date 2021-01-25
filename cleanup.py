@@ -16,8 +16,8 @@ from MyPins import *
 pwm = PWM.PCA9685(address=0x40, busnum=1)
 
 #set GPIO pin directions (IN / OUT) for Ultrasonic Range Detector
-GPIO.setup(GPIO_TRIGGER, gpio.OUT)
-GPIO.setup(GPIO_ECHO, gpio.IN)
+GPIO.setup(GPIO_TRIGGER_F, gpio.OUT)
+GPIO.setup(GPIO_ECHO_F, gpio.IN)
 
 #set GPIO pin directions (IN / OUT) for Tracks
 GPIO.setup(GPIO_RFRONT, gpio.OUT)

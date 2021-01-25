@@ -5,6 +5,7 @@
 # HISTORICAL INFORMATION -
 #
 #  2021-01-22  msipin  Added this header. Added another thread to process LIDAR data
+#  2021-01-24  msipin  Changed definition for "main" ultrasonic sensor pins.
 ##################################
 
 from __future__ import division
@@ -31,8 +32,8 @@ from MyPins import *
 
 
 #set GPIO pin directions (IN / OUT) for Ultrasonic Range Detector
-GPIO.setup(GPIO_TRIGGER, gpio.OUT)
-GPIO.setup(GPIO_ECHO, gpio.IN)
+GPIO.setup(GPIO_TRIGGER_F, gpio.OUT)
+GPIO.setup(GPIO_ECHO_F, gpio.IN)
 
 #set GPIO pin directions (IN / OUT) for Tracks
 GPIO.setup(GPIO_RFRONT, gpio.OUT)
@@ -203,27 +204,27 @@ def ultrasonic(threadname):
     while run:
 
 	# Settle the trigger to zero
-	GPIO.output(GPIO_TRIGGER, gpio.LOW)
+	GPIO.output(GPIO_TRIGGER_F, gpio.LOW)
 
 	# Wait for trigger to settle
 	time.sleep(0.25)
 
 	# Send trigger pulse
 	# set Trigger to HIGH
-	GPIO.output(GPIO_TRIGGER, gpio.HIGH)
+	GPIO.output(GPIO_TRIGGER_F, gpio.HIGH)
 
 	# set Trigger after 0.01ms to LOW
 	time.sleep(0.00001)
-	GPIO.output(GPIO_TRIGGER, gpio.LOW)
+	GPIO.output(GPIO_TRIGGER_F, gpio.LOW)
 
 	StartTime = time.time()
 	# save StartTime
-	while GPIO.input(GPIO_ECHO) == 0:
+	while GPIO.input(GPIO_ECHO_F) == 0:
 		StartTime = time.time()
 
 	StopTime = time.time()
 	# save time of arrival
-	while GPIO.input(GPIO_ECHO) == 1:
+	while GPIO.input(GPIO_ECHO_F) == 1:
 		StopTime = time.time()
 
 	# time difference between start and arrival

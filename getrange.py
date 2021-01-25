@@ -1,7 +1,7 @@
 #!/usr/bin/python
 ##################################
 # getrange.py - Get distance reading from ultrasonic range detector
-#               on GPIO pins GPIO_TRIGGER and GPIO_ECHO
+#               on GPIO pins GPIO_TRIGGER_F and GPIO_ECHO_F
 #
 # HISTORICAL INFORMATION -
 #
@@ -9,6 +9,7 @@
 #  2017-02-04  msipin  Adapted to C.H.I.P. by replacing GPIO library,
 #                      editing pins and adding "settling time" before
 #                      the ultrasonic sensor is triggered.
+#  2021-01-24  msipin  Changed definition for "main" ultrasonic sensor pins.
 ##################################
 
 #Libraries
@@ -25,34 +26,34 @@ from MyPins import *
 
 
 #set GPIO direction (IN / OUT)
-GPIO.setup(GPIO_TRIGGER, gpio.OUT)
-GPIO.setup(GPIO_ECHO, gpio.IN)
+GPIO.setup(GPIO_TRIGGER_F, gpio.OUT)
+GPIO.setup(GPIO_ECHO_F, gpio.IN)
 
 def distance():
 
 	# Settle the trigger to zero
-	GPIO.output(GPIO_TRIGGER, False)
+	GPIO.output(GPIO_TRIGGER_F, False)
 
 	# Wait for trigger to settle
 	time.sleep(0.25)
 
 	# Send trigger pulse
 	# set Trigger to HIGH
-	GPIO.output(GPIO_TRIGGER, True)
+	GPIO.output(GPIO_TRIGGER_F, True)
 
 	# set Trigger after 0.01ms to LOW
 	time.sleep(0.00001)
-	GPIO.output(GPIO_TRIGGER, False)
+	GPIO.output(GPIO_TRIGGER_F, False)
 
 	StartTime = time.time()
 	StopTime = time.time()
 
 	# save StartTime
-	while GPIO.input(GPIO_ECHO) == 0:
+	while GPIO.input(GPIO_ECHO_F) == 0:
 		StartTime = time.time()
 
 	# save time of arrival
-	while GPIO.input(GPIO_ECHO) == 1:
+	while GPIO.input(GPIO_ECHO_F) == 1:
 		StopTime = time.time()
 
 	# time difference between start and arrival
