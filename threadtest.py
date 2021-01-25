@@ -61,7 +61,8 @@ track_speed=TRACK_HALF	# Global variable to control how fast the tracks
 #track_speed=TRACK_SLOW	# Global variable to control how fast the tracks
 			# will spin when activated
 
-NUM_STEPS = 5	# Number of servo steps to move Ultrasonic Range Detector in
+#NUM_STEPS = 5	# Number of servo steps to move Ultrasonic Range Detector in
+NUM_STEPS = 3	# Number of servo steps to move Ultrasonic Range Detector in
 
 
 # Initialise the PCA9685 at the appropriate address and
@@ -252,7 +253,7 @@ def ultrasonic(threadname):
         ultrasonic_dir = 3
 
 	# If ultrasonic distance is "danger close", stop moving!
-	if (range <= 15):
+	if (range <= 17):
 		print("\nUltrasonic sensor sees something in our path!\n")
 		stop_tracks()
 		ultrasonic_dir = 0
@@ -263,7 +264,7 @@ def ultrasonic(threadname):
 		stop_tracks()
 
         # If the ultrasonic sensor stopped us...
-        if (range <= 15):
+        if (range <= 17):
 		# Use the current servo position to decide
 		# whether to turn right or left
 		if (servo_stop <= ((NUM_STEPS+1)/2)):
