@@ -12,18 +12,21 @@
 ##################################
 
 #Libraries
-import CHIP_IO.GPIO as GPIO
+#import CHIP_IO.GPIO as GPIO
+import Adafruit_GPIO as gpio
+GPIO = gpio.get_platform_gpio()
 import time
 import sys
 
 
-#set GPIO Pins
-GPIO_TRIGGER = "CSID0"
-GPIO_ECHO = "CSID1"
+# Import the pin definition (a symbolic link to MyPins.<RobotName>.py)
+# for your particular robot -
+from MyPins import *
+
 
 #set GPIO direction (IN / OUT)
-GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
-GPIO.setup(GPIO_ECHO, GPIO.IN)
+GPIO.setup(GPIO_TRIGGER, gpio.OUT)
+GPIO.setup(GPIO_ECHO, gpio.IN)
 
 def distance():
 
