@@ -87,7 +87,7 @@ Servo	->	PWM Board, Channel 15
 
 LEFT
 Sensor		Pi 3B+
-Echo	->	Pin 35 (GPIO 19)
+Echo	->	Pin 37 (GPIO 26)
 Trigger	->	Pin 33 (GPIO 13)
 Gnd	->	From PWM Grd
 Vcc	->	From PWN V+ Power Block
