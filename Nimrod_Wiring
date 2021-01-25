@@ -8,6 +8,7 @@
 #	9V Battery Pack - 6 AA Batteries
 #	18650 Charging Pack for 5v output for Pi 3B+
 #
+#  2021-01-25  msipin  Added two new ultrasonic sensors (left and right)
 #
 ##########################################################################
 
@@ -73,8 +74,9 @@ Out 4   ->      Passenger Side motor white wire
 
 -------------------------------------------------------------------------
 
-Ultrasonic Sensor
+Ultrasonic Sensors
 
+MAIN/"FORWARD"
 Sensor		Pi 3B+
 Echo	->	Pin 29 (GPIO 05)
 Trigger	->	Pin 31 (GPIO 06)
@@ -82,4 +84,20 @@ Gnd	->	From PWM Grd
 Vcc	->	From PWN V+ Power Block
 
 Servo	->	PWM Board, Channel 15
+
+LEFT
+Sensor		Pi 3B+
+Echo	->	Pin 35 (GPIO 19)
+Trigger	->	Pin 33 (GPIO 13)
+Gnd	->	From PWM Grd
+Vcc	->	From PWN V+ Power Block
+
+RIGHT
+Sensor		Pi 3B+
+Echo	->	Pin 18 (GPIO 24)
+Trigger	->	Pin 16 (GPIO 23)
+Gnd	->	From PWM Grd
+Vcc	->	From PWN V+ Power Block
+
+
 -------------------------------------------------------------------------
