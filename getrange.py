@@ -10,6 +10,7 @@
 #                      editing pins and adding "settling time" before
 #                      the ultrasonic sensor is triggered.
 #  2021-01-24  msipin  Changed definition for "main" ultrasonic sensor pins.
+#  2021-01-25  msipin  Added left and right ultrasonic sensors and parameterized "distance" function
 ##################################
 
 #Libraries
@@ -26,74 +27,86 @@ from MyPins import *
 
 
 #set GPIO direction (IN / OUT)
+GPIO.setup(GPIO_TRIGGER_L, gpio.OUT)
+GPIO.setup(GPIO_ECHO_L, gpio.IN)
+#
 GPIO.setup(GPIO_TRIGGER_F, gpio.OUT)
 GPIO.setup(GPIO_ECHO_F, gpio.IN)
+#
+GPIO.setup(GPIO_TRIGGER_R, gpio.OUT)
+GPIO.setup(GPIO_ECHO_R, gpio.IN)
 
-def distance():
+
+def distance(trigger_gpio,echo_gpio):
 
 	# Settle the trigger to zero
-	GPIO.output(GPIO_TRIGGER_F, False)
+	GPIO.output(trigger_gpio, False)
 
 	# Wait for trigger to settle
 	time.sleep(0.25)
 
 	# Send trigger pulse
 	# set Trigger to HIGH
-	GPIO.output(GPIO_TRIGGER_F, True)
+	GPIO.output(trigger_gpio, True)
 
 	# set Trigger after 0.01ms to LOW
 	time.sleep(0.00001)
-	GPIO.output(GPIO_TRIGGER_F, False)
+	GPIO.output(trigger_gpio, False)
 
 	StartTime = time.time()
 	StopTime = time.time()
 
 	# save StartTime
-	while GPIO.input(GPIO_ECHO_F) == 0:
+	while GPIO.input(echo_gpio) == 0:
 		StartTime = time.time()
 
 	# save time of arrival
-	while GPIO.input(GPIO_ECHO_F) == 1:
+	while GPIO.input(echo_gpio) == 1:
 		StopTime = time.time()
 
 	# time difference between start and arrival
 	TimeElapsed = StopTime - StartTime
 	# multiply with the sonic speed (34300 cm/s)
 	# and divide by 2, because there and back
-	distance = ((TimeElapsed * 34300) / 2 / 2.54)
+	dist = ((TimeElapsed * 34300) / 2 / 2.54)
 
 	# If distance is beyond the range of this device,
 	# consider it "invalid", and set it to "max. distance" (999)
-	if (distance > 40):
-		distance = 999
+	if (dist > 40):
+		dist = 999
 
-	return distance
+	return dist
 
 
 def main():
-	try:
-		continuous=False
-		for arg in sys.argv[1:]:
-			#print arg
-			if (arg == "-c"):
-				continuous=True
+	continuous=False
+	for arg in sys.argv[1:]:
+		#print arg
+		if (arg == "-c"):
+			continuous=True
 
-		while continuous:
-			dist = distance()
-			print ("%d in" % dist)
-			#time.sleep(1)
+	while (True):
 
-		dist = distance()
-		print ("%d in" % dist)
-		#time.sleep(1)
-		GPIO.cleanup()
+		try:
+			print
+			for NAME,TRIG,ECHO in [ ["LEFT",GPIO_TRIGGER_L, GPIO_ECHO_L],\
+				["FWD",GPIO_TRIGGER_F, GPIO_ECHO_F],\
+				["RIGHT",GPIO_TRIGGER_R, GPIO_ECHO_R] ]:
+
+				dist = distance(TRIG,ECHO)
+				print ("%s - %d in" % (NAME,dist))
 
 		# Reset by pressing CTRL + C
-	except KeyboardInterrupt:
-		print("Measurement stopped by User")
-		GPIO.cleanup()
+		except KeyboardInterrupt:
+			print("\n\nMeasurement stopped by User")
+			break
+
+		if (not continuous):
+			break
 
 
 if __name__ == "__main__":
     main()
+    GPIO.cleanup()
+    print
 
