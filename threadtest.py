@@ -74,8 +74,7 @@ track_speed=TRACK_HALF	# Global variable to control how fast the tracks
 #track_speed=TRACK_SLOW	# Global variable to control how fast the tracks
 			# will spin when activated
 
-#NUM_STEPS = 5	# Number of servo steps to move Ultrasonic Range Detector in
-NUM_STEPS = 3	# Number of servo steps to move Ultrasonic Range Detector in
+#NUM_STEPS = 3	# Number of servo steps to move Ultrasonic Range Detector in
 
 
 # Initialise the PCA9685 at the appropriate address and
@@ -83,7 +82,7 @@ NUM_STEPS = 3	# Number of servo steps to move Ultrasonic Range Detector in
 pwm = PWM.PCA9685(address=0x40, busnum=1)
 
 # Configure servo pulse lengths given (externall-defined) min and max
-servo_step = ((servo_max - servo_min)/NUM_STEPS)
+#servo_step = ((servo_max - servo_min)/NUM_STEPS)
 
 # Set frequency to 60hz, good for servos.
 pwm.set_pwm_freq(60)
@@ -155,6 +154,8 @@ def turn_left(degrees):
     stop_tracks()
 
 def backup_turn_random():
+    go_backwards()
+    time.sleep(0.75)
     degrees = randrange(10,39)
     print("Turning right %d degrees\n" % degrees)
     left_forward()
@@ -243,9 +244,9 @@ def ultrasonic(threadname):
     global run
     #global lidar_dir
 
-    print('ULTRASONIC RANGE SENSOR SERVO MIN...')
-    servo_pos = servo_min
-    servo_stop = 1
+    print('ULTRASONIC RANGE SENSOR SERVO FWD...')
+    servo_pos = int((servo_max - servo_min)/2)+servo_min
+    #servo_stop = 1
     pwm.set_pwm(PWM_CH_SERVO, 0, servo_pos)
 
 
@@ -275,7 +276,7 @@ def ultrasonic(threadname):
 
 	# If ultrasonic distance is "danger close", stop moving!
 	if (rangeL <= ULTRASONIC_MIN_DIST or rangeF <= ULTRASONIC_MIN_DIST or rangeR <= ULTRASONIC_MIN_DIST):
-		print("\nUltrasonic sensor sees something in our path!\n")
+		print("\nUltrasonic sensors see something in our path!\n")
 		stop_tracks()
 		ultrasonic_dir = 0
 
@@ -285,27 +286,33 @@ def ultrasonic(threadname):
 		stop_tracks()
 
         # If the ultrasonic sensor stopped us...
-        if (rangeF <= ULTRASONIC_MIN_DIST):
-		# Use the current servo position to decide
-		# whether to turn right or left
-		if (servo_stop <= ((NUM_STEPS+1)/2)):
-			ultrasonic_dir = 2
-		else:
-			ultrasonic_dir = 4
+        if (ultrasonic_dir == 0):
+		# If front sensor triggered, default to turning right (NOTE: Might get
+		# overruled, below)
+		if (rangeF <= ULTRASONIC_MIN_DIST):
+			ultrasonic_dir = 4 # RIGHT
+
+		if (rangeL <= ULTRASONIC_MIN_DIST) and (rangeR > ULTRASONIC_MIN_DIST):
+			ultrasonic_dir = 4 # RIGHT
+
+		if (rangeR <= ULTRASONIC_MIN_DIST) and (rangeL > ULTRASONIC_MIN_DIST):
+			ultrasonic_dir = 2 # LEFT
+
+		if (rangeL <= ULTRASONIC_MIN_DIST and rangeR <= ULTRASONIC_MIN_DIST):
+			ultrasonic_dir = 100 # BACKUP AND TURN
 
 	# if ultrasonic RIGHT and (lidar FWD or lidar RIGHT)...
-        if (ultrasonic_dir == 2 and (lidar_dir == 3 or lidar_dir == 2)):
-		print("\t<<<<<<<< Turning LEFT  -----")
-		turn_left(65)
-
-	# if ultrasonic LEFT and (lidar FWD or lidar LEFT)...
         if (ultrasonic_dir == 4 and (lidar_dir == 3 or lidar_dir == 4)):
 		print("\t----- Turning RIGHT >>>>>>>>")
 		turn_right(65)
 
-	# if ((ultrasonic RIGHT and lidar LEFT) or (ultrasonic LEFT and lidar RIGHT) or \
-	#     (ultrasonic LEFT and lidar RIGHT) or (ultrasonic RIGHT and lidar LEFT))...
-	if ((ultrasonic_dir == 4 and lidar_dir == 2) or (ultrasonic_dir == 2 and lidar_dir == 4) or (ultrasonic_dir == 2 and lidar_dir == 4) or (ultrasonic_dir == 4 and lidar_dir == 2)):
+	# if ultrasonic LEFT and (lidar FWD or lidar LEFT)...
+        if (ultrasonic_dir == 2 and (lidar_dir == 3 or lidar_dir == 2)):
+		print("\t<<<<<<<< Turning LEFT  -----")
+		turn_left(65)
+
+	# if ((ultrasonic RIGHT and lidar LEFT) or (ultrasonic LEFT and lidar RIGHT) or (ultrasonic BACKUP))...
+	if ((ultrasonic_dir == 2 and lidar_dir == 4) or (ultrasonic_dir == 4 and lidar_dir == 2) or (ultrasonic_dir == 100)):
 		print("\t----- B/U Random Turn ------")
 		backup_turn_random()
 
@@ -324,12 +331,12 @@ def ultrasonic(threadname):
 	go_forward()
 
 	# Calculate new servo position
-	servo_pos += servo_step
-	servo_stop += 1
-	if (servo_pos > servo_max):
-		servo_pos = servo_min
-		servo_stop = 1
-	pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round(servo_pos)))
+	#servo_pos += servo_step
+	#servo_stop += 1
+	#if (servo_pos > servo_max):
+	#	servo_pos = servo_min
+	#	servo_stop = 1
+	#pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round(servo_pos)))
 
 lidar = Thread( target=lidar, args=("Thread-1", ) )
 ultrasonic = Thread( target=ultrasonic, args=("Thread-2", ) )
