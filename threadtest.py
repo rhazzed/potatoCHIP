@@ -259,8 +259,10 @@ def ultrasonic(threadname):
 	# time.sleep(0.25)
 
 	rangeL = distance(GPIO_TRIGGER_L, GPIO_ECHO_L)
+	#rangeL = 999
 	rangeF = distance(GPIO_TRIGGER_F, GPIO_ECHO_F)
 	rangeR = distance(GPIO_TRIGGER_R, GPIO_ECHO_R)
+	#rangeR = 999
 
         # display ultrasonic "range"
         print("Left ultrasonic : %d" % rangeL)
@@ -315,7 +317,7 @@ def ultrasonic(threadname):
 		turn_left(65)
 
 	# if ((ultrasonic RIGHT and lidar LEFT) or (ultrasonic LEFT and lidar RIGHT) or (ultrasonic BACKUP))...
-	if ((ultrasonic_dir == 2 and lidar_dir == 4) or (ultrasonic_dir == 4 and lidar_dir == 2) or (ultrasonic_dir == 100)):
+	if ((ultrasonic_dir == 2 and lidar_dir == 4) or (ultrasonic_dir == 4 and lidar_dir == 2) or (ultrasonic_dir == 100) or (lidar_dir == 100)):
 		print("\t----- B/U Random Turn ------")
 		backup_turn_random()
 
