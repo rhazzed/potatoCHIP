@@ -6,6 +6,7 @@
 #
 #  2021-01-22  msipin  Added this header. Added another thread to process LIDAR data
 #  2021-01-24  msipin  Changed definition for "main" ultrasonic sensor pins.
+#  2021-01-25  msipin  Fixed missing lidar-backup case
 ##################################
 
 from __future__ import division
@@ -314,7 +315,7 @@ def ultrasonic(threadname):
 		print("\t<<<<<<<< Turning LEFT  -----")
 		turn_left(65)
 
-	# if ((ultrasonic RIGHT and lidar LEFT) or (ultrasonic LEFT and lidar RIGHT) or (ultrasonic BACKUP))...
+	# if ((ultrasonic RIGHT and lidar LEFT) or (ultrasonic LEFT and lidar RIGHT) or (ultrasonic BACKUP) or (lidar BACKUP))...
 	if ((ultrasonic_dir == 2 and lidar_dir == 4) or (ultrasonic_dir == 4 and lidar_dir == 2) or (ultrasonic_dir == 100) or (lidar_dir == 100)):
 		print("\t----- B/U Random Turn ------")
 		backup_turn_random()
