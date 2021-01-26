@@ -36,14 +36,13 @@ GPIO.setup(GPIO_ECHO_F, gpio.IN)
 GPIO.setup(GPIO_TRIGGER_R, gpio.OUT)
 GPIO.setup(GPIO_ECHO_R, gpio.IN)
 
+# Settle each trigger to zero
+GPIO.output(GPIO_TRIGGER_L, False)
+GPIO.output(GPIO_TRIGGER_F, False)
+GPIO.output(GPIO_TRIGGER_R, False)
+
 
 def distance(trigger_gpio,echo_gpio):
-
-	# Settle the trigger to zero
-	GPIO.output(trigger_gpio, False)
-
-	# Wait for trigger to settle
-	time.sleep(0.25)
 
 	# Send trigger pulse
 	# set Trigger to HIGH
@@ -89,6 +88,8 @@ def main():
 
 		try:
 			print
+			# Ensure triggers have time to settle
+			time.sleep(0.25)
 			for NAME,TRIG,ECHO in [ ["LEFT",GPIO_TRIGGER_L, GPIO_ECHO_L],\
 				["FWD",GPIO_TRIGGER_F, GPIO_ECHO_F],\
 				["RIGHT",GPIO_TRIGGER_R, GPIO_ECHO_R] ]:

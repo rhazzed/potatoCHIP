@@ -44,6 +44,11 @@ GPIO.setup(GPIO_ECHO_F, gpio.IN)
 GPIO.setup(GPIO_TRIGGER_R, gpio.OUT)
 GPIO.setup(GPIO_ECHO_R, gpio.IN)
 
+# Settle each trigger to zero
+GPIO.output(GPIO_TRIGGER_L, False)
+GPIO.output(GPIO_TRIGGER_F, False)
+GPIO.output(GPIO_TRIGGER_R, False)
+
 
 #set GPIO pin directions (IN / OUT) for Tracks
 GPIO.setup(GPIO_RFRONT, gpio.OUT)
@@ -167,12 +172,6 @@ def backup_turn_random():
 
 def distance(trigger_gpio,echo_gpio):
 
-	# Settle the trigger to zero
-	GPIO.output(trigger_gpio, False)
-
-	# Wait for trigger to settle
-	time.sleep(0.25)
-
 	# Send trigger pulse
 	# set Trigger to HIGH
 	GPIO.output(trigger_gpio, True)
@@ -241,7 +240,7 @@ def ultrasonic(threadname):
     # Uncomment the following line if THIS THREAD
     # will need to modify the "run" variable. DO NOT
     # need to uncomment it to just READ it...
-    global run
+    #global run
     #global lidar_dir
 
     print('ULTRASONIC RANGE SENSOR SERVO FWD...')
@@ -251,9 +250,13 @@ def ultrasonic(threadname):
 
 
     # Go FORWARD
-    go_forward()
+    ##go_forward()
 
     while run:
+
+	# Ensure ultrasonic triggers have time to settle
+	# (NOTE: MOVED THIS TO BEFORE CONTINUING FORWARD, BELOW)
+	# time.sleep(0.25)
 
 	rangeL = distance(GPIO_TRIGGER_L, GPIO_ECHO_L)
 	rangeF = distance(GPIO_TRIGGER_F, GPIO_ECHO_F)
@@ -327,7 +330,14 @@ def ultrasonic(threadname):
 			print("\t<<<<<<<< Turning LEFT  -----")
 			turn_left(65)
 
-	print("Done. Proceeding Forward!")
+
+	# Ensure ultrasonic triggers have time to settle
+	time.sleep(0.25)
+
+	# Give us additional time to grab the robot, or detect what it had decided to do
+	time.sleep(0.25)
+
+	print("Done! Proceeding Forward!")
 	go_forward()
 
 	# Calculate new servo position
@@ -337,6 +347,9 @@ def ultrasonic(threadname):
 	#	servo_pos = servo_min
 	#	servo_stop = 1
 	#pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round(servo_pos)))
+
+
+
 
 lidar = Thread( target=lidar, args=("Thread-1", ) )
 ultrasonic = Thread( target=ultrasonic, args=("Thread-2", ) )
