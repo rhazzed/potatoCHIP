@@ -259,10 +259,8 @@ def ultrasonic(threadname):
 	# time.sleep(0.25)
 
 	rangeL = distance(GPIO_TRIGGER_L, GPIO_ECHO_L)
-	#rangeL = 999
 	rangeF = distance(GPIO_TRIGGER_F, GPIO_ECHO_F)
 	rangeR = distance(GPIO_TRIGGER_R, GPIO_ECHO_R)
-	#rangeR = 999
 
         # display ultrasonic "range"
         print("Left ultrasonic : %d" % rangeL)
