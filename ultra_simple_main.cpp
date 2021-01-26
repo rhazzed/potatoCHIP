@@ -8,20 +8,11 @@
  *  http://www.slamtec.com
  *
  */
+
 /*
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * HISTORICAL INFORMATION -
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ *  2021-01-25  msipin  Added this header. Moved creation of array out of loop for increased performance
  */
 
 #include <stdio.h>
@@ -89,6 +80,10 @@ int main(int argc, const char * argv[]) {
     _u32         baudrateArray[2] = {115200, 256000};
     _u32         opt_com_baudrate = 0;
     u_result     op_result;
+    rplidar_response_measurement_node_hq_t nodes[8192];
+    size_t   count = _countof(nodes);
+    char filename[99+1];
+    //sprintf(filename,"/dev/shm/000"); // FOR TESTING, ONLY!!
 
     bool useArgcBaudrate = false;
 
@@ -203,12 +198,9 @@ int main(int argc, const char * argv[]) {
     drv->startScan(0,1);
 
 
-
     // fetech result and print it out...
     while (!ctrl_c_pressed) {
 
-        rplidar_response_measurement_node_hq_t nodes[8192];
-        size_t   count = _countof(nodes);
 
         op_result = drv->grabScanDataHq(nodes, count);
         if (IS_OK(op_result)) {
@@ -276,7 +268,6 @@ do {
                         printf("HDG: %3d  RNG: %8.2f  QUALITY: %d\n", hdg, range, (int)quality);
 
                         // Save range in filesystem
-                        char filename[99+1];
                         sprintf(filename,"/dev/shm/%03d",hdg);
                         filename[99] = '\0';
                         FILE *fp = fopen(filename,"w");
