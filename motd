@@ -16,3 +16,9 @@ REQUIREMENTS -
 *) cd ~/potatoCHIP
 *) rm -f /dev/shm/IN; python ./threadtest.py
 
+*) start web browser
+*) go to http://192.168.x.y:8080 (put your IP in x.y)
+*) click on the start robot link
+*) Enjoy robot!
+*) click on the stop robot link
+*) Once you click the stop link, you'll have to re-run "rm -f /dev/shm.....threadtest.py" again
