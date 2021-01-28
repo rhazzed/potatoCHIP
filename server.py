@@ -55,12 +55,14 @@ def start():
     # Write "START" to command-file
     with open(CMD_FILE, "w") as f:
         f.write(CMD_START)
+        f.write("\n")
 
 
 def stop():
     # Write "STOP" to command-file
     with open(CMD_FILE, "w") as f:
         f.write(CMD_STOP)
+        f.write("\n")
 
 
 def run(server_class=HTTPServer, handler_class=S, port=8080):
