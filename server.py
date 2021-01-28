@@ -6,8 +6,10 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import logging
 
-# File to use to pass commands to the robot (NOTE: *MUST* MATCH the file used in threadtest.py!)
-CMD_FILE="/dev/shm/IN"
+# Import the pin definition (a symbolic link to MyPins.<RobotName>.py)
+# for your particular robot -
+from MyPins import *
+
 
 class S(BaseHTTPRequestHandler):
     def _set_response(self):
@@ -36,9 +38,9 @@ class S(BaseHTTPRequestHandler):
         self.wfile.write("POST {}".format(self.path).encode('utf-8'))
 
 def stop():
-    # Write "STOP" to stop-file (/dev/shm/IN)
+    # Write "STOP" to command-file
     with open(CMD_FILE, "w") as f:
-        f.write("STOP")
+        f.write(CMD_STOP)
 
 
 def run(server_class=HTTPServer, handler_class=S, port=8080):

@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #############
 # Python include file for Derpa
 #############
@@ -40,3 +39,11 @@ servo_max = 500  # Max pulse length out of 4096 (600 torqued one servo too much)
 #SECONDS_PER_DEGREE = 0.004166	# FULL SPEED
 SECONDS_PER_DEGREE = 0.0055833	# HALF SPEED
 #SECONDS_PER_DEGREE = 0.0065833	# HALF SPEED
+
+
+# COMMAND-PASSING FILE -
+# File to use to pass commands to the robot
+CMD_FILE="/dev/shm/IN"
+
+# INDIVIDUAL COMMANDS -
+CMD_STOP="STOP"

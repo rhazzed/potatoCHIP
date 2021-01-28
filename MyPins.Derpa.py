@@ -1,12 +1,11 @@
-#!/usr/bin/python
 #############
 # Python include file for Derpa
 #############
 
 #set GPIO pins for Ultrasonic Range Detector
 #    FRONT
-GPIO_TRIGGER_F = 06
-GPIO_ECHO_F = 05
+GPIO_TRIGGER_F = 6
+GPIO_ECHO_F = 5
 #    LEFT
 GPIO_TRIGGER_L = 13
 GPIO_ECHO_L = 26
@@ -39,3 +38,11 @@ servo_max = 520  # Max pulse length out of 4096 (Max CCW/Left) (600 torqued one 
 # Variable that approximates turning rate (seconds-per-degree)
 #SECONDS_PER_DEGREE = 0.004166	# FULL SPEED
 SECONDS_PER_DEGREE = 0.0055833	# HALF SPEED
+
+
+# COMMAND-PASSING FILE -
+# File to use to pass commands to the robot
+CMD_FILE="/dev/shm/IN"
+
+# INDIVIDUAL COMMANDS -
+CMD_STOP="STOP"

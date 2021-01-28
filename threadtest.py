@@ -371,7 +371,8 @@ def cmds(threadname):
                 temp = f.read().splitlines()
                 for cmd in temp:
                     print("DEBUG: cmd = [%s]" % cmd)
-                    if "STOP" in cmd:
+
+                    if CMD_STOP in cmd:
                         # Tell all threads to stop!
                         run = 0
                 time.sleep(0.25)
