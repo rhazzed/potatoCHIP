@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 #####################################
 # server.py - A Python3 HTTP server (defaults to port 8080)
+#
+# HISTORICAL INFORMATION -
+#
+#  2021-01-28  msipin  Added this header. Added ability to return images, and served up /favicon.ico URL
 #####################################
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -16,6 +20,11 @@ class S(BaseHTTPRequestHandler):
     def _set_response(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
+        self.end_headers()
+
+    def _set_img_response(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'image/png')
         self.end_headers()
 
     def do_GET(self):
@@ -34,9 +43,15 @@ class S(BaseHTTPRequestHandler):
                 self._set_response()
                 self.wfile.write("{}".format("***STOPPING THE ROBOT!!***<script>var timer = setTimeout(function() { window.location='/' }, 3000);</script>").encode('utf-8'))
             else:
-                # Return index.html
-                self._set_response()
-                self.wfile.write(index_html.encode('utf-8'))
+                if "favicon.ico" in self.path:
+                    if not favicon_ico is None:
+                        # Return index.html
+                        self._set_img_response()
+                        self.wfile.write(favicon_ico)
+                else:
+                    # Return index.html
+                    self._set_response()
+                    self.wfile.write(index_html.encode('utf-8'))
 
 
     def do_POST(self):
@@ -84,15 +99,32 @@ def run(server_class=HTTPServer, handler_class=S, port=8080):
     print('Stopping httpd...\n')
 
 index_html="<html><head><title>Hi!</title></head><body><h1>Hi there!</h1></body></html>"
+favicon_ico=None
 
 if __name__ == '__main__':
     from sys import argv
 
+    # Load index.html (if present) -
     try:
         with open("index.html", 'r') as f:
             temp = f.read()
             f.close()
             index_html = temp
+
+    except IOError:
+        # File doesn't exist
+        True
+
+    except IOError:
+        # No instructions in file
+        True
+
+    # Load favicon.ico (if present) -
+    try:
+        with open("favicon.ico", 'rb') as f:
+            temp = f.read()
+            f.close()
+            favicon_ico = temp
 
     except IOError:
         # File doesn't exist
