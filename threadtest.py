@@ -7,6 +7,7 @@
 #  2021-01-22  msipin  Added this header. Added another thread to process LIDAR data
 #  2021-01-24  msipin  Changed definition for "main" ultrasonic sensor pins.
 #  2021-01-25  msipin  Fixed missing lidar-backup case
+#  2021-01-27  msipin  Added website integration (to pickup commands)
 ##################################
 
 from __future__ import division
@@ -16,6 +17,7 @@ import subprocess
 import os
 from random import randrange
 
+
 # Import the PCA9685 16-channel I2C PWM module.
 import Adafruit_PCA9685 as PWM
 
@@ -24,6 +26,11 @@ import Adafruit_PCA9685 as PWM
 
 import Adafruit_GPIO as gpio
 GPIO = gpio.get_platform_gpio()
+
+
+# File to use to pass commands to the robot (NOTE: *MUST* MATCH the file used in threadtest.py!)
+CMD_FILE="/dev/shm/IN"
+
 
 
 # Import the pin definition (a symbolic link to MyPins.<RobotName>.py)
@@ -350,24 +357,75 @@ def ultrasonic(threadname):
 	#pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round(servo_pos)))
 
 
+def cmds(threadname):
+
+    # Uncomment the following line if THIS THREAD
+    # will need to modify the "run" variable. DO NOT
+    # need to uncomment it to just READ it...
+    global run
+
+    while run:
+        try:
+            with open(CMD_FILE, 'r') as f:
+                temp = f.read().splitlines()
+                for cmd in temp:
+                    print("DEBUG: cmd = [%s]" % cmd)
+                    if "STOP" in cmd:
+                        # Tell all threads to stop!
+                        run = 0
+                time.sleep(0.25)
+                f.close()
+
+        except IOError:
+            # File doesn't exist
+            True
+
+        except IOError:
+            # No instructions in file
+            True
+
+
+def kybd(threadname):
+    # Uncomment the following line if THIS THREAD
+    # will need to modify the "run" variable. DO NOT
+    # need to uncomment it to just READ it...
+    global run
+
+    while run:
+        try:
+            raw_input('\n\t******** Press Enter to stop ********\n\n')
+            run=0
+        except KeyboardInterrupt:
+            print("\n\n\t******** CAUTION: Next time press <Enter>! ********\n")
+            run=0
+
+    run=0
+    print("Stopping all threads...")
+
 
 
 lidar = Thread( target=lidar, args=("Thread-1", ) )
 ultrasonic = Thread( target=ultrasonic, args=("Thread-2", ) )
+cmds = Thread( target=cmds, args=("Thread-3", ) )
+kybd = Thread( target=kybd, args=("Thread-4", ) )
 
 lidar.start()
 ultrasonic.start()
+cmds.start()
+kybd.start()
 
-try:
-    raw_input('\n\t******** Press Enter to stop ********\n\n')
-except KeyboardInterrupt:
-    print("\n\n\t******** CAUTION: Next time press <Enter>! ********\n")
+while run:
+    time.sleep(1)
 
 print("Stopping all threads...")
 run=0
 
 lidar.join()
 ultrasonic.join()
+cmds.join()
+# NOTE: DO NOT JOIN ON KYBD, as it may be locked in loop looking for user input!
+#kybd.join()
+# TO-DO: KILL the kybd thread if it's not already dead!
 
 print("All threads stopped")
 
