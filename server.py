@@ -26,7 +26,7 @@ class S(BaseHTTPRequestHandler):
             # Issue 'STOP' command -
             stop()
             self._set_response()
-            self.wfile.write("{}".format("***STOPPING THE ROBOT!!***").encode('utf-8'))
+            self.wfile.write("{}".format("***STOPPING THE ROBOT!!***<script>var timer = setTimeout(function() { window.location='/' }, 5000);</script>").encode('utf-8'))
         else:
             # Return index.html
             self._set_response()
