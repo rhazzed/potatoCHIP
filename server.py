@@ -6,10 +6,14 @@
 #
 #  2021-01-28  msipin  Added this header. Added ability to return images, and served up /favicon.ico URL.
 #                      Added loading of user-specified URL.  Supported "404 Not Found" error return.
+#  2021-01-28  msipin  Added filtering of URLs. Added ability to serve from subdirectories of main directory.
+#                      Added ability to serve .css (Cascading Style Sheet), .jpg/.jpeg (JPEG), .gif (GIF)  and
+#                      .js (javascript) files.
 #####################################
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import logging
+import re
 
 # Import the pin definition (a symbolic link to MyPins.<RobotName>.py)
 # for your particular robot -
@@ -23,9 +27,19 @@ class S(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         self.end_headers()
 
-    def _set_img_response(self):
+    def _set_png_response(self):
         self.send_response(200)
         self.send_header('Content-type', 'image/png')
+        self.end_headers()
+
+    def _set_gif_response(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'image/gif')
+        self.end_headers()
+
+    def _set_jpg_response(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'image/jpeg')
         self.end_headers()
 
     def _set_404_response(self):
@@ -67,13 +81,23 @@ class S(BaseHTTPRequestHandler):
                     if self.path.startswith("/") and \
                         ("/" == self.path or self.path.endswith(".html") or \
                         self.path.endswith(".htm") or self.path.endswith(".txt") or \
+                        self.path.endswith(".css") or self.path.endswith(".js") or \
+                        self.path.endswith(".jpg") or self.path.endswith(".jpeg") or \
+                        self.path.endswith(".gif") or \
                         self.path.endswith(".png") or self.path.endswith(".ico")) and \
                         not ".." in self.path:
 
                         logging.debug("\nURL starts/ends correctly...\n")
 
                         # HERE BE DRAGONS!
-                        url = self.path
+                        url=""
+                        # The only percent-anything we should allow is "%20", which is a space, which we
+                        # should replace with an actual space
+                        for c in re.sub(r"%20"," ", self.path):
+                            # The only characters we should allow are ones we like -
+                            if c in "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.&?+_-/= ":
+                                url = url + c
+
 
                         # If self.path = "/" then rewrite url to "/index.html"
                         if "/" == self.path:
@@ -81,7 +105,10 @@ class S(BaseHTTPRequestHandler):
                             url = "/index.html"
 
                         # Strip off leading "/" (aka file-path is relative to the current (server) directory)
-                        url = url[1:]
+                        try:
+                            url = url[1:]
+                        except:
+                            url = ""
                         logging.debug("\nAfter stripping, url is: [%s]\n", str(url))
 
                     # -------------------------------------------------------------
@@ -93,15 +120,26 @@ class S(BaseHTTPRequestHandler):
                     logging.debug("\nTrying to open file [%s]...\n",url)
                     f = None
                     # Open .ico/.png (both are PNGs) file - 
-                    if url.endswith(".ico") or url.endswith(".png"):
+                    if url.endswith(".ico") or url.endswith(".png") or \
+                        url.endswith(".jpg") or url.endswith(".jpeg") or \
+                        url.endswith(".gif"):
 
                         # Open file as BINARY DATA
                         f = open(url, 'rb')
                         temp = f.read()
                         f.close()
 
-                        # Set return-type as PNG
-                        self._set_img_response()
+                        if url.endswith(".ico") or url.endswith(".png"):
+                            # Set return-type as PNG
+                            self._set_png_response()
+
+                        if url.endswith(".jpg") or url.endswith(".jpeg"):
+                            # Set return-type as JPEG
+                            self._set_jpg_response()
+
+                        if url.endswith(".gif"):
+                            # Set return-type as GIF
+                            self._set_gif_response()
 
                         # Write RAW contents to outupt
                         self.wfile.write(temp)
@@ -169,10 +207,10 @@ def stop():
 def run(server_class=HTTPServer, handler_class=S, port=8080):
 
     # TO SHOW DEBUG STUFF -
-    logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.DEBUG)
 
     # FOR "NORMAL" LOGGING -
-    #logging.basicConfig(level=logging.ERROR)
+    logging.basicConfig(level=logging.ERROR)
 
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
