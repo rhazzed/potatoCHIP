@@ -49,62 +49,83 @@ class S(BaseHTTPRequestHandler):
                 self._set_200_text_response()
                 self.wfile.write("{}".format("***STOPPING THE ROBOT!!***<script>var timer = setTimeout(function() { window.location='/' }, 3000);</script>").encode('utf-8'))
             else:
-                if "favicon.ico" in self.path:
-                    if not favicon_ico is None:
-                        # Return favicon.ico
-                        self._set_img_response()
-                        self.wfile.write(favicon_ico)
-                else:
-                    # Try to open URL (if present) -
+                # Try to open URL (if present) -
+                # -------------------------------------------------------------
+                #   CAUTION: THIS IS A *TERRIBLE* *SECURITY* *RISK*!!!!
+                #            YOU *BETTER* KNOW WHAT YOU ARE DOING HERE!!!!!!!
+                #      -- (OR BE PREPARED TO BE COMPLETELY P0WNED!!!) --
+                # -------------------------------------------------------------
+                try:
+                    logging.debug("\nInto potential file-serving code...\n")
+
+                    # Default to throwing 404 - Not Found error (This can be achieved by
+                    # setting the URL to an impossible location)
+                    url = "//dev/null/NothingToSeeHere"   # An impossible URL
+                    logging.debug("\nURL defaulted to NOT-FOUND-CONDITION\n")
+
+                    # TO-DO: DO MUCH MORE EXTENSIVE FILTERING OF THE ALLOWABLE URLs HERE ---
+                    if self.path.startswith("/") and \
+                        ("/" == self.path or self.path.endswith(".html") or \
+                        self.path.endswith(".htm") or self.path.endswith(".txt") or \
+                        self.path.endswith(".png") or self.path.endswith(".ico")) and \
+                        not ".." in self.path:
+
+                        logging.debug("\nURL starts/ends correctly...\n")
+
+                        # HERE BE DRAGONS!
+                        url = self.path
+
+                        # If self.path = "/" then rewrite url to "/index.html"
+                        if "/" == self.path:
+                            logging.debug("\nURL should be 'index.html'\n")
+                            url = "/index.html"
+
+                        # Strip off leading "/" (aka file-path is relative to the current (server) directory)
+                        url = url[1:]
+                        logging.debug("\nAfter stripping, url is: [%s]\n", str(url))
+
                     # -------------------------------------------------------------
                     #   CAUTION: THIS IS A *TERRIBLE* *SECURITY* *RISK*!!!!
                     #            YOU *BETTER* KNOW WHAT YOU ARE DOING HERE!!!!!!!
                     #            OR BE PREPARED TO BE COMPLETELY P0WNED!!!
                     # -------------------------------------------------------------
-                    try:
-                        logging.debug("\nInto potential file-serving code...\n")
 
-                        # Default to throwing 404 - Not Found error (This can be achieved by
-                        # setting the URL to an impossible location)
-                        url = "//dev/null/NothingToSeeHere"   # An impossible URL
-                        logging.debug("\nURL defaulted to NOT-FOUND-CONDITION\n")
+                    logging.debug("\nTrying to open file [%s]...\n",url)
+                    f = None
+                    # Open .ico/.png (both are PNGs) file - 
+                    if url.endswith(".ico") or url.endswith(".png"):
 
-                        # TO-DO: DO MUCH MORE EXTENSIVE FILTERING OF THE ALLOWABLE URLs HERE ---
-                        if self.path.startswith("/") and ("/" == self.path or self.path.endswith(".html")) and not ".." in self.path:
-                            logging.debug("\nURL starts/ends correctly...\n")
+                        # Open file as BINARY DATA
+                        f = open(url, 'rb')
+                        temp = f.read()
+                        f.close()
 
-                            # HERE BE DRAGONS!
-                            url = self.path
+                        # Set return-type as PNG
+                        self._set_img_response()
 
-                            # If self.path = "/" then rewrite url to "/index.html"
-                            if "/" == self.path:
-                                logging.debug("\nURL should be 'index.html'\n")
-                                url = "/index.html"
+                        # Write RAW contents to outupt
+                        self.wfile.write(temp)
 
-                            # Strip off leading "/" (aka file-path is relative to the current (server) directory)
-                            url = url[1:]
-                            logging.debug("\nAfter stripping, url is: [%s]\n", str(url))
+                    else:
+                        # Open file as TEXT
+                        f = open(url, 'r')
+                        temp = f.read()
+                        f.close()
 
-                        # -------------------------------------------------------------
-                        #   CAUTION: THIS IS A *TERRIBLE* *SECURITY* *RISK*!!!!
-                        #            YOU *BETTER* KNOW WHAT YOU ARE DOING HERE!!!!!!!
-                        #            OR BE PREPARED TO BE COMPLETELY P0WNED!!!
-                        # -------------------------------------------------------------
-                        with open(url, 'r') as f:
-                            logging.debug("\nTrying to open URL...\n")
-                            temp = f.read()
-                            f.close()
-                            # Write contents to outupt
-                            self._set_200_text_response()
-                            self.wfile.write(url.encode('utf-8'))
-                            ##self.wfile.write(temp.encode('utf-8'))
+                        # Set return-type as text
+                        self._set_200_text_response()
 
-                    except IOError:
-                        logging.debug("\n****FAILED to open URL!\n")
-                        # File doesn't exist
-                        # Return "404 Not Found"
-                        self._set_404_response()
-                        self.wfile.write(html_404_not_found .encode('utf-8'))
+                        # Write ENCODED (utf-8) contents to outupt
+                        self.wfile.write(temp.encode('utf-8'))
+
+
+
+                except IOError:
+                    logging.debug("\n****FAILED to open URL!\n")
+                    # File doesn't exist
+                    # Return "404 Not Found"
+                    self._set_404_response()
+                    self.wfile.write(html_404_not_found .encode('utf-8'))
 
 
     def do_POST(self):
@@ -151,7 +172,6 @@ def run(server_class=HTTPServer, handler_class=S, port=8080):
     httpd.server_close()
     print('Stopping httpd...\n')
 
-favicon_ico=None
 html_404_not_found="<html><head><title>404 Not Found</title></head><body><h1>404 - Not Found</h1></body></html>"
 
 if __name__ == '__main__':
@@ -163,18 +183,6 @@ if __name__ == '__main__':
             temp = f.read()
             f.close()
             html_404_not_found = temp
-
-    except IOError:
-        # File doesn't exist
-        True
-
-
-    # Load favicon.ico (if present) -
-    try:
-        with open("favicon.ico", 'rb') as f:
-            temp = f.read()
-            f.close()
-            favicon_ico = temp
 
     except IOError:
         # File doesn't exist
