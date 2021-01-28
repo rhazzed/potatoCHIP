@@ -115,8 +115,20 @@ class S(BaseHTTPRequestHandler):
                         # Set return-type as text
                         self._set_200_text_response()
 
+                        # If url ends in .txt
+                        if url.endswith(".txt"):
+                            # Write HTML header/prefix/<pre>
+                            self.wfile.write("<html><head><title>".encode('utf-8'))
+                            self.wfile.write(url.encode('utf-8'))
+                            self.wfile.write("</title></head><body><pre>".encode('utf-8'))
+
                         # Write ENCODED (utf-8) contents to outupt
                         self.wfile.write(temp.encode('utf-8'))
+
+                        # If url ends in .txt
+                        if url.endswith(".txt"):
+                            # Write </pre>/end-body-(etc) HTML
+                            self.wfile.write("</pre></body></html>".encode('utf-8'))
 
 
 
