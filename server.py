@@ -12,6 +12,7 @@ from MyPins import *
 
 
 class S(BaseHTTPRequestHandler):
+
     def _set_response(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -20,10 +21,21 @@ class S(BaseHTTPRequestHandler):
     def do_GET(self):
         logging.debug("\nGET\n****URL: %s\n****Headers:\n%s\n", str(self.path), str(self.headers))
         logging.info("\nGET\n****URL: %s\n", str(self.path))
-        self._set_response()
-        self.wfile.write("GET {}".format(self.path).encode('utf-8'))
-        # DEBUG: Fake a 'STOP' command -
-        stop()
+
+        if self.path == "/":
+            # Return index.html
+            self._set_response()
+            self.wfile.write(index_html.encode('utf-8'))
+        else:
+            if CMD_STOP in self.path:
+                # Issue 'STOP' command -
+                stop()
+                self._set_response()
+                self.wfile.write("{}".format("***STOPPING!!***").encode('utf-8'))
+            else:
+                self._set_response()
+                self.wfile.write("GET {}".format(self.path).encode('utf-8'))
+
 
     def do_POST(self):
         content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
@@ -61,8 +73,25 @@ def run(server_class=HTTPServer, handler_class=S, port=8080):
     httpd.server_close()
     print('Stopping httpd...\n')
 
+index_html="<html><head><title>Hi!</title></head><body><h1>Hi there!</h1></body></html>"
+
 if __name__ == '__main__':
     from sys import argv
+
+    try:
+        with open("index.html", 'r') as f:
+            temp = f.read()
+            f.close()
+            index_html = temp
+
+    except IOError:
+        # File doesn't exist
+        True
+
+    except IOError:
+        # No instructions in file
+        True
+
 
     if len(argv) == 2:
         run(port=int(argv[1]))
