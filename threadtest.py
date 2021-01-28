@@ -181,37 +181,42 @@ def backup_turn_random():
 
 def distance(trigger_gpio,echo_gpio):
 
-	# Send trigger pulse
-	# set Trigger to HIGH
-	GPIO.output(trigger_gpio, True)
+    # Uncomment the following line if THIS THREAD
+    # will need to modify the "run" variable. DO NOT
+    # need to uncomment it to just READ it...
+    global run
 
-	# set Trigger after 0.01ms to LOW
-	time.sleep(0.00001)
-	GPIO.output(trigger_gpio, False)
+    # Send trigger pulse
+    # set Trigger to HIGH
+    GPIO.output(trigger_gpio, True)
 
-	StartTime = time.time()
-	StopTime = time.time()
+    # set Trigger after 0.01ms to LOW
+    time.sleep(0.00001)
+    GPIO.output(trigger_gpio, False)
 
-	# save StartTime
-	while GPIO.input(echo_gpio) == 0:
-		StartTime = time.time()
+    StartTime = time.time()
+    StopTime = time.time()
 
-	# save time of arrival
-	while GPIO.input(echo_gpio) == 1:
-		StopTime = time.time()
+    # save StartTime
+    while run and GPIO.input(echo_gpio) == 0:
+        StartTime = time.time()
 
-	# time difference between start and arrival
-	TimeElapsed = StopTime - StartTime
-	# multiply with the sonic speed (34300 cm/s)
-	# and divide by 2, because there and back
-	dist = ((TimeElapsed * 34300) / 2 / 2.54)
+    # save time of arrival
+    while run and GPIO.input(echo_gpio) == 1:
+        StopTime = time.time()
 
-	# If distance is beyond the range of this device,
-	# consider it "invalid", and set it to "max. distance" (999)
-	if (dist > 40):
-		dist = 999
+    # time difference between start and arrival
+    TimeElapsed = StopTime - StartTime
+    # multiply with the sonic speed (34300 cm/s)
+    # and divide by 2, because there and back
+    dist = ((TimeElapsed * 34300) / 2 / 2.54)
 
-	return dist
+    # If distance is beyond the range of this device,
+    # consider it "invalid", and set it to "max. distance" (999)
+    if (dist > 40):
+        dist = 999
+
+    return dist
 
 
 
@@ -220,8 +225,9 @@ def lidar(threadname):
     # Uncomment the following line if THIS THREAD
     # will need to modify the "run" variable. DO NOT
     # need to uncomment it to just READ it...
-    #global run
+    global run
     global lidar_dir
+
     while run:
         # Run LIDAR reader command and display its output
         p = subprocess.Popen(["lidarGo"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -242,6 +248,9 @@ def lidar(threadname):
 
         time.sleep(1)
 
+    run=0
+    print("\n\t\t***Thread %s exiting." % threadname)
+
 
 def ultrasonic(threadname):
     global range
@@ -249,8 +258,7 @@ def ultrasonic(threadname):
     # Uncomment the following line if THIS THREAD
     # will need to modify the "run" variable. DO NOT
     # need to uncomment it to just READ it...
-    #global run
-    #global lidar_dir
+    global run
 
     print('ULTRASONIC RANGE SENSOR SERVO FWD...')
     servo_pos = int((servo_max - servo_min)/2)+servo_min
@@ -259,9 +267,10 @@ def ultrasonic(threadname):
 
 
     # WAIT for the run variable to be set to 2
-    print("Waiting for signal to run...")
-    while run and not run == 2:
-        time.sleep(1)
+    print("Thread %s waiting for signal to run..." % threadname)
+    while run == 1:
+        time.sleep(0.5)
+    print("Thread %s done waiting..." % threadname)
 
     # Go FORWARD
     ##go_forward()
@@ -362,6 +371,9 @@ def ultrasonic(threadname):
 	#	servo_stop = 1
 	#pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round(servo_pos)))
 
+    run=0
+    print("\n\t\t***Thread %s exiting." % threadname)
+
 
 def cmds(threadname):
 
@@ -374,10 +386,11 @@ def cmds(threadname):
         try:
             with open(CMD_FILE, 'r') as f:
                 temp = f.read().splitlines()
+                f.close()
                 for cmd in temp:
                     print("DEBUG: cmd = [%s]" % cmd)
 
-                    if CMD_START in cmd:
+                    if CMD_START in cmd and run == 1:
                         # Tell robot to go!
                         run = 2
 
@@ -385,7 +398,6 @@ def cmds(threadname):
                         # Tell all threads to stop!
                         run = 0
                 time.sleep(0.25)
-                f.close()
 
         except IOError:
             # File doesn't exist
@@ -394,6 +406,9 @@ def cmds(threadname):
         except IOError:
             # No instructions in file
             True
+
+    run=0
+    print("\n\t\t***Thread %s exiting." % threadname)
 
 
 def kybd(threadname):
@@ -415,12 +430,13 @@ def kybd(threadname):
     run=0
     print("Stopping all threads...")
 
+    print("\n\t\t***Thread %s exiting." % threadname)
 
 
-lidar = Thread( target=lidar, args=("Thread-1", ) )
-ultrasonic = Thread( target=ultrasonic, args=("Thread-2", ) )
-cmds = Thread( target=cmds, args=("Thread-3", ) )
-kybd = Thread( target=kybd, args=("Thread-4", ) )
+lidar = Thread( target=lidar, args=("lidar_thread", ) )
+ultrasonic = Thread( target=ultrasonic, args=("ultrasonic_thread", ) )
+cmds = Thread( target=cmds, args=("cmds_thread", ) )
+kybd = Thread( target=kybd, args=("kybd_thread", ) )
 
 lidar.start()
 ultrasonic.start()
@@ -448,4 +464,5 @@ stop_tracks()
 
 print("Cleaning up GPIO...")
 GPIO.cleanup()
-print("Done")
+print("\n\t\t***Main thread done!\nProgram exiting!")
+
