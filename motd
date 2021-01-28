@@ -1,0 +1,17 @@
+
+DERPA and NIMROD - The Intelligent, Automated, Tracked Robots!
+
+REQUIREMENTS -
+
+*) login as pi
+*) cd ~/potatoCHIP
+*) ./ultra_simple >/dev/null
+
+*) login as pi
+*) cd ~/potatoCHIP
+*) ./server.py
+
+*) login as pi
+*) cd ~/potatoCHIP
+*) python ./threadtest.py
+
