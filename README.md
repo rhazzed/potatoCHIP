@@ -5,6 +5,9 @@ Both are tracked robots based on the OSEPP TANK-01 (https://www.digikey.com/en/p
 
 This is a (mostly) Python codebase to get various things going with -- like a 16-channel I2C PWM controller board, Ultrasonic Range Sensors, LIDAR, IR, Laser range finders and more.
 
+REQUIREMENTS -
+
+     pip install httpserver
 
 SEE "motd" FILE FOR STARTUP INSTRUCTIONS!
 

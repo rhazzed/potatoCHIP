@@ -10,6 +10,7 @@ REQUIREMENTS -
 *) login as pi
 *) cd ~/potatoCHIP
 *) ./server.py
+    (NOTE: If this fails, try "pip install httpserver", and run it again)
 
 *) login as pi
 *) cd ~/potatoCHIP
