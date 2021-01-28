@@ -16,6 +16,7 @@ import time
 import subprocess
 import os
 from random import randrange
+import sys, select
 
 
 # Import the PCA9685 16-channel I2C PWM module.
@@ -391,13 +392,15 @@ def kybd(threadname):
     # need to uncomment it to just READ it...
     global run
 
+    print('\n\t******** Press Enter to stop ********\n\n')
     while run:
-        try:
-            raw_input('\n\t******** Press Enter to stop ********\n\n')
+        i, o, e = select.select( [sys.stdin], [], [], 0.1 )
+        if (i):
+            # User typed something!
             run=0
-        except KeyboardInterrupt:
-            print("\n\n\t******** CAUTION: Next time press <Enter>! ********\n")
-            run=0
+        else:
+            # Nothing typed
+            True
 
     run=0
     print("Stopping all threads...")
@@ -423,9 +426,7 @@ run=0
 lidar.join()
 ultrasonic.join()
 cmds.join()
-# NOTE: DO NOT JOIN ON KYBD, as it may be locked in loop looking for user input!
-#kybd.join()
-# TO-DO: KILL the kybd thread if it's not already dead!
+kybd.join()
 
 print("All threads stopped")
 
