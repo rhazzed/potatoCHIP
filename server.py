@@ -22,15 +22,21 @@ class S(BaseHTTPRequestHandler):
         logging.debug("\nGET\n****URL: %s\n****Headers:\n%s\n", str(self.path), str(self.headers))
         logging.info("\nGET\n****URL: %s\n", str(self.path))
 
-        if CMD_STOP in self.path:
-            # Issue 'STOP' command -
-            stop()
+        if CMD_START in self.path:
+            # Issue 'START' command -
+            start()
             self._set_response()
-            self.wfile.write("{}".format("***STOPPING THE ROBOT!!***<script>var timer = setTimeout(function() { window.location='/' }, 5000);</script>").encode('utf-8'))
+            self.wfile.write("{}".format(" STARTING THE ROBOT  =) <script>var timer = setTimeout(function() { window.location='/' }, 250);</script>").encode('utf-8'))
         else:
-            # Return index.html
-            self._set_response()
-            self.wfile.write(index_html.encode('utf-8'))
+            if CMD_STOP in self.path:
+                # Issue 'STOP' command -
+                stop()
+                self._set_response()
+                self.wfile.write("{}".format("***STOPPING THE ROBOT!!***<script>var timer = setTimeout(function() { window.location='/' }, 3000);</script>").encode('utf-8'))
+            else:
+                # Return index.html
+                self._set_response()
+                self.wfile.write(index_html.encode('utf-8'))
 
 
     def do_POST(self):
@@ -44,6 +50,12 @@ class S(BaseHTTPRequestHandler):
 
         self._set_response()
         self.wfile.write("POST {}".format(self.path).encode('utf-8'))
+
+def start():
+    # Write "START" to command-file
+    with open(CMD_FILE, "w") as f:
+        f.write(CMD_START)
+
 
 def stop():
     # Write "STOP" to command-file

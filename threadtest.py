@@ -258,6 +258,11 @@ def ultrasonic(threadname):
     pwm.set_pwm(PWM_CH_SERVO, 0, servo_pos)
 
 
+    # WAIT for the run variable to be set to 2
+    print("Waiting for signal to run...")
+    while run and not run == 2:
+        time.sleep(1)
+
     # Go FORWARD
     ##go_forward()
 
@@ -371,6 +376,10 @@ def cmds(threadname):
                 temp = f.read().splitlines()
                 for cmd in temp:
                     print("DEBUG: cmd = [%s]" % cmd)
+
+                    if CMD_START in cmd:
+                        # Tell robot to go!
+                        run = 2
 
                     if CMD_STOP in cmd:
                         # Tell all threads to stop!
