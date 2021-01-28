@@ -22,19 +22,15 @@ class S(BaseHTTPRequestHandler):
         logging.debug("\nGET\n****URL: %s\n****Headers:\n%s\n", str(self.path), str(self.headers))
         logging.info("\nGET\n****URL: %s\n", str(self.path))
 
-        if self.path == "/":
+        if CMD_STOP in self.path:
+            # Issue 'STOP' command -
+            stop()
+            self._set_response()
+            self.wfile.write("{}".format("***STOPPING THE ROBOT!!***").encode('utf-8'))
+        else:
             # Return index.html
             self._set_response()
             self.wfile.write(index_html.encode('utf-8'))
-        else:
-            if CMD_STOP in self.path:
-                # Issue 'STOP' command -
-                stop()
-                self._set_response()
-                self.wfile.write("{}".format("***STOPPING!!***").encode('utf-8'))
-            else:
-                self._set_response()
-                self.wfile.write("GET {}".format(self.path).encode('utf-8'))
 
 
     def do_POST(self):
