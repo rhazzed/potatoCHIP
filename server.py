@@ -4,7 +4,8 @@
 #
 # HISTORICAL INFORMATION -
 #
-#  2021-01-28  msipin  Added this header. Added ability to return images, and served up /favicon.ico URL
+#  2021-01-28  msipin  Added this header. Added ability to return images, and served up /favicon.ico URL.
+#                      Added loading of user-specified URL.  Supported "404 Not Found" error return.
 #####################################
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -17,7 +18,7 @@ from MyPins import *
 
 class S(BaseHTTPRequestHandler):
 
-    def _set_response(self):
+    def _set_200_text_response(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
@@ -27,6 +28,11 @@ class S(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'image/png')
         self.end_headers()
 
+    def _set_404_response(self):
+        self.send_response(404)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+
     def do_GET(self):
         logging.debug("\nGET\n****URL: %s\n****Headers:\n%s\n", str(self.path), str(self.headers))
         logging.info("\nGET\n****URL: %s\n", str(self.path))
@@ -34,13 +40,13 @@ class S(BaseHTTPRequestHandler):
         if CMD_START in self.path:
             # Issue 'START' command -
             start()
-            self._set_response()
+            self._set_200_text_response()
             self.wfile.write("{}".format(" STARTING THE ROBOT  =) <script>var timer = setTimeout(function() { window.location='/' }, 250);</script>").encode('utf-8'))
         else:
             if CMD_STOP in self.path:
                 # Issue 'STOP' command -
                 stop()
-                self._set_response()
+                self._set_200_text_response()
                 self.wfile.write("{}".format("***STOPPING THE ROBOT!!***<script>var timer = setTimeout(function() { window.location='/' }, 3000);</script>").encode('utf-8'))
             else:
                 if "favicon.ico" in self.path:
@@ -49,9 +55,45 @@ class S(BaseHTTPRequestHandler):
                         self._set_img_response()
                         self.wfile.write(favicon_ico)
                 else:
-                    # Return index.html
-                    self._set_response()
-                    self.wfile.write(index_html.encode('utf-8'))
+                    # If url is "/" or "/index.html" -
+                    if "/" == self.path or "/index.html" == self.path:
+                        # Return index.html
+                        self._set_200_text_response()
+                        self.wfile.write(index_html.encode('utf-8'))
+
+                    else:
+                        # Try to open URL (if present) -
+                        # -------------------------------------------------------------
+                        #   CAUTION: THIS IS A *TERRIBLE* *SECURITY* *RISK*!!!!
+                        #            YOU *BETTER* KNOW WHAT YOU ARE DOING HERE!!!!!!!
+                        #            OR BE PREPARED TO BE COMPLETELY P0WNED!!!
+                        # -------------------------------------------------------------
+                        try:
+                            # Default to throwing 404 - Not Found error (This can be achieved by
+                            # setting the URL to an impossible location)
+                            url = "/dev/null/NothingToSeeHere"   # An impossible URL
+
+                            # TO-DO: DO MUCH MORE EXTENSIVE FILTERING OF THE ALLOWABLE URLs HERE ---
+                            if self.path.startswith("/") and self.path.endswith(".html") and not ".." in self.path:
+                                # -------------------------------------------------------------
+                                #   CAUTION: THIS IS A *TERRIBLE* *SECURITY* *RISK*!!!!
+                                #            YOU *BETTER* KNOW WHAT YOU ARE DOING HERE!!!!!!!
+                                #            OR BE PREPARED TO BE COMPLETELY P0WNED!!!
+                                # -------------------------------------------------------------
+                                url = self.path[1:]
+                            with open(url, 'r') as f:
+                                temp = f.read()
+                                f.close()
+                                # Write contents to outupt
+                                self._set_200_text_response()
+                                ##self.wfile.write(url.encode('utf-8'))
+                                self.wfile.write(temp.encode('utf-8'))
+
+                        except IOError:
+                            # File doesn't exist
+                            # Return "404 Not Found"
+                            self._set_404_response()
+                            self.wfile.write(html_404_not_found .encode('utf-8'))
 
 
     def do_POST(self):
@@ -63,7 +105,7 @@ class S(BaseHTTPRequestHandler):
         logging.info("\nPOST\n****URL: %s\n\n****Body:\n%s\n",
                 str(self.path), post_data.decode('utf-8'))
 
-        self._set_response()
+        self._set_200_text_response()
         self.wfile.write("POST {}".format(self.path).encode('utf-8'))
 
 def start():
@@ -100,6 +142,7 @@ def run(server_class=HTTPServer, handler_class=S, port=8080):
 
 index_html="<html><head><title>Hi!</title></head><body><h1>Hi there!</h1></body></html>"
 favicon_ico=None
+html_404_not_found="<html><head><title>404 Not Found</title></head><body><h1>404 - Not Found</h1></body></html>"
 
 if __name__ == '__main__':
     from sys import argv
@@ -115,9 +158,17 @@ if __name__ == '__main__':
         # File doesn't exist
         True
 
+    # Load 404.html (if present) -
+    try:
+        with open("404.html", 'r') as f:
+            temp = f.read()
+            f.close()
+            html_404_not_found = temp
+
     except IOError:
-        # No instructions in file
+        # File doesn't exist
         True
+
 
     # Load favicon.ico (if present) -
     try:
@@ -128,10 +179,6 @@ if __name__ == '__main__':
 
     except IOError:
         # File doesn't exist
-        True
-
-    except IOError:
-        # No instructions in file
         True
 
 
