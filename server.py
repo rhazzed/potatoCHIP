@@ -34,8 +34,8 @@ class S(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        logging.debug("\nGET\n****URL: %s\n****Headers:\n%s\n", str(self.path), str(self.headers))
-        logging.info("\nGET\n****URL: %s\n", str(self.path))
+        logging.debug("\nGET\n****URL: [%s]\n****Headers:\n%s\n", str(self.path), str(self.headers))
+        logging.info("\nGET\n****URL: [%s]\n", str(self.path))
 
         if CMD_START in self.path:
             # Issue 'START' command -
@@ -51,58 +51,69 @@ class S(BaseHTTPRequestHandler):
             else:
                 if "favicon.ico" in self.path:
                     if not favicon_ico is None:
-                        # Return index.html
+                        # Return favicon.ico
                         self._set_img_response()
                         self.wfile.write(favicon_ico)
                 else:
-                    # If url is "/" or "/index.html" -
-                    if "/" == self.path or "/index.html" == self.path:
-                        # Return index.html
-                        self._set_200_text_response()
-                        self.wfile.write(index_html.encode('utf-8'))
+                    # Try to open URL (if present) -
+                    # -------------------------------------------------------------
+                    #   CAUTION: THIS IS A *TERRIBLE* *SECURITY* *RISK*!!!!
+                    #            YOU *BETTER* KNOW WHAT YOU ARE DOING HERE!!!!!!!
+                    #            OR BE PREPARED TO BE COMPLETELY P0WNED!!!
+                    # -------------------------------------------------------------
+                    try:
+                        logging.debug("\nInto potential file-serving code...\n")
 
-                    else:
-                        # Try to open URL (if present) -
+                        # Default to throwing 404 - Not Found error (This can be achieved by
+                        # setting the URL to an impossible location)
+                        url = "//dev/null/NothingToSeeHere"   # An impossible URL
+                        logging.debug("\nURL defaulted to NOT-FOUND-CONDITION\n")
+
+                        # TO-DO: DO MUCH MORE EXTENSIVE FILTERING OF THE ALLOWABLE URLs HERE ---
+                        if self.path.startswith("/") and ("/" == self.path or self.path.endswith(".html")) and not ".." in self.path:
+                            logging.debug("\nURL starts/ends correctly...\n")
+
+                            # HERE BE DRAGONS!
+                            url = self.path
+
+                            # If self.path = "/" then rewrite url to "/index.html"
+                            if "/" == self.path:
+                                logging.debug("\nURL should be 'index.html'\n")
+                                url = "/index.html"
+
+                            # Strip off leading "/" (aka file-path is relative to the current (server) directory)
+                            url = url[1:]
+                            logging.debug("\nAfter stripping, url is: [%s]\n", str(url))
+
                         # -------------------------------------------------------------
                         #   CAUTION: THIS IS A *TERRIBLE* *SECURITY* *RISK*!!!!
                         #            YOU *BETTER* KNOW WHAT YOU ARE DOING HERE!!!!!!!
                         #            OR BE PREPARED TO BE COMPLETELY P0WNED!!!
                         # -------------------------------------------------------------
-                        try:
-                            # Default to throwing 404 - Not Found error (This can be achieved by
-                            # setting the URL to an impossible location)
-                            url = "/dev/null/NothingToSeeHere"   # An impossible URL
+                        with open(url, 'r') as f:
+                            logging.debug("\nTrying to open URL...\n")
+                            temp = f.read()
+                            f.close()
+                            # Write contents to outupt
+                            self._set_200_text_response()
+                            self.wfile.write(url.encode('utf-8'))
+                            ##self.wfile.write(temp.encode('utf-8'))
 
-                            # TO-DO: DO MUCH MORE EXTENSIVE FILTERING OF THE ALLOWABLE URLs HERE ---
-                            if self.path.startswith("/") and self.path.endswith(".html") and not ".." in self.path:
-                                # -------------------------------------------------------------
-                                #   CAUTION: THIS IS A *TERRIBLE* *SECURITY* *RISK*!!!!
-                                #            YOU *BETTER* KNOW WHAT YOU ARE DOING HERE!!!!!!!
-                                #            OR BE PREPARED TO BE COMPLETELY P0WNED!!!
-                                # -------------------------------------------------------------
-                                url = self.path[1:]
-                            with open(url, 'r') as f:
-                                temp = f.read()
-                                f.close()
-                                # Write contents to outupt
-                                self._set_200_text_response()
-                                ##self.wfile.write(url.encode('utf-8'))
-                                self.wfile.write(temp.encode('utf-8'))
-
-                        except IOError:
-                            # File doesn't exist
-                            # Return "404 Not Found"
-                            self._set_404_response()
-                            self.wfile.write(html_404_not_found .encode('utf-8'))
+                    except IOError:
+                        logging.debug("\n****FAILED to open URL!\n")
+                        # File doesn't exist
+                        # Return "404 Not Found"
+                        self._set_404_response()
+                        self.wfile.write(html_404_not_found .encode('utf-8'))
 
 
     def do_POST(self):
         content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
         post_data = self.rfile.read(content_length) # <--- Gets the data itself
-        logging.debug("\nPOST\n****URL: %s\n****Headers:\n%s\n\n****Body:\n%s\n",
+        logging.debug("\nPOST\n****URL: [%s]\n****Headers:\n%s\n\n****Body:\n%s\n",
                 str(self.path), str(self.headers), post_data.decode('utf-8'))
 
-        logging.info("\nPOST\n****URL: %s\n\n****Body:\n%s\n",
+        logging.info("\nPOST\n****URL: [%s]\n\n****Body:\n%s\n",
                 str(self.path), post_data.decode('utf-8'))
 
         self._set_200_text_response()
@@ -125,10 +136,10 @@ def stop():
 def run(server_class=HTTPServer, handler_class=S, port=8080):
 
     # TO SHOW DEBUG STUFF -
-    #logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG)
 
     # FOR "NORMAL" LOGGING -
-    logging.basicConfig(level=logging.ERROR)
+    #logging.basicConfig(level=logging.ERROR)
 
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
@@ -140,23 +151,11 @@ def run(server_class=HTTPServer, handler_class=S, port=8080):
     httpd.server_close()
     print('Stopping httpd...\n')
 
-index_html="<html><head><title>Hi!</title></head><body><h1>Hi there!</h1></body></html>"
 favicon_ico=None
 html_404_not_found="<html><head><title>404 Not Found</title></head><body><h1>404 - Not Found</h1></body></html>"
 
 if __name__ == '__main__':
     from sys import argv
-
-    # Load index.html (if present) -
-    try:
-        with open("index.html", 'r') as f:
-            temp = f.read()
-            f.close()
-            index_html = temp
-
-    except IOError:
-        # File doesn't exist
-        True
 
     # Load 404.html (if present) -
     try:
