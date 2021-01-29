@@ -7,4 +7,22 @@
 <p style="font-size:24px">To start the robot, click <a href="/START.html">here</a></p>
 <p/>
 <p style="font-size:24px">To stop the robot, click <a href="/STOP.html">here</a></p>
+<p/>
+<p style="font-size:24px">To watch the robot camera livestream, click <a href=":8000" target="_blank" rel="noopener noreferrer">here</a></p>
+
+<script>
+// delegate event for performance, and save attaching a million events to each anchor
+document.addEventListener('click', function(event) {
+  var target = event.target;
+  if (target.tagName.toLowerCase() == 'a')
+  {
+      var port = target.getAttribute('href').match(/^:(\d+)(.*)/);
+      if (port)
+      {
+         target.href = window.location.origin;
+         target.port = port[1];
+      }
+  }
+}, false);
+</script>
 </html>
