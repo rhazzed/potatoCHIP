@@ -2,7 +2,8 @@
 ####################################################
 # camera_server.py - Derpa/Nimrod livestreaming server
 #
-# SEE: http://picamera.readthedocs.io/en/latest/recipes2.html#web-streaming
+# SEE: https://randomnerdtutorials.com/video-streaming-with-raspberry-pi-camera/
+# SOURCE: http://picamera.readthedocs.io/en/latest/recipes2.html#web-streaming
 #
 # HISTORICAL INFORMATION -
 #
