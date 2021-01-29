@@ -18,6 +18,7 @@ REQUIREMENTS -
 *) login as pi
 *) cd ~/potatoCHIP
 *) ./camera_server.py
+    (NOTE: If this fails, try "sudo apt-get install python3-picamera", and run it again)
 
 # Start robot-control executable -
 *) login as pi
