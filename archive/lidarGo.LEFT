@@ -1,0 +1,20 @@
+#!/bin/sh
+##########################################
+# lidarGo.FWD - Always say "go right"
+##########################################
+
+# Constants that could be returned upon exit
+EXIT_DIR_UNKNOWN=0
+EXIT_DIR_ERROR=1
+EXIT_DIR_LEFT=2
+EXIT_DIR_FWD=3
+EXIT_DIR_RIGHT=4
+EXIT_DIR_BACKUP_AND_TURN=100
+EXIT_DIR_STUCK=124
+
+
+echo "(FAKE/DEBUG) TURN LEFT"
+DIRECTION=$EXIT_DIR_LEFT
+
+exit $DIRECTION
+
