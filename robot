@@ -20,7 +20,7 @@ cd ${EXE_DIR}
 
 while [ 1 ]
 do
-	rm -f ${CMD_FILE}
+	sudo rm -f ${CMD_FILE}
 	python ${EXE_DIR}/threadtest.py
 
 	if [ ""$CONTINUOUS"" -ne 1 ]

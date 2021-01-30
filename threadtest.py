@@ -208,8 +208,11 @@ def distance(trigger_gpio,echo_gpio):
 
     # If distance is beyond the range of this device,
     # consider it "invalid", and set it to "max. distance" (999)
-    if (dist > 40):
+    if (dist > 50):
         dist = 999
+
+    if (dist < 0):
+        dist = 0
 
     return dist
 
