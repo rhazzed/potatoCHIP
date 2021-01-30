@@ -8,6 +8,8 @@
 #  2021-01-24  msipin  Changed definition for "main" ultrasonic sensor pins.
 #  2021-01-25  msipin  Fixed missing lidar-backup case
 #  2021-01-27  msipin  Added website integration (to pickup commands)
+#  2021-01-29  msipin  Moved ultrasonic sensor readings to their own thread and spaced them out to avoid
+#                      hearing eachother's "distant responses"
 ##################################
 
 from __future__ import division
@@ -62,9 +64,6 @@ GPIO.setup(GPIO_LREAR, gpio.OUT)
 
 
 
-range = 999	# Global variable that holds the ultrasonic range
-		# detector's latest distance measurement
-
 run=1		# Global "keep going" variable. Set to "0" to stop
 		# all threads (e.g. to shut down the program)
 
@@ -77,6 +76,7 @@ run=1		# Global "keep going" variable. Set to "0" to stop
 #    EXIT_DIR_BACKUP_AND_TURN=100
 #    EXIT_DIR_STUCK=124
 lidar_dir=3
+ultrasonic_dir = 3
 
 track_speed=TRACK_HALF	# Global variable to control how fast the tracks
 #track_speed=TRACK_FULL  # Global variable to control how fast the tracks
@@ -189,16 +189,21 @@ def distance(trigger_gpio,echo_gpio):
     time.sleep(0.00001)
     GPIO.output(trigger_gpio, False)
 
-    StartTime = time.time()
-    StopTime = time.time()
+    now = time.time()
+    StartTime = now
 
     # save StartTime
-    while run and GPIO.input(echo_gpio) == 0:
-        StartTime = time.time()
+    while run and GPIO.input(echo_gpio) == 0 and ((now - StartTime) < 0.1):
+    	now = time.time()
+    #print("E.T. StartTime: %0.4f" %  (now - StartTime))
+    StartTime = now
 
+    StopTime = now
     # save time of arrival
-    while run and GPIO.input(echo_gpio) == 1:
-        StopTime = time.time()
+    while run and GPIO.input(echo_gpio) == 1 and ((now - StopTime) < 0.1):
+        now = time.time()
+    #print("E.T. StopTime: %0.4f" %  (now - StopTime))
+    StopTime = now
 
     # time difference between start and arrival
     TimeElapsed = StopTime - StartTime
@@ -251,12 +256,12 @@ def lidar(threadname):
 
 
 def ultrasonic(threadname):
-    global range
 
     # Uncomment the following line if THIS THREAD
     # will need to modify the "run" variable. DO NOT
     # need to uncomment it to just READ it...
     global run
+    global ultrasonic_dir
 
     print('ULTRASONIC RANGE SENSOR SERVO FWD...')
     servo_pos = int((servo_max - servo_min)/2)+servo_min
@@ -264,23 +269,25 @@ def ultrasonic(threadname):
     pwm.set_pwm(PWM_CH_SERVO, 0, servo_pos)
 
 
-    # WAIT for the run variable to be set to 2
-    print("Thread %s waiting for signal to run..." % threadname)
-    while run == 1:
-        time.sleep(0.5)
-    print("Thread %s done waiting..." % threadname)
+    # set ALL triggers to LOW
+    GPIO.output(GPIO_TRIGGER_L, False)
+    GPIO.output(GPIO_TRIGGER_F, False)
+    GPIO.output(GPIO_TRIGGER_R, False)
 
-    # Go FORWARD
-    ##go_forward()
 
     while run:
 
-	# Ensure ultrasonic triggers have time to settle
-	# (NOTE: MOVED THIS TO BEFORE CONTINUING FORWARD, BELOW)
-	# time.sleep(0.25)
 
-	rangeL = distance(GPIO_TRIGGER_L, GPIO_ECHO_L)
+	# Ensure ultrasonic trigger has time to settle
+	time.sleep(0.34)
 	rangeF = distance(GPIO_TRIGGER_F, GPIO_ECHO_F)
+
+	# Ensure ultrasonic trigger has time to settle
+	time.sleep(0.33)
+	rangeL = distance(GPIO_TRIGGER_L, GPIO_ECHO_L)
+
+	# Ensure ultrasonic trigger has time to settle
+	time.sleep(0.33)
 	rangeR = distance(GPIO_TRIGGER_R, GPIO_ECHO_R)
 
         # display ultrasonic "range"
@@ -288,26 +295,12 @@ def ultrasonic(threadname):
         print("Front ultrasonic: %d" % rangeF)
         print("Right ultrasonic: %d" % rangeR)
 
-        # Return codes for the "lidarGo" program (script, actually) -
-        #    EXIT_DIR_UNKNOWN=0
-        #    EXIT_DIR_ERROR=1
-        #    EXIT_DIR_LEFT=2
-        #    EXIT_DIR_FWD=3
-        #    EXIT_DIR_RIGHT=4
-        #    EXIT_DIR_BACKUP_AND_TURN=100
-        #    EXIT_DIR_STUCK=124
         ultrasonic_dir = 3
 
 	# If ultrasonic distance is "danger close", stop moving!
 	if (rangeL <= ULTRASONIC_MIN_DIST or rangeF <= ULTRASONIC_MIN_DIST or rangeR <= ULTRASONIC_MIN_DIST):
 		print("\nUltrasonic sensors see something in our path!\n")
-		stop_tracks()
 		ultrasonic_dir = 0
-
-	# If lidar doesn't think we should keep going forward, stop moving!
-	if (lidar_dir != 3):
-		print("\nLidar sees something in our path! (%d)\n" % lidar_dir)
-		stop_tracks()
 
         # If the ultrasonic sensor stopped us...
         if (ultrasonic_dir == 0):
@@ -324,6 +317,57 @@ def ultrasonic(threadname):
 
 		if (rangeL <= ULTRASONIC_MIN_DIST and rangeR <= ULTRASONIC_MIN_DIST):
 			ultrasonic_dir = 100 # BACKUP AND TURN
+
+	# Calculate new servo position
+	#servo_pos += servo_step
+	#servo_stop += 1
+	#if (servo_pos > servo_max):
+	#	servo_pos = servo_min
+	#	servo_stop = 1
+	#pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round(servo_pos)))
+
+    run=0
+    print("\n\t\t***Thread %s exiting." % threadname)
+
+
+
+
+
+def tracks(threadname):
+
+    # Uncomment the following line if THIS THREAD
+    # will need to modify the "run" variable. DO NOT
+    # need to uncomment it to just READ it...
+    global run
+    global ultrasonic_dir
+    global lidar_dir
+
+
+    # WAIT for the run variable to be set to 2
+    print("Thread %s waiting for signal to run..." % threadname)
+    while run == 1:
+        time.sleep(0.5)
+    print("Thread %s done waiting..." % threadname)
+
+    # Go FORWARD
+    ##go_forward()
+
+    while run:
+
+        # Return codes for the "lidarGo" program (script, actually) -
+        #    EXIT_DIR_UNKNOWN=0
+        #    EXIT_DIR_ERROR=1
+        #    EXIT_DIR_LEFT=2
+        #    EXIT_DIR_FWD=3
+        #    EXIT_DIR_RIGHT=4
+        #    EXIT_DIR_BACKUP_AND_TURN=100
+        #    EXIT_DIR_STUCK=124
+
+
+	# If lidar doesn't think we should keep going forward, stop moving!
+	if (lidar_dir != 3):
+		print("\nLidar sees something in our path! (%d)\n" % lidar_dir)
+		stop_tracks()
 
 	# if ultrasonic RIGHT and (lidar FWD or lidar RIGHT)...
         if (ultrasonic_dir == 4 and (lidar_dir == 3 or lidar_dir == 4)):
@@ -352,22 +396,11 @@ def ultrasonic(threadname):
 			turn_left(65)
 
 
-	# Ensure ultrasonic triggers have time to settle
-	time.sleep(0.25)
-
 	# Give us additional time to grab the robot, or detect what it had decided to do
 	time.sleep(0.25)
 
 	print("Done! Proceeding Forward!")
 	go_forward()
-
-	# Calculate new servo position
-	#servo_pos += servo_step
-	#servo_stop += 1
-	#if (servo_pos > servo_max):
-	#	servo_pos = servo_min
-	#	servo_stop = 1
-	#pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round(servo_pos)))
 
     run=0
     print("\n\t\t***Thread %s exiting." % threadname)
@@ -435,11 +468,13 @@ lidar = Thread( target=lidar, args=("lidar_thread", ) )
 ultrasonic = Thread( target=ultrasonic, args=("ultrasonic_thread", ) )
 cmds = Thread( target=cmds, args=("cmds_thread", ) )
 kybd = Thread( target=kybd, args=("kybd_thread", ) )
+tracks = Thread( target=tracks, args=("tracks_thread", ) )
 
 lidar.start()
 ultrasonic.start()
 cmds.start()
 kybd.start()
+tracks.start()
 
 while run:
     time.sleep(1)
@@ -451,6 +486,7 @@ lidar.join()
 ultrasonic.join()
 cmds.join()
 kybd.join()
+tracks.join()
 
 print("All threads stopped")
 
