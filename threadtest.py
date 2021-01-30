@@ -29,11 +29,6 @@ import Adafruit_GPIO as gpio
 GPIO = gpio.get_platform_gpio()
 
 
-# File to use to pass commands to the robot (NOTE: *MUST* MATCH the file used in threadtest.py!)
-CMD_FILE="/dev/shm/IN"
-
-
-
 # Import the pin definition (a symbolic link to MyPins.<RobotName>.py)
 # for your particular robot -
 from MyPins import *
