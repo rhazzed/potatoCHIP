@@ -7,8 +7,8 @@
 #  2021-01-29  msipin  Created
 ############################################################
 
-#CONTINUOUS=1    # Uncomment this to keep restarting the robot-logic exe if it ever crashes
-CONTINUOUS=0    # Uncomment this to only run the robot-logic exe *ONCE*
+CONTINUOUS=1    # Uncomment this to keep restarting the robot-logic exe if it ever crashes
+#CONTINUOUS=0    # Uncomment this to only run the robot-logic exe *ONCE*
 
 
 # File to use to pass commands to the robot (NOTE: *MUST* MATCH the file used in MyPins.py, threadtest.py, etc!)
