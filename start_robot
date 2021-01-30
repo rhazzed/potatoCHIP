@@ -1,0 +1,40 @@
+#!/bin/sh
+############################################################
+# start_robot - A shell script to launch all the servers (services) and executable(s) that it takes
+#               to run the Nimrod/Derpa robot
+#
+# HISTORICAL INFORMATION -
+#
+#  2021-01-29  msipin  Created
+############################################################
+
+# File to use to pass commands to the robot (NOTE: *MUST* MATCH the file used in MyPins.py, threadtest.py, etc!)
+CMD_FILE="/dev/shm/IN"
+
+EXE_DIR=/home/pi/potatoCHIP
+
+cd ${EXE_DIR}
+
+# Wait a bit to let Linux come up and acquire an IP address
+sleep 15
+
+# Start LIDAR daemon -
+(nohup ${EXE_DIR}/ultra_simple >/dev/null 2>&1)&
+sleep 7
+
+# Start robot-control webserver -
+#    *) ./server.py
+(nohup ${EXE_DIR}/server.py >/dev/null 2>&1)&
+sleep 2
+
+# Start livestream video webserver (OPTIONAL) -
+#    *) ./camera_server.py
+(nohup ${EXE_DIR}/camera_server.py >/dev/null 2>&1)&
+sleep 2
+
+
+# Start the robot executable(s)
+(nohup ${EXE_DIR}/robot >/dev/null 2>&1)&
+
+exit 0
+
