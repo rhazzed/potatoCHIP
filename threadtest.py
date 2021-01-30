@@ -233,7 +233,7 @@ def lidar(threadname):
 
     while run:
         # Run LIDAR reader command and display its output
-        p = subprocess.Popen(["lidarGo"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        p = subprocess.Popen(["./lidarGo"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         out = p.stdout.read()
         print out
 
@@ -448,15 +448,20 @@ def kybd(threadname):
     # need to uncomment it to just READ it...
     global run
 
-    print('\n\t******** Press Enter to stop ********\n\n')
-    while run:
-        i, o, e = select.select( [sys.stdin], [], [], 0.1 )
-        if (i):
-            # User typed something!
-            run=0
-        else:
-            # Nothing typed
-            True
+    if not sys.stdin.isatty():
+        print("\n\t\t***Thread %s thinks no kybd is present! Self-looping" % threadname)
+        while (run):
+            time.sleep(1)
+    else:
+        print('\n\t******** Press Enter to stop ********\n\n')
+        while run:
+            i, o, e = select.select( [sys.stdin], [], [], 1)
+            if (len(i)>0):
+                # User typed something!
+                run=0
+            else:
+                # Nothing typed
+                True
 
     run=0
     print("Stopping all threads...")
