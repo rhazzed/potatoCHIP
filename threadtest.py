@@ -36,7 +36,9 @@ GPIO = gpio.get_platform_gpio()
 from MyPins import *
 
 
-ULTRASONIC_MIN_DIST = 17
+#ULTRASONIC_MIN_DIST = 17 # Seems to be a little too sensitive
+ULTRASONIC_MIN_DIST = 15
+#ULTRASONIC_MIN_DIST = 14 # Got within 1/2" of wall (aka not sensitive enough)
 
 
 #set GPIO pin directions (IN / OUT) for Ultrasonic Range Detectors

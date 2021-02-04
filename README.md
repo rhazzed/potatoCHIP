@@ -11,3 +11,8 @@ REQUIREMENTS -
 
 SEE "motd" FILE FOR STARTUP INSTRUCTIONS!
 
+
+TO-DOs:
+1) Move camera-rotation to MyPins.*.py
+2) Separate ultrasonic min-distance for FRONT vs Right/Left
+3) Find out why Nimrod's Lidar-Left returns "99999" ALOT!
