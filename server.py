@@ -9,6 +9,7 @@
 #  2021-01-28  msipin  Added filtering of URLs. Added ability to serve from subdirectories of main directory.
 #                      Added ability to serve .css (Cascading Style Sheet), .jpg/.jpeg (JPEG), .gif (GIF)  and
 #                      .js (javascript) files.
+#  2021-01-29  msipin  Closed CMD_FILE after writing anything to it
 #####################################
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -195,6 +196,7 @@ def start():
     with open(CMD_FILE, "w") as f:
         f.write(CMD_START)
         f.write("\n")
+        f.close()
 
 
 def stop():
@@ -202,6 +204,7 @@ def stop():
     with open(CMD_FILE, "w") as f:
         f.write(CMD_STOP)
         f.write("\n")
+        f.close()
 
 
 def run(server_class=HTTPServer, handler_class=S, port=8080):
