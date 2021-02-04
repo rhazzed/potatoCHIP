@@ -219,6 +219,8 @@ int main(int argc, const char * argv[]) {
             // Initialize pos to 0
             int pos = 0;
 
+            float distance = 0.0f;
+
             // For headingd from 0 t0 360 degrees...
             for (hdg=0;hdg <= 360;hdg++) {
 
@@ -235,7 +237,7 @@ int main(int argc, const char * argv[]) {
                 float theta = hdg;
 do {
                     // Calculate range
-                    float distance = -1.0f;
+                    // float distance = -1.0f; // This looks wrong. Should be current-average-distance, or sumpun
                     if (pos < (int)count) {
                         // Calculate theta
                         theta = (nodes[pos].angle_z_q14 * 90.f / (1 << 14)); 
@@ -254,7 +256,7 @@ do {
                         num_samples++;
                     }
 
-                    float range=-1.0f; // TO-DO: THIS SEEMS WRONG. Don't use negative one. Use current-average-distance, or sumpun.
+                    float range=-1.0f;
                     float quality=0.0f;
                     // If either ((theta > hdg) or (pos >= (int)count))...
                     if (((int)theta > hdg) || (pos >= (int)count)) {
