@@ -80,13 +80,13 @@ int main(int argc, const char * argv[]) {
     _u32         baudrateArray[2] = {115200, 256000};
     _u32         opt_com_baudrate = 0;
     u_result     op_result;
-    //rplidar_response_measurement_node_hq_t nodes[8192];
-    rplidar_response_measurement_node_t nodes[10240];
+    rplidar_response_measurement_node_hq_t nodes[8192];
     size_t   count = _countof(nodes);
     char filename[99+1];
     //sprintf(filename,"/dev/shm/000"); // FOR TESTING, ONLY!!
     struct data {
         float range;
+        int qual;
         int cnt;
     };
     data arr[360+1];
@@ -209,10 +209,11 @@ int main(int argc, const char * argv[]) {
     while (!ctrl_c_pressed) {
 
 
-        op_result = drv->grabScanData(nodes, count);
-        // HQ - if (IS_OK(op_result)) {
+        op_result = drv->grabScanDataHq(nodes, count);
         // "REGULAR" -
-        if (IS_OK(op_result) || op_result == RESULT_OPERATION_TIMEOUT) {
+        //if (IS_OK(op_result) || op_result == RESULT_OPERATION_TIMEOUT) {
+        // HQ -
+        if (IS_OK(op_result)) {
             drv->ascendScanData(nodes, count);
             printf("\n\tCOUNT: %d\n\n",(int)count);
 
@@ -222,12 +223,6 @@ int main(int argc, const char * argv[]) {
             //      (nodes[pos].angle_z_q14 * 90.f / (1 << 14)), 
             //      nodes[pos].dist_mm_q2/4.0f,
             //      nodes[pos].quality);
-
-            //  "REGULAR" RESULTS -
-            //  printf("%s theta: %03.2f Dist: %08.2f \n",
-            //      (nodes[pos].sync_quality & RPLIDAR_RESP_MEASUREMENT_SYNCBIT) ?"S ":"  ",
-            //      (nodes[pos].angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f,
-            //      nodes[pos].distance_q2/4.0f);
 
 
             // Walk through the samples
@@ -240,28 +235,31 @@ int main(int argc, const char * argv[]) {
                 // "REGULAR" -
 //  struct data {
 //      float range;
+//      int qual;
 //      int cnt;
 //  };
 //  data arr[360+1];
-                int hdg = (int)((nodes[idx].angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f);
-                float rng = nodes[idx].distance_q2/4.0f;
+                int hdg = (int)(nodes[idx].angle_z_q14 * 90.f / (1 << 14));
+                float rng =  nodes[idx].dist_mm_q2/4.0f;
                 if ((hdg >= 0) && (hdg < 360) && (rng > 0.0)) {
                     arr[hdg].range += rng;
+                    arr[hdg].qual += nodes[idx].quality;
                     arr[hdg].cnt++;
-                    //printf("THT: %3d  DST: %8.2f  QUALITY: ?\n", hdg, rng);
+                    //printf("THT: %3d  DST: %8.2f  QUALITY: %d\n", hdg, rng, (int)nodes[idx].quality);
                 }
 
             } // Done, walking through all returned data
 
             for (int hdg=0;hdg < 360;hdg++) {
                 float range = -1.0f;
-                // Calculate average distance
+                float quality=0.0f;
+                // Calculate average distance and quality
                 if (arr[hdg].cnt > 0) {
                     range = (arr[hdg].range/arr[hdg].cnt);
-
+                    quality = (arr[hdg].qual/arr[hdg].cnt);
                 }
                 // Print heading, range, quality
-                printf("HDG: %3d  RNG: %8.2f  QUALITY: ?\n", hdg, range);
+                printf("HDG: %3d  RNG: %8.2f  QUALITY: %d\n", hdg, range, (int)quality);
 
                 // Save range in filesystem
                 sprintf(filename,"/dev/shm/%03d",hdg);
