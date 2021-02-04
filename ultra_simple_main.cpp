@@ -201,8 +201,8 @@ int main(int argc, const char * argv[]) {
     
     drv->startMotor();
     // start scan...
-    drv->startScan(0,1);
-    //drv->startScan(0,0);
+    //drv->startScan(0,1);
+    drv->startScan(0,0);
 
 
     // fetech result and print it out...
