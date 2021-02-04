@@ -254,7 +254,7 @@ do {
                         num_samples++;
                     }
 
-                    float range=-1.0f;
+                    float range=-1.0f; // TO-DO: THIS SEEMS WRONG. Don't use negative one. Use current-average-distance, or sumpun.
                     float quality=0.0f;
                     // If either ((theta > hdg) or (pos >= (int)count))...
                     if (((int)theta > hdg) || (pos >= (int)count)) {
