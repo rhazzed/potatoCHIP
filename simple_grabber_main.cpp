@@ -263,7 +263,8 @@ int main(int argc, const char * argv[]) {
 
         // take only one 360 deg scan and display the result as a histogram
         ////////////////////////////////////////////////////////////////////////////////
-        if (IS_FAIL(drv->startScan( 0,1 ))) // you can force rplidar to perform scan operation regardless whether the motor is rotating
+        //if (IS_FAIL(drv->startScan( 0,1 ))) // you can force rplidar to perform scan operation regardless whether the motor is rotating
+        if (IS_FAIL(drv->startScan( 0,0 ))) // you can force rplidar to perform scan operation regardless whether the motor is rotating
         {
             fprintf(stderr, "Error, cannot start the scan operation.\n");
             break;

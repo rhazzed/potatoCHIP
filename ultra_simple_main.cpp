@@ -80,7 +80,8 @@ int main(int argc, const char * argv[]) {
     _u32         baudrateArray[2] = {115200, 256000};
     _u32         opt_com_baudrate = 0;
     u_result     op_result;
-    rplidar_response_measurement_node_hq_t nodes[8192];
+    //rplidar_response_measurement_node_hq_t nodes[8192];
+    rplidar_response_measurement_node_hq_t nodes[10240];
     size_t   count = _countof(nodes);
     char filename[99+1];
     //sprintf(filename,"/dev/shm/000"); // FOR TESTING, ONLY!!
@@ -195,7 +196,8 @@ int main(int argc, const char * argv[]) {
     
     drv->startMotor();
     // start scan...
-    drv->startScan(0,1);
+    //drv->startScan(0,1);
+    drv->startScan(0,0);
 
 
     // fetech result and print it out...
