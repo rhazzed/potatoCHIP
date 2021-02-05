@@ -197,15 +197,15 @@ def distance(trigger_gpio,echo_gpio):
 
     # save StartTime
     while run and GPIO.input(echo_gpio) == 0 and ((now - StartTime) < 0.1):
-    	now = time.time()
-    #print("E.T. StartTime: %0.4f" %  (now - StartTime))
+        now = time.time()
+    #print("E.T. %02d StartTime: %0.4f" %  (trigger_gpio, (now - StartTime)))
     StartTime = now
 
     StopTime = now
     # save time of arrival
     while run and GPIO.input(echo_gpio) == 1 and ((now - StopTime) < 0.1):
         now = time.time()
-    #print("E.T. StopTime: %0.4f" %  (now - StopTime))
+    #print("E.T. %02d StopTime: %0.4f" %  (trigger_gpio, (now - StopTime)))
     StopTime = now
 
     # time difference between start and arrival
