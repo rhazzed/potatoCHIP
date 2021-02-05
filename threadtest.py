@@ -11,6 +11,7 @@
 #  2021-01-29  msipin  Moved ultrasonic sensor readings to their own thread and spaced them out to avoid
 #                      hearing eachother's "distant responses"
 #  2021-02-04  msipin  Added a pause after making any turn to give sensors time to re-check their surroundings
+#                      Improved debugging in ultrasonic sensor distance function
 ##################################
 
 from __future__ import division
@@ -198,14 +199,14 @@ def distance(trigger_gpio,echo_gpio):
     # save StartTime
     while run and GPIO.input(echo_gpio) == 0 and ((now - StartTime) < 0.1):
         now = time.time()
-    #print("E.T. %02d StartTime: %0.4f" %  (trigger_gpio, (now - StartTime)))
+    #print("\t\tE.T. %02d StartTime: %0.4f" %  (trigger_gpio, (now - StartTime)))
     StartTime = now
 
     StopTime = now
     # save time of arrival
     while run and GPIO.input(echo_gpio) == 1 and ((now - StopTime) < 0.1):
         now = time.time()
-    #print("E.T. %02d StopTime: %0.4f" %  (trigger_gpio, (now - StopTime)))
+    #print("\t\tE.T. %02d StopTime: %0.4f" %  (trigger_gpio, (now - StopTime)))
     StopTime = now
 
     # time difference between start and arrival

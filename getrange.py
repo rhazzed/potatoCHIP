@@ -11,6 +11,7 @@
 #                      the ultrasonic sensor is triggered.
 #  2021-01-24  msipin  Changed definition for "main" ultrasonic sensor pins.
 #  2021-01-25  msipin  Added left and right ultrasonic sensors and parameterized "distance" function
+#  2021-02-04  msipin  Improved debugging in ultrasonic sensor distance function
 ##################################
 
 #Libraries
@@ -20,6 +21,7 @@ GPIO = gpio.get_platform_gpio()
 import time
 import sys
 
+run=True
 
 # Import the pin definition (a symbolic link to MyPins.<RobotName>.py)
 # for your particular robot -
@@ -44,37 +46,51 @@ GPIO.output(GPIO_TRIGGER_R, False)
 
 def distance(trigger_gpio,echo_gpio):
 
-	# Send trigger pulse
-	# set Trigger to HIGH
-	GPIO.output(trigger_gpio, True)
+    # Uncomment the following line if THIS THREAD
+    # will need to modify the "run" variable. DO NOT
+    # need to uncomment it to just READ it...
+    global run
 
-	# set Trigger after 0.01ms to LOW
-	time.sleep(0.00001)
-	GPIO.output(trigger_gpio, False)
+    # Send trigger pulse
+    # set Trigger to HIGH
+    GPIO.output(trigger_gpio, True)
 
-	StartTime = time.time()
-	StopTime = time.time()
+    # set Trigger after 0.01ms to LOW
+    time.sleep(0.00001)
+    GPIO.output(trigger_gpio, False)
 
-	# save StartTime
-	while GPIO.input(echo_gpio) == 0:
-		StartTime = time.time()
+    now = time.time()
+    StartTime = now
 
-	# save time of arrival
-	while GPIO.input(echo_gpio) == 1:
-		StopTime = time.time()
+    # save StartTime
+    while run and GPIO.input(echo_gpio) == 0 and ((now - StartTime) < 0.1):
+        now = time.time()
+    print("\t\tE.T. %02d StartTime: %0.4f" %  (trigger_gpio, (now - StartTime)))
+    StartTime = now
 
-	# time difference between start and arrival
-	TimeElapsed = StopTime - StartTime
-	# multiply with the sonic speed (34300 cm/s)
-	# and divide by 2, because there and back
-	dist = ((TimeElapsed * 34300) / 2 / 2.54)
+    StopTime = now
+    # save time of arrival
+    while run and GPIO.input(echo_gpio) == 1 and ((now - StopTime) < 0.1):
+        now = time.time()
+    print("\t\tE.T. %02d StopTime: %0.4f" %  (trigger_gpio, (now - StopTime)))
+    StopTime = now
 
-	# If distance is beyond the range of this device,
-	# consider it "invalid", and set it to "max. distance" (999)
-	if (dist > 40):
-		dist = 999
+    # time difference between start and arrival
+    TimeElapsed = StopTime - StartTime
+    # multiply with the sonic speed (34300 cm/s)
+    # and divide by 2, because there and back
+    dist = ((TimeElapsed * 34300) / 2 / 2.54)
 
-	return dist
+    # If distance is beyond the range of this device,
+    # consider it "invalid", and set it to "max. distance" (999)
+    if (dist > 50):
+        dist = 999
+
+    if (dist < 0):
+        dist = 0
+
+    return dist
+
 
 
 def main():
