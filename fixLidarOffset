@@ -3,6 +3,10 @@
 # fixLidarOffset - Create symbolic links between the "real" LIDAR range compass-point files and "adjusted"
 #                  compass-point files to compensate for any misalignment between the LIDAR's zero-degree-point
 #                  and the platform's (robot's) zero-degree-point.
+#
+# HISTORICAL INFORMATION -
+#
+#  2021-02-04  msipin  Stopped creating file for the 360th degree - that is a duplicate of zero degrees!
 ###############################################
 
 # Where to look for range values (*MUST* MATCH the directory used in "ultra_simple"!!!)
@@ -21,7 +25,7 @@ rm -f ${ADJUSTED_DIR}/[0-9][0-9][0-9]
 #RH=92  # Uncomment this and set it to whatever you need, if your LIDAR's zero-degrees is offset from your robot's zero-degrees point
 RH=0	# Uncomment this if the lidar zero-degrees is EQUAL to robot zero-degrees
 
-for HDG in {0..360}
+for HDG in {0..359}
 do
 	echo "HDG=$HDG"
 	rh=`echo $HDG | awk '{ printf "%03d",$1 }'`
