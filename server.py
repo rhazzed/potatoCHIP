@@ -10,6 +10,7 @@
 #                      Added ability to serve .css (Cascading Style Sheet), .jpg/.jpeg (JPEG), .gif (GIF)  and
 #                      .js (javascript) files.
 #  2021-01-29  msipin  Closed CMD_FILE after writing anything to it
+#  2021-02-04  msipin  Truncated CMD_FILE on startup
 #####################################
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -241,6 +242,8 @@ if __name__ == '__main__':
         # File doesn't exist
         True
 
+    # Initialize robot command file
+    open(CMD_FILE, "w").close()
 
     if len(argv) == 2:
         run(port=int(argv[1]))

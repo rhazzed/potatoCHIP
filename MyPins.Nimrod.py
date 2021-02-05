@@ -44,6 +44,8 @@ SECONDS_PER_DEGREE = 0.004166	# FULL SPEED (Nimrod needs this for half-speed!?)
 # COMMAND-PASSING FILE -
 # File to use to pass commands to the robot
 CMD_FILE="/dev/shm/IN"
+# File to use to retrieve responses from the robot
+RSP_FILE="/dev/shm/OUT"
 
 # INDIVIDUAL COMMANDS -
 CMD_START="START"

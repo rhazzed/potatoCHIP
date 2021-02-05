@@ -37,12 +37,16 @@ servo_max = 520  # Max pulse length out of 4096 (Max CCW/Left) (600 torqued one 
 
 # Variable that approximates turning rate (seconds-per-degree)
 #SECONDS_PER_DEGREE = 0.004166	# FULL SPEED
-SECONDS_PER_DEGREE = 0.0055833	# HALF SPEED
+#SECONDS_PER_DEGREE = 0.0055833	# HALF SPEED - On A/C mains power
+#SECONDS_PER_DEGREE = 0.01674990# HALF SPEED - 1-second on Derpa with 6xAA rechargeable Amazon Basics batts
+SECONDS_PER_DEGREE = 0.0240     # HALF SPEED
 
 
 # COMMAND-PASSING FILE -
 # File to use to pass commands to the robot
 CMD_FILE="/dev/shm/IN"
+# File to use to retrieve responses from the robot
+RSP_FILE="/dev/shm/OUT"
 
 # INDIVIDUAL COMMANDS -
 CMD_START="START"

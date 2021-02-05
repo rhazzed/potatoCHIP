@@ -11,7 +11,7 @@
 #  2021-01-29  msipin  Moved ultrasonic sensor readings to their own thread and spaced them out to avoid
 #                      hearing eachother's "distant responses"
 #  2021-02-04  msipin  Added a pause after making any turn to give sensors time to re-check their surroundings
-#                      Improved debugging in ultrasonic sensor distance function
+#                      Improved debugging in ultrasonic sensor distance function. Truncated RSP_FILE on startup
 ##################################
 
 from __future__ import division
@@ -220,8 +220,8 @@ def distance(trigger_gpio,echo_gpio):
     if (dist > 50):
         dist = 999
 
-    if (dist < 0):
-        dist = 0
+    if (dist <= 0):
+        dist = 999
 
     return dist
 
@@ -424,6 +424,12 @@ def cmds(threadname):
                 temp = f.read().splitlines()
                 f.close()
                 for cmd in temp:
+                    # Write cmd back to response-file
+                    with open(RSP_FILE, "a") as f2:
+                        f2.write(cmd)
+                        f2.write("\n")
+                        f2.close()
+
                     print("DEBUG: cmd = [%s]" % cmd)
 
                     if CMD_START in cmd and run == 1:
@@ -472,6 +478,11 @@ def kybd(threadname):
     print("Stopping all threads...")
 
     print("\n\t\t***Thread %s exiting." % threadname)
+
+
+
+# Initialize the "robot response file"
+open(RSP_FILE, "w").close()
 
 
 lidar = Thread( target=lidar, args=("lidar_thread", ) )
