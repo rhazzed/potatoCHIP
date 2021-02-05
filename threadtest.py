@@ -10,6 +10,7 @@
 #  2021-01-27  msipin  Added website integration (to pickup commands)
 #  2021-01-29  msipin  Moved ultrasonic sensor readings to their own thread and spaced them out to avoid
 #                      hearing eachother's "distant responses"
+#  2021-02-04  msipin  Added a pause after making any turn to give sensors time to re-check their surroundings
 ##################################
 
 from __future__ import division
@@ -375,6 +376,7 @@ def tracks(threadname):
         if (ultrasonic_dir == 4 and (lidar_dir == 3 or lidar_dir == 4)):
 		print("\t----- Turning RIGHT >>>>>>>>")
 		turn_right(65)
+		time.sleep(0.50) # Give sensors time to re-check their environment
 
 	# if ultrasonic LEFT and (lidar FWD or lidar LEFT)...
         if (ultrasonic_dir == 2 and (lidar_dir == 3 or lidar_dir == 2)):
@@ -385,6 +387,7 @@ def tracks(threadname):
 	if ((ultrasonic_dir == 2 and lidar_dir == 4) or (ultrasonic_dir == 4 and lidar_dir == 2) or (ultrasonic_dir == 100) or (lidar_dir == 100)):
 		print("\t----- B/U Random Turn ------")
 		backup_turn_random()
+		time.sleep(0.50) # Give sensors time to re-check their environment
 
 	# If ultrasonic FWD
 	if (ultrasonic_dir == 3):
@@ -392,14 +395,13 @@ def tracks(threadname):
 		if (lidar_dir == 4):
 			print("\t----- Turning RIGHT >>>>>>>>")
 			turn_right(65)
+		        time.sleep(0.50) # Give sensors time to re-check their environment
 		# else if lidar LEFT
 		if (lidar_dir == 2):
 			print("\t<<<<<<<< Turning LEFT  -----")
 			turn_left(65)
+		        time.sleep(0.50) # Give sensors time to re-check their environment
 
-
-	# Give us additional time to grab the robot, or detect what it had decided to do
-	time.sleep(0.25)
 
 	print("Done! Proceeding Forward!")
 	go_forward()
