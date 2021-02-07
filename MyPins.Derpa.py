@@ -26,7 +26,7 @@ PWM_CH_SERVO=15
 
 # REAL VALUES BELOW -
 TRACK_FULL=4095		# Full-power (100% "on") PWM to track motors
-TRACK_HALF=1900		# (Roughly) Half-power PWM to track motors
+TRACK_HALF=2200		# (Roughly) Half-power PWM to track motors
 TRACK_SLOW=1400		# Minimum-power PWM to track motors
 TRACK_STOP=0		# Power OFF (0% "on") PWM to track motors
 
@@ -59,6 +59,9 @@ FWD_OFF_ANGLE=30   # 0 +/- this is considered "forward-looking"
 FWD_THRESHOLD=450  # If there is nothing in front of the LIDAR closer than this value, it is safe to move forward
 MAX_OFF_ANGLE=45   # Beyond FWD_OFF_ANGLE and up to (this) is considered "right-" or "left-looking"
 SIDE_THRESHOLD=400 # If there is something to the side of the LIDAR that is closer than this value, a turn is necessary!
+
+# The "lidar compass-point" that aligns with the platform's (robot's) zero-degree-point
+RH=92  # Set this to indicate your LIDAR's zero-degrees offset to your robot's zero-degrees point (aka its front)
 
 # Exit codes used as direction-indicators from shell scripts
 EXIT_DIR_UNKNOWN=0

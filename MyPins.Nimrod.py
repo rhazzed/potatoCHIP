@@ -57,6 +57,9 @@ FWD_THRESHOLD=450  # If there is nothing in front of the LIDAR closer than this 
 MAX_OFF_ANGLE=45   # Beyond FWD_OFF_ANGLE and up to (this) is considered "right-" or "left-looking"
 SIDE_THRESHOLD=400 # If there is something to the side of the LIDAR that is closer than this value, a turn is necessary!
 
+# The "lidar compass-point" that aligns with the platform's (robot's) zero-degree-point
+RH=0  # Set this to indicate your LIDAR's zero-degrees offset to your robot's zero-degrees point (aka its front)
+
 # Exit codes used as direction-indicators from shell scripts
 EXIT_DIR_UNKNOWN=0
 EXIT_DIR_ERROR=1
