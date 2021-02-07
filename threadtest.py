@@ -14,6 +14,7 @@
 #                      Improved debugging in ultrasonic sensor distance function. Truncated RSP_FILE on startup
 #  2021-02-06  msipin  Increased allowable range of sensors (one spec says up to 500cm!). Also returned
 #                      "max" when sensor doesn't pickup anything, to allow failover on bad reading
+#  2021-02-06  msipin  Let each ultrasonic sensor have its own setting
 ##################################
 
 from __future__ import division
@@ -40,9 +41,18 @@ GPIO = gpio.get_platform_gpio()
 from MyPins import *
 
 
-#ULTRASONIC_MIN_DIST = 17 # A little too sensitive for Nimrod - Good for Derpa
-ULTRASONIC_MIN_DIST = 15 # Works well for Nimrod, too far away for Derpa
-#ULTRASONIC_MIN_DIST = 14 # Nimrod got within 1/2" of wall (aka not sensitive enough)
+### LEFT
+ULTRASONIC_MIN_DIST_L = 17 # A little too sensitive for Nimrod - Good for Derpa
+#ULTRASONIC_MIN_DIST_L = 15 # Works well for Nimrod, too far away for Derpa
+#ULTRASONIC_MIN_DIST_L = 14 # Nimrod got within 1/2" of wall (aka not sensitive enough)
+
+### FRONT
+ULTRASONIC_MIN_DIST_F = 17
+#ULTRASONIC_MIN_DIST_F = 15
+#ULTRASONIC_MIN_DIST_F = 14
+
+### RIGHT (default to using same as RIGHT)
+ULTRASONIC_MIN_DIST_R = ULTRASONIC_MIN_DIST_L
 
 
 #set GPIO pin directions (IN / OUT) for Ultrasonic Range Detectors
@@ -304,7 +314,7 @@ def ultrasonic(threadname):
         ultrasonic_dir = 3
 
 	# If ultrasonic distance is "danger close", stop moving!
-	if (rangeL <= ULTRASONIC_MIN_DIST or rangeF <= ULTRASONIC_MIN_DIST or rangeR <= ULTRASONIC_MIN_DIST):
+	if (rangeL <= ULTRASONIC_MIN_DIST_L or rangeF <= ULTRASONIC_MIN_DIST_F or rangeR <= ULTRASONIC_MIN_DIST_R):
 		print("\nUltrasonic sensors see something in our path!\n")
 		ultrasonic_dir = 0
 
@@ -312,16 +322,16 @@ def ultrasonic(threadname):
         if (ultrasonic_dir == 0):
 		# If front sensor triggered, default to turning right (NOTE: Might get
 		# overruled, below)
-		if (rangeF <= ULTRASONIC_MIN_DIST):
+		if (rangeF <= ULTRASONIC_MIN_DIST_F):
 			ultrasonic_dir = 4 # RIGHT
 
-		if (rangeL <= ULTRASONIC_MIN_DIST) and (rangeR > ULTRASONIC_MIN_DIST):
+		if (rangeL <= ULTRASONIC_MIN_DIST_L) and (rangeR > ULTRASONIC_MIN_DIST_R):
 			ultrasonic_dir = 4 # RIGHT
 
-		if (rangeR <= ULTRASONIC_MIN_DIST) and (rangeL > ULTRASONIC_MIN_DIST):
+		if (rangeR <= ULTRASONIC_MIN_DIST_R) and (rangeL > ULTRASONIC_MIN_DIST_L):
 			ultrasonic_dir = 2 # LEFT
 
-		if (rangeL <= ULTRASONIC_MIN_DIST and rangeR <= ULTRASONIC_MIN_DIST):
+		if (rangeL <= ULTRASONIC_MIN_DIST_L and rangeR <= ULTRASONIC_MIN_DIST_R):
 			ultrasonic_dir = 100 # BACKUP AND TURN
 
 	# Calculate new servo position
