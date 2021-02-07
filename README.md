@@ -15,8 +15,7 @@ SEE "motd" FILE FOR STARTUP INSTRUCTIONS!
 TO-DOs:
 1) DON'T ground motor GND-OUT to PWM power-gnd-in!
 2) Add left/right/fwd/back buttons to website
-3) Save all readings from sensors to files for website to pickup
-4) Modify website to show current sensor readings
-5) Modify obstacle-avoidance logic to be "turn, sense, go -or- turn-some-more" rather than just
+3) Modify website to show current sensor readings
+4) Modify obstacle-avoidance logic to be "turn, sense, go -or- turn-some-more" rather than just
    blindly turning "x" degrees 
-6) Reload "MyPins.py" every time a "START" command is issued
+5) Reload "MyPins.py" every time a "START" command is issued
