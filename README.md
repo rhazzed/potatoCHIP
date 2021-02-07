@@ -13,8 +13,9 @@ SEE "motd" FILE FOR STARTUP INSTRUCTIONS!
 
 
 TO-DOs:
-1) Move camera-rotation to MyPins.*.py
-2) Separate ultrasonic min-distance for FRONT vs Right/Left
-3) Find out why Nimrod's Lidar-Left returns "99999" ALOT!
-4) DON'T ground motor GND-OUT to PWM power-gnd-in!
-5) Save all readings from sensors to files for website to pickup
+1) DON'T ground motor GND-OUT to PWM power-gnd-in!
+2) Add left/right/fwd/back buttons to website
+3) Save all readings from sensors to files for website to pickup
+4) Modify website to show current sensor readings
+5) Modify obstacle-avoidance logic to be "turn, sense, go -or- turn-some-more" rather than just
+   blindly turning "x" degrees 
