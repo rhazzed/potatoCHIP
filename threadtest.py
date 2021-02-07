@@ -42,13 +42,13 @@ from MyPins import *
 
 
 ### LEFT
-ULTRASONIC_MIN_DIST_L = 17 # A little too sensitive for Nimrod - Good for Derpa
-#ULTRASONIC_MIN_DIST_L = 15 # Works well for Nimrod, too far away for Derpa
+#ULTRASONIC_MIN_DIST_L = 17 # A little too sensitive for Nimrod - Good for Derpa
+ULTRASONIC_MIN_DIST_L = 15 # Works well for Nimrod, too far away for Derpa
 #ULTRASONIC_MIN_DIST_L = 14 # Nimrod got within 1/2" of wall (aka not sensitive enough)
 
 ### FRONT
-ULTRASONIC_MIN_DIST_F = 17
-#ULTRASONIC_MIN_DIST_F = 15
+#ULTRASONIC_MIN_DIST_F = 17
+ULTRASONIC_MIN_DIST_F = 15
 #ULTRASONIC_MIN_DIST_F = 14
 
 ### RIGHT (default to using same as RIGHT)
