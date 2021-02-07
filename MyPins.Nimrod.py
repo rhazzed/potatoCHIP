@@ -40,6 +40,16 @@ SECONDS_PER_DEGREE = 0.004166	# FULL SPEED (Nimrod needs this for half-speed!?)
 #SECONDS_PER_DEGREE = 0.0055833	# HALF SPEED
 #SECONDS_PER_DEGREE = 0.0065833	# HALF SPEED
 
+### LEFT
+ULTRASONIC_MIN_DIST_L = 15
+#ULTRASONIC_MIN_DIST_L = 14 # Nimrod got within 1/2" of wall (aka not sensitive enough)
+
+### FRONT
+ULTRASONIC_MIN_DIST_F = 17
+#ULTRASONIC_MIN_DIST_F = 15
+
+### RIGHT (default to using same as RIGHT)
+ULTRASONIC_MIN_DIST_R = ULTRASONIC_MIN_DIST_L
 
 # COMMAND-PASSING FILE -
 # File to use to pass commands to the robot

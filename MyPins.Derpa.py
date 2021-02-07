@@ -43,6 +43,16 @@ SECONDS_PER_DEGREE = 0.0070000	# HALF SPEED - Derpa, with fresh 6xAA batts
 #SECONDS_PER_DEGREE = 0.01674990# HALF SPEED - Seemed to work on 6xAAs before "ground problem"
 #SECONDS_PER_DEGREE = 0.0240     # HALF SPEED - Derpa with 6xAA NiHM Amazon Basics 2000mah batteries
 
+### LEFT
+ULTRASONIC_MIN_DIST_L = 17 # Good for Derpa
+#ULTRASONIC_MIN_DIST_L = 15 # Too far away for Derpa
+
+### FRONT
+ULTRASONIC_MIN_DIST_F = 20
+#ULTRASONIC_MIN_DIST_F = 15
+
+### RIGHT (default to using same as RIGHT)
+ULTRASONIC_MIN_DIST_R = ULTRASONIC_MIN_DIST_L
 
 # COMMAND-PASSING FILE -
 # File to use to pass commands to the robot

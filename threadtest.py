@@ -14,7 +14,8 @@
 #                      Improved debugging in ultrasonic sensor distance function. Truncated RSP_FILE on startup
 #  2021-02-06  msipin  Increased allowable range of sensors (one spec says up to 500cm!). Also returned
 #                      "max" when sensor doesn't pickup anything, to allow failover on bad reading
-#  2021-02-06  msipin  Let each ultrasonic sensor have its own setting
+#  2021-02-06  msipin  Let each ultrasonic sensor have its own setting, and moved them to MyPins.*.py.
+#                      Changed turns from 65 degrees to 15, per Nimrod "live testing"
 ##################################
 
 from __future__ import division
@@ -39,20 +40,6 @@ GPIO = gpio.get_platform_gpio()
 # Import the pin definition (a symbolic link to MyPins.<RobotName>.py)
 # for your particular robot -
 from MyPins import *
-
-
-### LEFT
-#ULTRASONIC_MIN_DIST_L = 17 # A little too sensitive for Nimrod - Good for Derpa
-ULTRASONIC_MIN_DIST_L = 15 # Works well for Nimrod, too far away for Derpa
-#ULTRASONIC_MIN_DIST_L = 14 # Nimrod got within 1/2" of wall (aka not sensitive enough)
-
-### FRONT
-#ULTRASONIC_MIN_DIST_F = 17
-ULTRASONIC_MIN_DIST_F = 15
-#ULTRASONIC_MIN_DIST_F = 14
-
-### RIGHT (default to using same as RIGHT)
-ULTRASONIC_MIN_DIST_R = ULTRASONIC_MIN_DIST_L
 
 
 #set GPIO pin directions (IN / OUT) for Ultrasonic Range Detectors
@@ -388,13 +375,13 @@ def tracks(threadname):
 	# if ultrasonic RIGHT and (lidar FWD or lidar RIGHT)...
         if (ultrasonic_dir == 4 and (lidar_dir == 3 or lidar_dir == 4)):
 		print("\t----- Turning RIGHT >>>>>>>>")
-		turn_right(65)
+		turn_right(15)
 		time.sleep(0.50) # Give sensors time to re-check their environment
 
 	# if ultrasonic LEFT and (lidar FWD or lidar LEFT)...
         if (ultrasonic_dir == 2 and (lidar_dir == 3 or lidar_dir == 2)):
 		print("\t<<<<<<<< Turning LEFT  -----")
-		turn_left(65)
+		turn_left(15)
 
 	# if ((ultrasonic RIGHT and lidar LEFT) or (ultrasonic LEFT and lidar RIGHT) or (ultrasonic BACKUP) or (lidar BACKUP))...
 	if ((ultrasonic_dir == 2 and lidar_dir == 4) or (ultrasonic_dir == 4 and lidar_dir == 2) or (ultrasonic_dir == 100) or (lidar_dir == 100)):
@@ -407,12 +394,12 @@ def tracks(threadname):
 		# if lidar RIGHT
 		if (lidar_dir == 4):
 			print("\t----- Turning RIGHT >>>>>>>>")
-			turn_right(65)
+			turn_right(15)
 		        time.sleep(0.50) # Give sensors time to re-check their environment
 		# else if lidar LEFT
 		if (lidar_dir == 2):
 			print("\t<<<<<<<< Turning LEFT  -----")
-			turn_left(65)
+			turn_left(15)
 		        time.sleep(0.50) # Give sensors time to re-check their environment
 
 
