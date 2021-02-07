@@ -19,3 +19,4 @@ TO-DOs:
 4) Modify website to show current sensor readings
 5) Modify obstacle-avoidance logic to be "turn, sense, go -or- turn-some-more" rather than just
    blindly turning "x" degrees 
+6) Reload "MyPins.py" every time a "START" command is issued

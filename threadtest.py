@@ -70,16 +70,8 @@ GPIO.setup(GPIO_LREAR, gpio.OUT)
 run=1		# Global "keep going" variable. Set to "0" to stop
 		# all threads (e.g. to shut down the program)
 
-# Return codes for the "lidarGo" program (script, actually) -
-#    EXIT_DIR_UNKNOWN=0
-#    EXIT_DIR_ERROR=1
-#    EXIT_DIR_LEFT=2
-#    EXIT_DIR_FWD=3
-#    EXIT_DIR_RIGHT=4
-#    EXIT_DIR_BACKUP_AND_TURN=100
-#    EXIT_DIR_STUCK=124
-lidar_dir=3
-ultrasonic_dir = 3
+lidar_dir = EXIT_DIR_FWD
+ultrasonic_dir = EXIT_DIR_FWD
 
 track_speed=TRACK_HALF	# Global variable to control how fast the tracks
 #track_speed=TRACK_FULL  # Global variable to control how fast the tracks
@@ -357,47 +349,37 @@ def tracks(threadname):
 
     while run:
 
-        # Return codes for the "lidarGo" program (script, actually) -
-        #    EXIT_DIR_UNKNOWN=0
-        #    EXIT_DIR_ERROR=1
-        #    EXIT_DIR_LEFT=2
-        #    EXIT_DIR_FWD=3
-        #    EXIT_DIR_RIGHT=4
-        #    EXIT_DIR_BACKUP_AND_TURN=100
-        #    EXIT_DIR_STUCK=124
-
-
 	# If lidar doesn't think we should keep going forward, stop moving!
-	if (lidar_dir != 3):
+	if (lidar_dir != EXIT_DIR_FWD):
 		print("\nLidar sees something in our path! (%d)\n" % lidar_dir)
 		stop_tracks()
 
 	# if ultrasonic RIGHT and (lidar FWD or lidar RIGHT)...
-        if (ultrasonic_dir == 4 and (lidar_dir == 3 or lidar_dir == 4)):
+        if (ultrasonic_dir == EXIT_DIR_RIGHT and (lidar_dir == EXIT_DIR_FWD or lidar_dir == EXIT_DIR_RIGHT)):
 		print("\t----- Turning RIGHT >>>>>>>>")
 		turn_right(15)
 		time.sleep(0.50) # Give sensors time to re-check their environment
 
 	# if ultrasonic LEFT and (lidar FWD or lidar LEFT)...
-        if (ultrasonic_dir == 2 and (lidar_dir == 3 or lidar_dir == 2)):
+        if (ultrasonic_dir == EXIT_DIR_LEFT and (lidar_dir == EXIT_DIR_FWD or lidar_dir == EXIT_DIR_LEFT)):
 		print("\t<<<<<<<< Turning LEFT  -----")
 		turn_left(15)
 
 	# if ((ultrasonic RIGHT and lidar LEFT) or (ultrasonic LEFT and lidar RIGHT) or (ultrasonic BACKUP) or (lidar BACKUP))...
-	if ((ultrasonic_dir == 2 and lidar_dir == 4) or (ultrasonic_dir == 4 and lidar_dir == 2) or (ultrasonic_dir == 100) or (lidar_dir == 100)):
+	if ((ultrasonic_dir == EXIT_DIR_LEFT and lidar_dir == EXIT_DIR_RIGHT) or (ultrasonic_dir == EXIT_DIR_RIGHT and lidar_dir == EXIT_DIR_LEFT) or (ultrasonic_dir == EXIT_DIR_BACKUP_AND_TURN) or (lidar_dir == EXIT_DIR_BACKUP_AND_TURN)):
 		print("\t----- B/U Random Turn ------")
 		backup_turn_random()
 		time.sleep(0.50) # Give sensors time to re-check their environment
 
 	# If ultrasonic FWD
-	if (ultrasonic_dir == 3):
+	if (ultrasonic_dir == EXIT_DIR_FWD):
 		# if lidar RIGHT
-		if (lidar_dir == 4):
+		if (lidar_dir == EXIT_DIR_RIGHT):
 			print("\t----- Turning RIGHT >>>>>>>>")
 			turn_right(15)
 		        time.sleep(0.50) # Give sensors time to re-check their environment
 		# else if lidar LEFT
-		if (lidar_dir == 2):
+		if (lidar_dir == EXIT_DIR_LEFT):
 			print("\t<<<<<<<< Turning LEFT  -----")
 			turn_left(15)
 		        time.sleep(0.50) # Give sensors time to re-check their environment
@@ -479,6 +461,9 @@ def kybd(threadname):
     print("\n\t\t***Thread %s exiting." % threadname)
 
 
+
+# Initialize the "robot command file"
+open(CMD_FILE, "w").close()
 
 # Initialize the "robot response file"
 open(RSP_FILE, "w").close()

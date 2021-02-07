@@ -10,33 +10,16 @@
 #
 #  2021-01-22  msipin  Created
 #  2021-01-23  msipin  Changed LIDAR threshold from 200 to 350 to give robot more time to react to obstacles.
+#  2021-02-07  msipin  Read MyPins.py to pickup values, and put more over there
 ##########################################
 
-# Where to look for range values (*MUST* MATCH the directory used in "ultra_simple"!!!)
-RANGE_DIR=/dev/shm
+# Incorporate MyPins.py (it is a "dual-use" Python/shell-script file!)
+. ./MyPins.py
 
-# Where to put the "adjusted" compass files (*MUST* MATCH the dierctory used in fixLidarOffset!!!)
-ADJUSTED_DIR=/home/pi/potatoCHIP/RANGE
 
 # IF YOU ARE USING ADJUSTED COMPASS FILES, UNCOMMENT THE FOLLOWING LINE ---
 RANGE_DIR=$ADJUSTED_DIR		# Use "adjusted" compass points, not the "actual" Lidar compass points
 
-
-########################################
-# Robot-specific values START here
-########################################
-########################################
-
-FWD_OFF_ANGLE=30   # 0 +/- this is considered "forward-looking"
-FWD_THRESHOLD=350  # If there is nothing in front of the LIDAR closer than this value, it is safe to move forward
-
-MAX_OFF_ANGLE=45   # Beyond FWD_OFF_ANGLE and up to (this) is considered "right-" or "left-looking"
-SIDE_THRESHOLD=350 # If there is something to the side of the LIDAR that is closer than this value, a turn is necessary!
-
-########################################
-########################################
-# Robot-specific values END here
-########################################
 
 # Number of files to examine between FRONT and LEFT/RIGHT
 NUM_FILES=`expr $MAX_OFF_ANGLE - $FWD_OFF_ANGLE`
@@ -45,17 +28,6 @@ echo
 #echo "DEBUG: NUM_FILES=$NUM_FILES"
 ##exit 2
 echo
-
-
-
-# Constants that could be returned upon exit
-EXIT_DIR_UNKNOWN=0
-EXIT_DIR_ERROR=1
-EXIT_DIR_LEFT=2
-EXIT_DIR_FWD=3
-EXIT_DIR_RIGHT=4
-EXIT_DIR_BACKUP_AND_TURN=100
-EXIT_DIR_STUCK=124
 
 # Default to throwing an error
 DIRECTION=$EXIT_DIR_ERROR
