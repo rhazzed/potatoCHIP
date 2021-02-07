@@ -16,6 +16,8 @@
 #                      "max" when sensor doesn't pickup anything, to allow failover on bad reading
 #  2021-02-06  msipin  Let each ultrasonic sensor have its own setting, and moved them to MyPins.*.py.
 #                      Changed turns from 65 degrees to 15, per Nimrod "live testing"
+#  2021-02-07  msipin  Hid the ultrasonic "direction indication" from other threads until final determination
+#                      Made the ultrasonic and lidar range detector loops run faster
 ##################################
 
 from __future__ import division
@@ -233,18 +235,15 @@ def lidar(threadname):
         print out
 
         # Get return code from call
-        # Wait until process terminates (without using p.wait())
+        # Wait until process terminates
         while p.poll() is None:
             # Process hasn't exited yet, let's wait some
-            time.sleep(0.25)
+            time.sleep(0.05)
 
         lidar_dir = p.returncode
         print("LIDAR exit value: %d\n" % lidar_dir)
 
-        # Just execute the command
-        #os.system("lidarGo");
-
-        time.sleep(1)
+        time.sleep(0.1)
 
     run=0
     print("\n\t\t***Thread %s exiting." % threadname)
@@ -257,6 +256,9 @@ def ultrasonic(threadname):
     # need to uncomment it to just READ it...
     global run
     global ultrasonic_dir
+
+    # Local (aka "internal") direction-decision variable
+    ultrasonic_decision = ultrasonic_dir
 
     print('ULTRASONIC RANGE SENSOR SERVO FWD...')
     servo_pos = int((servo_max - servo_min)/2)+servo_min
@@ -273,7 +275,7 @@ def ultrasonic(threadname):
     while run:
 
 	# Ensure ultrasonic trigger has time to settle
-	time.sleep(0.34)
+	time.sleep(0.20)
 	rangeF = distance(GPIO_TRIGGER_F, GPIO_ECHO_F)
 	with open(SENSOR_OUTPUT_DIR + "/" + US_F, "w") as f2:
 		f2.write(format(int(rangeF)))
@@ -281,7 +283,7 @@ def ultrasonic(threadname):
 		f2.close()
 
 	# Ensure ultrasonic trigger has time to settle
-	time.sleep(0.33)
+	time.sleep(0.20)
 	rangeL = distance(GPIO_TRIGGER_L, GPIO_ECHO_L)
 	with open(SENSOR_OUTPUT_DIR + "/" + US_L, "w") as f2:
 		f2.write(format(int(rangeL)))
@@ -289,7 +291,7 @@ def ultrasonic(threadname):
 		f2.close()
 
 	# Ensure ultrasonic trigger has time to settle
-	time.sleep(0.33)
+	time.sleep(0.20)
 	rangeR = distance(GPIO_TRIGGER_R, GPIO_ECHO_R)
 	with open(SENSOR_OUTPUT_DIR + "/" + US_R, "w") as f2:
 		f2.write(format(int(rangeR)))
@@ -301,28 +303,31 @@ def ultrasonic(threadname):
         print("Front ultrasonic: %d" % rangeF)
         print("Right ultrasonic: %d" % rangeR)
 
-        ultrasonic_dir = 3
+        ultrasonic_decision = EXIT_DIR_FWD
 
 	# If ultrasonic distance is "danger close", stop moving!
 	if (rangeL <= ULTRASONIC_MIN_DIST_L or rangeF <= ULTRASONIC_MIN_DIST_F or rangeR <= ULTRASONIC_MIN_DIST_R):
 		print("\nUltrasonic sensors see something in our path!\n")
-		ultrasonic_dir = 0
+		ultrasonic_decision = EXIT_DIR_UNKNOWN
 
         # If the ultrasonic sensor stopped us...
-        if (ultrasonic_dir == 0):
+        if (ultrasonic_decision == EXIT_DIR_UNKNOWN):
 		# If front sensor triggered, default to turning right (NOTE: Might get
 		# overruled, below)
 		if (rangeF <= ULTRASONIC_MIN_DIST_F):
-			ultrasonic_dir = 4 # RIGHT
+			ultrasonic_decision = EXIT_DIR_RIGHT # RIGHT
 
 		if (rangeL <= ULTRASONIC_MIN_DIST_L) and (rangeR > ULTRASONIC_MIN_DIST_R):
-			ultrasonic_dir = 4 # RIGHT
+			ultrasonic_decision = EXIT_DIR_RIGHT # RIGHT
 
 		if (rangeR <= ULTRASONIC_MIN_DIST_R) and (rangeL > ULTRASONIC_MIN_DIST_L):
-			ultrasonic_dir = 2 # LEFT
+			ultrasonic_decision = EXIT_DIR_LEFT # LEFT
 
 		if (rangeL <= ULTRASONIC_MIN_DIST_L and rangeR <= ULTRASONIC_MIN_DIST_R):
-			ultrasonic_dir = 100 # BACKUP AND TURN
+			ultrasonic_decision = EXIT_DIR_BACKUP_AND_TURN # BACKUP AND TURN
+
+        # Let the "outside world" know what our decision is
+        ultrasonic_dir = ultrasonic_decision
 
 	# Calculate new servo position
 	#servo_pos += servo_step
