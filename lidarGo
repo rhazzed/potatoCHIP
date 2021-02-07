@@ -10,7 +10,8 @@
 #
 #  2021-01-22  msipin  Created
 #  2021-01-23  msipin  Changed LIDAR threshold from 200 to 350 to give robot more time to react to obstacles.
-#  2021-02-07  msipin  Read MyPins.py to pickup values, and put more over there
+#  2021-02-06  msipin  Read MyPins.py to pickup values, and put more over there. Saved lidar range values
+#                      to filesystem for display on website
 ##########################################
 
 # Incorporate MyPins.py (it is a "dual-use" Python/shell-script file!)
@@ -65,6 +66,7 @@ grep -v "\-1" $* | awk 'BEGIN { min=999999; }{
 # 1) Average out the valid (-MAX_OFF_ANGLE --to-- -FWD_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "left value"
 files=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE} | head -$NUM_FILES`
 left_val=`get_min $files`
+echo $left_val > ${SENSOR_OUTPUT_DIR}/${LI_L}
 
 echo "DEBUG: left_val  = $left_val"
 ##exit 2
@@ -76,6 +78,7 @@ files1=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | head -${FWD_OFF_ANGLE}`
 files2=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE}`
 files=`echo $files1 $files2`
 fwd_val=`get_min $files`
+echo $fwd_val > ${SENSOR_OUTPUT_DIR}/${LI_F}
 
 echo "DEBUG: fwd_val   = $fwd_val"
 ##exit 2
@@ -85,6 +88,7 @@ echo "DEBUG: fwd_val   = $fwd_val"
 # 3) Average out the valid (+FWD_OFF_ANGLE --to-- +MAX_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "right value"
 files=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | head -${MAX_OFF_ANGLE} | tail -$NUM_FILES`
 right_val=`get_min $files`
+echo $right_val > ${SENSOR_OUTPUT_DIR}/${LI_R}
 
 echo "DEBUG: right_val = $right_val"
 ##exit 2

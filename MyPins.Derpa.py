@@ -81,6 +81,19 @@ RSP_FILE="/dev/shm/OUT"
 # Where to look for lidar-range values (*MUST* MATCH the directory used in "ultra_simple"!!!)
 RANGE_DIR="/dev/shm"
 
+# Where to look for sensor readings
+SENSOR_OUTPUT_DIR="/dev/shm"
+
+# Ultrasonic sensor suffixes
+US_L="US_L"
+US_F="US_F"
+US_R="US_R"
+
+# Lidar sensor suffixes
+LI_L="LI_L"
+LI_F="LI_F"
+LI_R="LI_R"
+
 # Where to put the "adjusted" lidar readings-by-degree files (*MUST* MATCH the dierctory used in fixLidarOffset!!!)
 ADJUSTED_DIR="/home/pi/potatoCHIP/RANGE"
 

@@ -272,18 +272,29 @@ def ultrasonic(threadname):
 
     while run:
 
-
 	# Ensure ultrasonic trigger has time to settle
 	time.sleep(0.34)
 	rangeF = distance(GPIO_TRIGGER_F, GPIO_ECHO_F)
+	with open(SENSOR_OUTPUT_DIR + "/" + US_F, "w") as f2:
+		f2.write(format(int(rangeF)))
+		f2.write("\n")
+		f2.close()
 
 	# Ensure ultrasonic trigger has time to settle
 	time.sleep(0.33)
 	rangeL = distance(GPIO_TRIGGER_L, GPIO_ECHO_L)
+	with open(SENSOR_OUTPUT_DIR + "/" + US_L, "w") as f2:
+		f2.write(format(int(rangeL)))
+		f2.write("\n")
+		f2.close()
 
 	# Ensure ultrasonic trigger has time to settle
 	time.sleep(0.33)
 	rangeR = distance(GPIO_TRIGGER_R, GPIO_ECHO_R)
+	with open(SENSOR_OUTPUT_DIR + "/" + US_R, "w") as f2:
+		f2.write(format(int(rangeR)))
+		f2.write("\n")
+		f2.close()
 
         # display ultrasonic "range"
         print("Left ultrasonic : %d" % rangeL)
