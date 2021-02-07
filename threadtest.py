@@ -12,6 +12,8 @@
 #                      hearing eachother's "distant responses"
 #  2021-02-04  msipin  Added a pause after making any turn to give sensors time to re-check their surroundings
 #                      Improved debugging in ultrasonic sensor distance function. Truncated RSP_FILE on startup
+#  2021-02-06  msipin  Increased allowable range of sensors (one spec says up to 500cm!). Also returned
+#                      "max" when sensor doesn't pickup anything, to allow failover on bad reading
 ##################################
 
 from __future__ import division
@@ -38,9 +40,9 @@ GPIO = gpio.get_platform_gpio()
 from MyPins import *
 
 
-#ULTRASONIC_MIN_DIST = 17 # Seems to be a little too sensitive
-ULTRASONIC_MIN_DIST = 15
-#ULTRASONIC_MIN_DIST = 14 # Got within 1/2" of wall (aka not sensitive enough)
+#ULTRASONIC_MIN_DIST = 17 # A little too sensitive for Nimrod - Good for Derpa
+ULTRASONIC_MIN_DIST = 15 # Works well for Nimrod, too far away for Derpa
+#ULTRASONIC_MIN_DIST = 14 # Nimrod got within 1/2" of wall (aka not sensitive enough)
 
 
 #set GPIO pin directions (IN / OUT) for Ultrasonic Range Detectors
@@ -217,7 +219,7 @@ def distance(trigger_gpio,echo_gpio):
 
     # If distance is beyond the range of this device,
     # consider it "invalid", and set it to "max. distance" (999)
-    if (dist > 50):
+    if (dist > 120):
         dist = 999
 
     if (dist <= 0):

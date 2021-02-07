@@ -12,6 +12,8 @@
 #  2021-01-24  msipin  Changed definition for "main" ultrasonic sensor pins.
 #  2021-01-25  msipin  Added left and right ultrasonic sensors and parameterized "distance" function
 #  2021-02-04  msipin  Improved debugging in ultrasonic sensor distance function
+#  2021-02-06  msipin  Increased allowable range of sensors (one spec says up to 500cm!). Also returned
+#                      "max" when sensor doesn't pickup anything, to allow failover on bad reading
 ##################################
 
 #Libraries
@@ -83,11 +85,11 @@ def distance(trigger_gpio,echo_gpio):
 
     # If distance is beyond the range of this device,
     # consider it "invalid", and set it to "max. distance" (999)
-    if (dist > 50):
+    if (dist > 120):
         dist = 999
 
-    if (dist < 0):
-        dist = 0
+    if (dist <= 0):
+        dist = 999
 
     return dist
 

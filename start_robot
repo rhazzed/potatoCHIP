@@ -6,14 +6,41 @@
 # HISTORICAL INFORMATION -
 #
 #  2021-01-29  msipin  Created
+#  2021-02-06  msipin  Added logic to ensure all services and scripts run as "pi" user
 ############################################################
-
-# File to use to pass commands to the robot (NOTE: *MUST* MATCH the file used in MyPins.py, threadtest.py, etc!)
-CMD_FILE="/dev/shm/IN"
 
 EXE_DIR=/home/pi/potatoCHIP
 
 cd ${EXE_DIR}
+
+##DBG=${EXE_DIR}/debug.txt
+
+##echo >> $DBG
+##echo >> $DBG
+
+# Pickup parent process id
+PPID=`echo $PPID`
+##echo "DEBUG: ppid: [${PPID}]" >> $DBG
+
+# Pickup user id
+USER=`whoami`
+##echo "DEBUG: USER: [${USER}]" >> $DBG
+
+
+# If we were launched from "init", or launched as "root", relaunch with "runuser -u pi"
+if [ ""$PPID"" = "1" -o ""$USER"" = "root" ]
+then
+	##echo "DEBUG: re-launching as: [runuser -u pi ${EXE_DIR}/`basename "$0"`]" >> $DBG
+
+	runuser -u pi ${EXE_DIR}/`basename "$0"`
+	exit 0
+fi
+
+##echo "DEBUG: NOT re-launching. continuing nominally from parent pid: [${PPID}]..." >> $DBG
+## DEBUG: prolly wanna exit(0) now
+#exit 0
+
+
 
 # Wait a bit to let Linux come up and acquire an IP address
 sleep 15
@@ -34,7 +61,6 @@ sleep 2
 
 
 # Start the robot executable(s)
-##(nohup ${EXE_DIR}/robot >robot.out 2>&1)&
 (nohup ${EXE_DIR}/robot >/dev/null 2>&1)&
 
 exit 0

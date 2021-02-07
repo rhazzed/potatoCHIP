@@ -11,16 +11,12 @@ CONTINUOUS=1    # Uncomment this to keep restarting the robot-logic exe if it ev
 #CONTINUOUS=0    # Uncomment this to only run the robot-logic exe *ONCE*
 
 
-# File to use to pass commands to the robot (NOTE: *MUST* MATCH the file used in MyPins.py, threadtest.py, etc!)
-CMD_FILE="/dev/shm/IN"
-
 EXE_DIR=/home/pi/potatoCHIP
 
 cd ${EXE_DIR}
 
 while [ 1 ]
 do
-	sudo rm -f ${CMD_FILE}
 	python ${EXE_DIR}/threadtest.py
 
 	if [ ""$CONTINUOUS"" -ne 1 ]
