@@ -34,31 +34,34 @@ for i in range(0,360):
 
 ##print("NEW__X: %s\nNEW__Y: %s" % (new['x'],new['y']))
 
-#plt.scatter(data['x'], 9999-data['y'])
-
 ax = plt.subplot(111, projection='polar')
 ax.set_theta_zero_location('N')
 ax.set_theta_direction(-1)
 
 
-# Establish max plot settings
+# Establish max collision-avoidance value
 max=FWD_THRESHOLD
 if (SIDE_THRESHOLD > FWD_THRESHOLD):
 	max=SIDE_THRESHOLD
 
-#ax.set_ylim(0,(max*1.1))
-ax.set_ylim(0,(max*11)) ##### THIS ONE IS PERFECT for seeing what we're about to ram into
-#ax.set_ylim(0,(max*21))
+# Show only what we are in danger of running into
+#ax.set_ylim(0,(max*1.1))  # This seems to be a good "potential-collision", only view
+
+# Give some reference beyond "danger close"
+ax.set_ylim(0,(max*11)) ##### THIS ONE SEEMS PERFECT for checking close-in
+
+# Playing around -
 #ax.set_ylim(0,1000)
 #ax.set_ylim(0,5000)
 
-#ax.scatter(data['x'], 9999-data['y'])
-#plt.scatter(new['x'], 9999-new['y'])
-#ax.scatter(data['x'],new['y'])
-#plt.scatter(new['x'],new['y'])
+# Sensible "inside house" value for "long-range view" -
+#ax.set_ylim(0,9000)
+
+# LIDAR sensor max seems to be *AT* *LEAST* 16,000 mm (at night, outside, reflecting off cars)
+
 
 # THE FOLLOWING SHOULD BE RIGHT CALCULATION, just need it in an array...
-### ax.scatter(math.cos(math.radians(data['x']))*data['y'], math.sin(math.radians(data['x'])*data['y']))
+### (math.cos(math.radians(data['x']))*data['y'], math.sin(math.radians(data['x'])*data['y']))
 
 ##ax.scatter(data['x'],data['y'])
 ax.scatter(new['x'],new['y'])
