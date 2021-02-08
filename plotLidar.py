@@ -47,7 +47,8 @@ if (SIDE_THRESHOLD > FWD_THRESHOLD):
 	max=SIDE_THRESHOLD
 
 #ax.set_ylim(0,(max*1.1))
-ax.set_ylim(0,(max*11))
+ax.set_ylim(0,(max*11)) ##### THIS ONE IS PERFECT for seeing what we're about to ram into
+#ax.set_ylim(0,(max*21))
 #ax.set_ylim(0,1000)
 #ax.set_ylim(0,5000)
 
