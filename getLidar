@@ -17,14 +17,15 @@ do
 done | awk '{
 
 if ($1 == -1) {
-    $1=9999
+    $1=0
 };
 
 if (NR>1) printf("\n")
 
 printf("%d,%0.3f",(NR-1),$1);
 
-}' > lidar.csv
+}' | tee lidar.csv
+#}' > lidar.csv
 
 echo
 
