@@ -15,11 +15,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-
-#new = data
-##print("ORIG_X: %s\nORIG_Y: %s" % (data['x'],data['y']))
-
 data = np.genfromtxt("lidar.csv", delimiter=",", names=["x", "y"])
+
+##print("ORIG_X: %s\nORIG_Y: %s" % (data['x'],data['y']))
 
 new=data
 for i in range(0,360):
@@ -28,27 +26,22 @@ for i in range(0,360):
 
 ##print("NEW__X: %s\nNEW__Y: %s" % (new['x'],new['y']))
 
-#plt.scatter(np.sin(data['x']), 9999-data['y'])
-#plt.scatter(np.sin(data['x']), math.hypot(data['x'], data['y']))
-
-#plt.plot(np.sin(data['x']), (9999-data['y']*np.sin(data['x'])))
-#plt.plot(np.sin(data['x']), data['y']*np.sin(data['x']), linestyle='None', markersize = 10.0)
-
 #plt.scatter(data['x'], 9999-data['y'])
 
 ax = plt.subplot(111, projection='polar')
 ax.set_theta_zero_location('N')
 ax.set_theta_direction(-1)
 
-# ax.scatter(data['x'], 9999-data['y'])
+#ax.scatter(data['x'], 9999-data['y'])
 #plt.scatter(new['x'], 9999-new['y'])
 #ax.scatter(data['x'],new['y'])
-
 #plt.scatter(new['x'],new['y'])
+
+# THE FOLLOWING SHOULD BE RIGHT CALCULATION, just need it in an array...
+### ax.scatter(math.cos(math.radians(data['x']))*data['y'], math.sin(math.radians(data['x'])*data['y']))
+
 ax.scatter(data['x'],data['y'])
 
-# THE FOLLOWING SHOULD BE RIGHT CALCULATION, just need to put it into array somehow...
-### ax.scatter(math.cos(math.radians(data['x']))*data['y'], math.sin(math.radians(data['x'])*data['y']))
 
 plt.show()
 
