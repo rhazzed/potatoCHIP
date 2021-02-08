@@ -15,6 +15,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
+# Import the pin definition (a symbolic link to MyPins.<RobotName>.py)
+# for your particular robot -
+from MyPins import *
+
 data = np.genfromtxt("lidar.csv", delimiter=",", names=["x", "y"])
 
 ##print("ORIG_X: %s\nORIG_Y: %s" % (data['x'],data['y']))
@@ -31,6 +35,16 @@ for i in range(0,360):
 ax = plt.subplot(111, projection='polar')
 ax.set_theta_zero_location('N')
 ax.set_theta_direction(-1)
+
+
+# Establish max plot settings
+max=FWD_THRESHOLD
+if (SIDE_THRESHOLD > FWD_THRESHOLD):
+	max=SIDE_THRESHOLD
+
+#ax.set_ylim(0,(max*1.1))
+ax.set_ylim(0,1000)
+#ax.set_ylim(0,5000)
 
 #ax.scatter(data['x'], 9999-data['y'])
 #plt.scatter(new['x'], 9999-new['y'])

@@ -12,6 +12,8 @@
 #  2021-01-23  msipin  Changed LIDAR threshold from 200 to 350 to give robot more time to react to obstacles.
 #  2021-02-06  msipin  Read MyPins.py to pickup values, and put more over there. Saved lidar range values
 #                      to filesystem for display on website
+#  2021-02-07  msipin  Changed name of this program's "RANGE_DIR" variable to avoid conflict with that of the
+#                      robot-specific variable used in MyPins.*.py
 ##########################################
 
 # Incorporate MyPins.py (it is a "dual-use" Python/shell-script file!)
@@ -19,7 +21,7 @@
 
 
 # IF YOU ARE USING ADJUSTED COMPASS FILES, UNCOMMENT THE FOLLOWING LINE ---
-RANGE_DIR=$ADJUSTED_DIR		# Use "adjusted" compass points, not the "actual" Lidar compass points
+lidar_dir=$ADJUSTED_DIR		# Use "adjusted" compass points, not the "actual" Lidar compass points
 
 
 # Number of files to examine between FRONT and LEFT/RIGHT
@@ -64,7 +66,7 @@ grep -v "\-1" $* | awk 'BEGIN { min=999999; }{
 }
 
 # 1) Average out the valid (-MAX_OFF_ANGLE --to-- -FWD_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "left value"
-files=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE} | head -$NUM_FILES`
+files=`ls ${lidar_dir}/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE} | head -$NUM_FILES`
 left_val=`get_min $files`
 echo $left_val > ${SENSOR_OUTPUT_DIR}/${LI_L}
 
@@ -74,8 +76,8 @@ echo "DEBUG: left_val  = $left_val"
 
 
 # 2) Average out the valid (-FWD_OFF_ANGLE --to-- +FWD_OFF_ANGLE) valid LIDAR distance-sensor readings, and call this the "forward value"
-files1=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | head -${FWD_OFF_ANGLE}`
-files2=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE}`
+files1=`ls ${lidar_dir}/[0-9][0-9][0-9] | head -${FWD_OFF_ANGLE}`
+files2=`ls ${lidar_dir}/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE}`
 files=`echo $files1 $files2`
 fwd_val=`get_min $files`
 echo $fwd_val > ${SENSOR_OUTPUT_DIR}/${LI_F}
@@ -86,7 +88,7 @@ echo "DEBUG: fwd_val   = $fwd_val"
 
 
 # 3) Average out the valid (+FWD_OFF_ANGLE --to-- +MAX_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "right value"
-files=`ls ${RANGE_DIR}/[0-9][0-9][0-9] | head -${MAX_OFF_ANGLE} | tail -$NUM_FILES`
+files=`ls ${lidar_dir}/[0-9][0-9][0-9] | head -${MAX_OFF_ANGLE} | tail -$NUM_FILES`
 right_val=`get_min $files`
 echo $right_val > ${SENSOR_OUTPUT_DIR}/${LI_R}
 
