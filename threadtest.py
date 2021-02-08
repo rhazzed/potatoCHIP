@@ -380,6 +380,7 @@ def tracks(threadname):
         if (ultrasonic_dir == EXIT_DIR_LEFT and (lidar_dir == EXIT_DIR_FWD or lidar_dir == EXIT_DIR_LEFT)):
 		print("\t<<<<<<<< Turning LEFT  -----")
 		turn_left(15)
+                time.sleep(0.50) # Give sensors time to re-check their environment
 
 	# if ((ultrasonic RIGHT and lidar LEFT) or (ultrasonic LEFT and lidar RIGHT) or (ultrasonic BACKUP) or (lidar BACKUP))...
 	if ((ultrasonic_dir == EXIT_DIR_LEFT and lidar_dir == EXIT_DIR_RIGHT) or (ultrasonic_dir == EXIT_DIR_RIGHT and lidar_dir == EXIT_DIR_LEFT) or (ultrasonic_dir == EXIT_DIR_BACKUP_AND_TURN) or (lidar_dir == EXIT_DIR_BACKUP_AND_TURN)):
