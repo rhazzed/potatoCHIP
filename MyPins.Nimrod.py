@@ -5,7 +5,7 @@
 #set GPIO pins for Ultrasonic Range Detector
 #    FRONT
 GPIO_TRIGGER_F=6
-GPIO_ECHO_F=5
+GPIO_ECHO_F=7
 #    LEFT
 GPIO_TRIGGER_L=13
 GPIO_ECHO_L=26
@@ -36,7 +36,7 @@ servo_min=270  # Min pulse length out of 4096
 servo_max=500  # Max pulse length out of 4096 (600 torqued one servo too much)
 
 # Variable that approximates turning rate (seconds-per-degree)
-SECONDS_PER_DEGREE=0.004166	# FULL SPEED (Nimrod needs this for half-speed!?)
+SECONDS_PER_DEGREE=0.002166	# FULL SPEED (Nimrod needs this for half-speed!?)
 #SECONDS_PER_DEGREE=0.0055833	# HALF SPEED
 #SECONDS_PER_DEGREE=0.0065833	# HALF SPEED
 
