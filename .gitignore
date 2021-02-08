@@ -4,3 +4,4 @@ MyPins.py
 *.pyc
 cmds.*.txt
 RANGE
+lidar.csv
