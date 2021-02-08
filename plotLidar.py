@@ -1,36 +1,32 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+####################################################
+# plotLidar.py - An attempt in Python3 to plot what the LIDAR sensor "sees"
+#
+# NOTE: YOU HAVE TO EXECUTE THIS COMMAND BEFORE THIS SCRIPT WILL WORK -
+#
+#    sudo apt-get install python3-numpy python3-matplotlib
+#
+# NOTE: YOU MUST use "ssh -X pi@192.168.x.y" to allow X-Forwarding through your ssh session
+# NOTE: YOU MUST also be running an X-windows capable operating system (or use Xming for Winblows)
+#
+####################################################
 
 import numpy as np
 import matplotlib.pyplot as plt
 import math
 
 
-'''
-r =  np.genfromtxt('lidar.csv',delimiter=',')
-#data is a list of 360 data points taken at each 1 degree increment
-theta = np.linspace(0, 2 * np.pi, 360)
-
-ax = plt.subplot(111, projection='polar')
-ax.plot(theta, r)
-ax.set_rmax(2)
-ax.set_rticks([0.5, 1, 1.5, 2])  # less radial ticks
-#ax.set_rlabel_position(-22.5)  # get radial labels away from plotted line
-ax.grid(True)
-
-ax.set_title("Polar", va='bottom')
-'''
+#new = data
+##print("ORIG_X: %s\nORIG_Y: %s" % (data['x'],data['y']))
 
 data = np.genfromtxt("lidar.csv", delimiter=",", names=["x", "y"])
-
-#new = data
-print("ORIG_X: %s\nORIG_Y: %s" % (data['x'],data['y']))
 
 new=data
 for i in range(0,360):
 	new['x'][i] =  math.cos(math.radians(data['x'][i]))*data['y'][i]
 	new['y'][i] =  math.sin(math.radians(data['x'][i]))*data['y'][i]
 
-print("NEW__X: %s\nNEW__Y: %s" % (new['x'],new['y']))
+##print("NEW__X: %s\nNEW__Y: %s" % (new['x'],new['y']))
 
 #plt.scatter(np.sin(data['x']), 9999-data['y'])
 #plt.scatter(np.sin(data['x']), math.hypot(data['x'], data['y']))
@@ -41,7 +37,7 @@ print("NEW__X: %s\nNEW__Y: %s" % (new['x'],new['y']))
 #plt.scatter(data['x'], 9999-data['y'])
 
 ax = plt.subplot(111, projection='polar')
-ax.set_theta_zero_location('W')
+ax.set_theta_zero_location('N')
 ax.set_theta_direction(-1)
 
 # ax.scatter(data['x'], 9999-data['y'])
@@ -54,7 +50,5 @@ ax.scatter(data['x'],data['y'])
 # THE FOLLOWING SHOULD BE RIGHT CALCULATION, just need to put it into array somehow...
 ### ax.scatter(math.cos(math.radians(data['x']))*data['y'], math.sin(math.radians(data['x'])*data['y']))
 
-
-
-
 plt.show()
+
