@@ -25,8 +25,12 @@ data = np.genfromtxt("lidar.csv", delimiter=",", names=["x", "y"])
 
 new=data
 for i in range(0,360):
-	new['x'][i] =  math.cos(math.radians(data['x'][i]))*data['y'][i]
-	new['y'][i] =  math.sin(math.radians(data['x'][i]))*data['y'][i]
+	##new['x'][i] =  math.cos(math.radians(data['x'][i]))*data['y'][i]
+	##new['y'][i] =  math.sin(math.radians(data['x'][i]))*data['y'][i]
+
+	# Convert theta to radians
+	new['x'][i] =  math.radians(data['x'][i])
+	new['y'][i] =  data['y'][i]
 
 ##print("NEW__X: %s\nNEW__Y: %s" % (new['x'],new['y']))
 
@@ -43,7 +47,8 @@ if (SIDE_THRESHOLD > FWD_THRESHOLD):
 	max=SIDE_THRESHOLD
 
 #ax.set_ylim(0,(max*1.1))
-ax.set_ylim(0,1000)
+ax.set_ylim(0,(max*11))
+#ax.set_ylim(0,1000)
 #ax.set_ylim(0,5000)
 
 #ax.scatter(data['x'], 9999-data['y'])
@@ -54,7 +59,8 @@ ax.set_ylim(0,1000)
 # THE FOLLOWING SHOULD BE RIGHT CALCULATION, just need it in an array...
 ### ax.scatter(math.cos(math.radians(data['x']))*data['y'], math.sin(math.radians(data['x'])*data['y']))
 
-ax.scatter(data['x'],data['y'])
+##ax.scatter(data['x'],data['y'])
+ax.scatter(new['x'],new['y'])
 
 
 plt.show()
