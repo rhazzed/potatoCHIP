@@ -56,8 +56,11 @@ ULTRASONIC_MIN_DIST_R=17
 
 ### LIDAR ANGLES
 FWD_OFF_ANGLE=30   # 0 +/- this is considered "forward-looking"
-FWD_THRESHOLD=450  # If there is nothing in front of the LIDAR closer than this value, it is safe to move forward
 MAX_OFF_ANGLE=45   # Beyond FWD_OFF_ANGLE and up to (this) is considered "right-" or "left-looking"
+
+### LIDAR DISTANCES
+### FYI -  LIDAR sensor max seems to be *AT* *LEAST* 16,000 mm / 52 feet (at night, outside, reflecting off cars)
+FWD_THRESHOLD=450  # If there is nothing in front of the LIDAR closer than this value, it is safe to move forward
 SIDE_THRESHOLD=400 # If there is something to the side of the LIDAR that is closer than this value, a turn is necessary!
 
 # The "lidar compass-point" that aligns with the platform's (robot's) zero-degree-point
