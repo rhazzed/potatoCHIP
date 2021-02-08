@@ -1,0 +1,32 @@
+#!/bin/sh
+###########################
+# getLidar - Pickup lidar readings from /dev/shm/??? files and put them into "lidar.csv" file
+###########################
+
+# Incorporate MyPins.py (it is a "dual-use" Python/shell-script file!)
+. ./MyPins.py
+
+##SENSOR_OUTPUT_DIR="/dev/shm"
+
+FILES=`echo ${SENSOR_OUTPUT_DIR}/[0-9][0-9][0-9]`
+
+for A in `ls $FILES`
+do
+	cat $A
+	echo
+done | awk '{
+
+if ($1 == -1) {
+    $1=9999
+};
+
+if (NR>1) printf("\n")
+
+printf("%d,%0.3f",(NR-1),$1);
+
+}' |tee lidar.csv
+
+echo
+
+exit 0
+
