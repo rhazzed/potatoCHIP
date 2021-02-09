@@ -87,9 +87,30 @@ class S(BaseHTTPRequestHandler):
                         f = open(snsr, 'r')
                         temp = f.read()
                         f.close()
-                        self.wfile.write("<td align='center'>".encode('utf-8'))
+
+
+                        # If threshold is too low, change font to RED
+                        cell_color="white"
+
+                        try:
+                            if ((A == US_L and int(temp) < ULTRASONIC_MIN_DIST_L) or \
+                                (A == US_F and int(temp) < ULTRASONIC_MIN_DIST_F) or \
+                                (A == US_R and int(temp) < ULTRASONIC_MIN_DIST_R) or \
+                                (A == LI_L and int(temp) < SIDE_THRESHOLD) or \
+                                (A == LI_F and int(temp) < FWD_THRESHOLD) or \
+                                (A == LI_R and int(temp) < SIDE_THRESHOLD)):
+
+                                cell_color="red"
+                        except:
+                            True
+
+                        self.wfile.write("<td align='center' bgcolor='".encode('utf-8'))
+                        self.wfile.write(cell_color.encode('utf-8'))
+                        self.wfile.write("'>".encode('utf-8'))
+
                         # Write ENCODED (utf-8) contents to outupt
                         self.wfile.write(temp.strip().encode('utf-8'))
+
                         self.wfile.write("</td>".encode('utf-8'))
 
                     self.wfile.write("</tr></table>".encode('utf-8'))
