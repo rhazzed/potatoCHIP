@@ -79,9 +79,10 @@ class S(BaseHTTPRequestHandler):
                     self.wfile.write(self.path.encode('utf-8'))
                     self.wfile.write("</title></head><body>".encode('utf-8'))
 
-                    self.wfile.write("<table border='1'><tr><td>&nbsp;&nbsp;US_L&nbsp;&nbsp;</td><td>&nbsp;&nbsp;US_F&nbsp;&nbsp;</td><td>&nbsp;&nbsp;US_R&nbsp;&nbsp;</td><td>&nbsp;&nbsp;LI_L&nbsp;&nbsp;</td><td>&nbsp;&nbsp;LI_F&nbsp;&nbsp;</td><td>&nbsp;&nbsp;LI_R&nbsp;&nbsp;</td></tr><tr>".encode('utf-8'))
-                    for A in "US_L","US_F","US_R","LI_L","LI_F","LI_R":
-                        snsr = "/dev/shm/" + A
+                    self.wfile.write("<table border='1'><tr><td colspan='3' align='center'>Ultrasonic</td><td colspan='3' align='center'>LIDAR</td></tr><tr>".encode('utf-8'))
+                    self.wfile.write("<tr><td>&nbsp;&nbsp;LEFT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;FRONT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;RIGHT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;LEFT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;FRONT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;RIGHT&nbsp;&nbsp;</td></tr><tr>".encode('utf-8'))
+                    for A in US_L,US_F,US_R,LI_L,LI_F,LI_R:
+                        snsr = SENSOR_OUTPUT_DIR + "/" + A
                         # Open file as TEXT
                         f = open(snsr, 'r')
                         temp = f.read()
