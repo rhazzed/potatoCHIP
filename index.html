@@ -1,7 +1,55 @@
 <html>
 <head>
 <title>NIMROD/DERPA ROBOT CONTROL</title>
+
+<script type="text/javascript">
+window.addEventListener('load', function()
+{
+    var xhr = null;
+
+    getXmlHttpRequestObject = function()
+    {
+        if(!xhr)
+        {               
+            // Create a new XMLHttpRequest object 
+            xhr = new XMLHttpRequest();
+        }
+        return xhr;
+    };
+
+    updateLiveData = function()
+    {
+        var now = new Date();
+        // Date string is appended as a query with live data 
+        // for not to use the cached version 
+        var url = 'sensors.txt?' + now.getTime();
+        xhr = getXmlHttpRequestObject();
+        xhr.onreadystatechange = evenHandler;
+        // asynchronous requests
+        xhr.open("GET", url, true);
+        // Send the request over the network
+        xhr.send(null);
+    };
+
+    updateLiveData();
+
+    function evenHandler()
+    {
+        // Check response is ready or not
+        if(xhr.readyState == 4 && xhr.status == 200)
+        {
+            dataDiv = document.getElementById('liveData');
+            // Set current data text
+            dataDiv.innerHTML = xhr.responseText;
+            // Update the live data every 1 sec
+            setTimeout(updateLiveData(), 1000);
+        }
+    }
+});
+</script>
+
 </head>
+
 <body>
 <h1>NIMROD/DERPA ROBOT CONTROL</h1>
 <p style="font-size:24px">To start the robot, click <a href="/START.html">here</a></p>
@@ -25,4 +73,10 @@ document.addEventListener('click', function(event) {
   }
 }, false);
 </script>
+
+<div id="liveData">
+    <p>Loading Sensor Data...</p>
+</div>
+
+</body>
 </html>

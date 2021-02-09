@@ -25,6 +25,9 @@ from MyPins import *
 
 class S(BaseHTTPRequestHandler):
 
+    def log_message(self, format, *args):
+        pass
+
     def _set_200_text_response(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -66,7 +69,7 @@ class S(BaseHTTPRequestHandler):
                 self._set_200_text_response()
                 self.wfile.write("{}".format("***STOPPING THE ROBOT!!***<script>var timer = setTimeout(function() { window.location='/' }, 3000);</script>").encode('utf-8'))
             else:
-                if self.path == "/sensors.txt":
+                if self.path.startswith("/sensors.txt"):
                     # Display sensor values
                     # Set return-type as text
                     self._set_200_text_response()
