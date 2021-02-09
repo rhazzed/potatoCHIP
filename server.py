@@ -90,7 +90,7 @@ class S(BaseHTTPRequestHandler):
 
 
                         # If threshold is too low, change font to RED
-                        cell_color="white"
+                        cell_color="lightgreen"
 
                         try:
                             if ((A == US_L and int(temp) < ULTRASONIC_MIN_DIST_L) or \
