@@ -8,6 +8,7 @@
 # HISTORICAL INFORMATION -
 #
 #  2021-01-28  Taken from the web, with ref: to above.
+#  2021-02-08  Read MyPins.py to obtain camera-rotation setting
 ####################################################
 
 import io
@@ -16,6 +17,11 @@ import logging
 import socketserver
 from threading import Condition
 from http import server
+
+# Import the pin definition (a symbolic link to MyPins.<RobotName>.py)
+# for your particular robot -
+from MyPins import *
+
 
 PAGE="""\
 <html>
@@ -92,7 +98,7 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 with picamera.PiCamera(resolution='640x480', framerate=24) as camera:
     output = StreamingOutput()
     #Uncomment the next line to change your Pi's Camera rotation (in degrees)
-    camera.rotation = 180
+    camera.rotation = CAMERA_ROTATION
     camera.start_recording(output, format='mjpeg')
     try:
         address = ('', 8000)

@@ -77,6 +77,9 @@ EXIT_DIR_RIGHT=4
 EXIT_DIR_BACKUP_AND_TURN=100
 EXIT_DIR_STUCK=124
 
+# Camera orientation (in degrees)
+CAMERA_ROTATION=180
+
 # COMMAND-PASSING FILE -
 # File to use to pass commands to the robot
 CMD_FILE="/dev/shm/IN"
