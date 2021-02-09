@@ -418,8 +418,9 @@ def cmds(threadname):
 
     while run:
         try:
-            with open(CMD_FILE, 'r') as f:
+            with open(CMD_FILE, 'r+') as f:
                 temp = f.read().splitlines()
+                f.truncate(0)
                 f.close()
                 for cmd in temp:
                     # Write cmd back to response-file

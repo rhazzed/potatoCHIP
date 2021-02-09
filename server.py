@@ -26,6 +26,13 @@ from MyPins import *
 class S(BaseHTTPRequestHandler):
 
     def log_message(self, format, *args):
+        # Check, and acknowledge robot actions (RSP_FILE)
+        with open(RSP_FILE, 'r+') as f:
+            temp = f.read().splitlines()
+            f.truncate(0)
+            f.close()
+            #for rsp in temp:
+            #    print("DEBUG: rsp = [%s]" % rsp)
         pass
 
     def _set_200_text_response(self):
@@ -249,7 +256,7 @@ class S(BaseHTTPRequestHandler):
 
 def start():
     # Write "START" to command-file
-    with open(CMD_FILE, "w") as f:
+    with open(CMD_FILE, "a") as f:
         f.write(CMD_START)
         f.write("\n")
         f.close()
@@ -257,7 +264,7 @@ def start():
 
 def stop():
     # Write "STOP" to command-file
-    with open(CMD_FILE, "w") as f:
+    with open(CMD_FILE, "a") as f:
         f.write(CMD_STOP)
         f.write("\n")
         f.close()
