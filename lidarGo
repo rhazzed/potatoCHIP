@@ -14,6 +14,7 @@
 #                      to filesystem for display on website
 #  2021-02-07  msipin  Changed name of this program's "RANGE_DIR" variable to avoid conflict with that of the
 #                      robot-specific variable used in MyPins.*.py
+#  2021-02-10  msipin  Fixed bug where left results got included in forward
 ##########################################
 
 # Incorporate MyPins.py (it is a "dual-use" Python/shell-script file!)
@@ -66,7 +67,7 @@ grep -v "\-1" $* | awk 'BEGIN { min=999999; }{
 }
 
 # 1) Average out the valid (-MAX_OFF_ANGLE --to-- -FWD_OF_ANGLE) valid LIDAR distance-sensor readings and call this the "left value"
-files=`ls ${lidar_dir}/[0-9][0-9][0-9] | tail -${FWD_OFF_ANGLE} | head -$NUM_FILES`
+files=`ls ${lidar_dir}/[0-9][0-9][0-9] | tail -${MAX_OFF_ANGLE} | head -$NUM_FILES`
 left_val=`get_min $files`
 echo $left_val > ${SENSOR_OUTPUT_DIR}/${LI_L}
 

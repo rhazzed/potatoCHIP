@@ -55,7 +55,7 @@ ULTRASONIC_MIN_DIST_F=20
 ULTRASONIC_MIN_DIST_R=17
 
 ### LIDAR ANGLES
-FWD_OFF_ANGLE=30   # 0 +/- this is considered "forward-looking"
+FWD_OFF_ANGLE=15   # 0 +/- this is considered "forward-looking"
 MAX_OFF_ANGLE=45   # Beyond FWD_OFF_ANGLE and up to (this) is considered "right-" or "left-looking"
 
 ### LIDAR DISTANCES
