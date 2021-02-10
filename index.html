@@ -20,9 +20,51 @@ window.addEventListener('load', function()
     updateLiveData = function()
     {
         var now = new Date();
-        // Date string is appended as a query with live data 
-        // for not to use the cached version 
+        // Date string is appended as a query with live data
+        // for not to use the cached version
         var url = 'sensors.txt?' + now.getTime();
+        xhr = getXmlHttpRequestObject();
+        xhr.onreadystatechange = evenHandler;
+        // asynchronous requests
+        xhr.open("GET", url, true);
+        // Send the request over the network
+        xhr.send(null);
+    };
+
+    camera_left= function()
+    {
+        var now = new Date();
+        // Date string is appended as a query with live data
+        // for not to use the cached version
+        var url = 'C.cmd?' + now.getTime();
+        xhr = getXmlHttpRequestObject();
+        xhr.onreadystatechange = evenHandler;
+        // asynchronous requests
+        xhr.open("GET", url, true);
+        // Send the request over the network
+        xhr.send(null);
+    };
+
+    camera_forward= function()
+    {
+        var now = new Date();
+        // Date string is appended as a query with live data
+        // for not to use the cached version
+        var url = 'D.cmd?' + now.getTime();
+        xhr = getXmlHttpRequestObject();
+        xhr.onreadystatechange = evenHandler;
+        // asynchronous requests
+        xhr.open("GET", url, true);
+        // Send the request over the network
+        xhr.send(null);
+    };
+
+    camera_right= function()
+    {
+        var now = new Date();
+        // Date string is appended as a query with live data
+        // for not to use the cached version
+        var url = 'E.cmd?' + now.getTime();
         xhr = getXmlHttpRequestObject();
         xhr.onreadystatechange = evenHandler;
         // asynchronous requests
@@ -52,9 +94,9 @@ window.addEventListener('load', function()
 
 <body>
 <h1>NIMROD/DERPA ROBOT CONTROL</h1>
-<p style="font-size:24px">To start the robot, click <a href="/A.html">here</a></p><!-- CMD_START -->
+<p style="font-size:24px">To start the robot, click <a href="/A.cmd">here</a></p><!-- CMD_START -->
 <p/>
-<p style="font-size:24px">To stop the robot, click <a href="/B.html">here</a></p><!-- CMD_STOP -->
+<p style="font-size:24px">To stop the robot, click <a href="/B.cmd">here</a></p><!-- CMD_STOP -->
 <p/>
 <p style="font-size:24px">To watch the robot camera livestream, click <a href=":8000" target="_blank" rel="noopener noreferrer">here</a></p>
 
@@ -74,9 +116,43 @@ document.addEventListener('click', function(event) {
 }, false);
 </script>
 
+
+<table>
+<tr>
+<td align='center'>
+
+<table border='1'>
+<tr>
+<td colspan='3' align='center'>Camera Control</td>
+</tr>
+<tr>
+<td align="center">
+<a href="#" onclick="camera_left(); return false;">Pan Left</a>
+</td>
+<td align="center">
+<a href="#" onclick="camera_forward(); return false;">Forward</a>
+</td>
+<td align="center">
+<a href="#" onclick="camera_right(); return false;">Pan Right</a>
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+<tr>
+<td align='center'>
+
 <div id="liveData">
     <p>Loading Sensor Data...</p>
 </div>
+
+
+</td>
+</tr>
+</table>
+
+
 
 </body>
 </html>

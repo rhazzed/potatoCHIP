@@ -76,189 +76,207 @@ class S(BaseHTTPRequestHandler):
         logging.debug("\nGET\n****URL: [%s]\n****Headers:\n%s\n", str(self.path), str(self.headers))
         logging.info("\nGET\n****URL: [%s]\n", str(self.path))
 
-        if CMD_START in self.path:
-            # Issue 'START' command -
-            start()
+        if ".cmd" in self.path:
             self._set_200_text_response()
-            self.wfile.write("{}".format(" STARTING THE ROBOT  =) <script>var timer = setTimeout(function() { window.location='/' }, 250);</script>").encode('utf-8'))
-        else:
-            if CMD_STOP in self.path:
+            if self.path.startswith("/" + CMD_START):
+                # Issue 'START' command -
+                tell_robot(CMD_START)
+                self.wfile.write("{}".format(" STARTING THE ROBOT  =) <script>var timer = setTimeout(function() { window.location='/' }, 250);</script>").encode('utf-8'))
+
+            if self.path.startswith("/" + CMD_STOP):
                 # Issue 'STOP' command -
-                stop()
-                self._set_200_text_response()
+                tell_robot(CMD_STOP)
                 self.wfile.write("{}".format("***STOPPING THE ROBOT!!***<script>var timer = setTimeout(function() { window.location='/' }, 3000);</script>").encode('utf-8'))
+
+            if self.path.startswith("/" + CMD_CAMERA_LEFT):
+                # Turn camera left
+                tell_robot(CMD_CAMERA_LEFT)
+                self.wfile.write("{}".format("\n\n").encode('utf-8'))
+
+            if self.path.startswith("/" + CMD_CAMERA_FORWARD):
+                # Turn camera left
+                tell_robot(CMD_CAMERA_FORWARD)
+                self.wfile.write("{}".format("\n\n").encode('utf-8'))
+
+            if self.path.startswith("/" + CMD_CAMERA_RIGHT):
+                # Turn camera left
+                tell_robot(CMD_CAMERA_RIGHT)
+                self.wfile.write("{}".format("\n\n").encode('utf-8'))
+
+        else:
+
+            if self.path.startswith("/sensors.txt"):
+                # Display sensor values
+                # Set return-type as text
+                self._set_200_text_response()
+
+                try:
+
+                    # Write HTML header/prefix/<pre>
+                    self.wfile.write("<html><head><title>".encode('utf-8'))
+                    self.wfile.write(self.path.encode('utf-8'))
+                    self.wfile.write("</title></head><body>".encode('utf-8'))
+
+                    self.wfile.write("<table border='1'><tr><td colspan='3' align='center'>Ultrasonic</td><td colspan='3' align='center'>LIDAR</td></tr><tr>".encode('utf-8'))
+                    self.wfile.write("<tr><td>&nbsp;&nbsp;LEFT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;FRONT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;RIGHT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;LEFT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;FRONT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;RIGHT&nbsp;&nbsp;</td></tr><tr>".encode('utf-8'))
+                    for A in US_L,US_F,US_R,LI_L,LI_F,LI_R:
+                        snsr = SENSOR_OUTPUT_DIR + "/" + A
+                        # Open file as TEXT
+                        f = open(snsr, 'r')
+                        temp = f.read()
+                        f.close()
+
+
+                        # If threshold is too low, change font to RED
+                        cell_color="lightgreen"
+
+                        try:
+                            if ((A == US_L and int(temp) < ULTRASONIC_MIN_DIST_L) or \
+                                (A == US_F and int(temp) < ULTRASONIC_MIN_DIST_F) or \
+                                (A == US_R and int(temp) < ULTRASONIC_MIN_DIST_R) or \
+                                (A == LI_L and int(temp) < SIDE_THRESHOLD) or \
+                                (A == LI_F and int(temp) < FWD_THRESHOLD) or \
+                                (A == LI_R and int(temp) < SIDE_THRESHOLD)):
+
+                                cell_color="red"
+                        except:
+                            True
+
+                        self.wfile.write("<td align='center' bgcolor='".encode('utf-8'))
+                        self.wfile.write(cell_color.encode('utf-8'))
+                        self.wfile.write("'>".encode('utf-8'))
+
+                        # Write ENCODED (utf-8) contents to outupt
+                        self.wfile.write(temp.strip().encode('utf-8'))
+
+                        self.wfile.write("</td>".encode('utf-8'))
+
+                    self.wfile.write("</tr></table>".encode('utf-8'))
+
+                    #self.wfile.write("HERE BE (DRAGONS) SENSOR VALUES!!!".encode('utf-8'))
+
+                    # Write </body></html> HTML
+                    self.wfile.write("</body></html>".encode('utf-8'))
+
+                # Keep getting various (closed) errors on self.wfile.write's above!
+                except:
+                    True
+
+
             else:
-                if self.path.startswith("/sensors.txt"):
-                    # Display sensor values
-                    # Set return-type as text
-                    self._set_200_text_response()
+                # Try to open URL (if present) -
+                # -------------------------------------------------------------
+                #   CAUTION: THIS IS A *TERRIBLE* *SECURITY* *RISK*!!!!
+                #            YOU *BETTER* KNOW WHAT YOU ARE DOING HERE!!!!!!!
+                #      -- (OR BE PREPARED TO BE COMPLETELY P0WNED!!!) --
+                # -------------------------------------------------------------
+                try:
+                    logging.debug("\nInto potential file-serving code...\n")
 
-                    try:
+                    # Default to throwing 404 - Not Found error (This can be achieved by
+                    # setting the URL to an impossible location)
+                    url = "//dev/null/NothingToSeeHere"   # An impossible URL
+                    logging.debug("\nURL defaulted to NOT-FOUND-CONDITION\n")
 
-                        # Write HTML header/prefix/<pre>
-                        self.wfile.write("<html><head><title>".encode('utf-8'))
-                        self.wfile.write(self.path.encode('utf-8'))
-                        self.wfile.write("</title></head><body>".encode('utf-8'))
+                    # TO-DO: DO MUCH MORE EXTENSIVE FILTERING OF THE ALLOWABLE URLs HERE ---
+                    if self.path.startswith("/") and \
+                        ("/" == self.path or self.path.endswith(".html") or \
+                        self.path.endswith(".htm") or self.path.endswith(".txt") or \
+                        self.path.endswith(".css") or self.path.endswith(".js") or \
+                        self.path.endswith(".jpg") or self.path.endswith(".jpeg") or \
+                        self.path.endswith(".gif") or \
+                        self.path.endswith(".png") or self.path.endswith(".ico")) and \
+                        not ".." in self.path:
 
-                        self.wfile.write("<table border='1'><tr><td colspan='3' align='center'>Ultrasonic</td><td colspan='3' align='center'>LIDAR</td></tr><tr>".encode('utf-8'))
-                        self.wfile.write("<tr><td>&nbsp;&nbsp;LEFT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;FRONT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;RIGHT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;LEFT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;FRONT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;RIGHT&nbsp;&nbsp;</td></tr><tr>".encode('utf-8'))
-                        for A in US_L,US_F,US_R,LI_L,LI_F,LI_R:
-                            snsr = SENSOR_OUTPUT_DIR + "/" + A
-                            # Open file as TEXT
-                            f = open(snsr, 'r')
-                            temp = f.read()
-                            f.close()
+                        logging.debug("\nURL starts/ends correctly...\n")
 
-
-                            # If threshold is too low, change font to RED
-                            cell_color="lightgreen"
-
-                            try:
-                                if ((A == US_L and int(temp) < ULTRASONIC_MIN_DIST_L) or \
-                                    (A == US_F and int(temp) < ULTRASONIC_MIN_DIST_F) or \
-                                    (A == US_R and int(temp) < ULTRASONIC_MIN_DIST_R) or \
-                                    (A == LI_L and int(temp) < SIDE_THRESHOLD) or \
-                                    (A == LI_F and int(temp) < FWD_THRESHOLD) or \
-                                    (A == LI_R and int(temp) < SIDE_THRESHOLD)):
-
-                                    cell_color="red"
-                            except:
-                                True
-
-                            self.wfile.write("<td align='center' bgcolor='".encode('utf-8'))
-                            self.wfile.write(cell_color.encode('utf-8'))
-                            self.wfile.write("'>".encode('utf-8'))
-
-                            # Write ENCODED (utf-8) contents to outupt
-                            self.wfile.write(temp.strip().encode('utf-8'))
-
-                            self.wfile.write("</td>".encode('utf-8'))
-
-                        self.wfile.write("</tr></table>".encode('utf-8'))
-
-                        #self.wfile.write("HERE BE (DRAGONS) SENSOR VALUES!!!".encode('utf-8'))
-
-                        # Write </body></html> HTML
-                        self.wfile.write("</body></html>".encode('utf-8'))
-
-                    # Keep getting various (closed) errors on self.wfile.write's above!
-                    except:
-                        True
+                        # HERE BE DRAGONS!
+                        url=""
+                        # The only percent-anything we should allow is "%20", which is a space, which we
+                        # should replace with an actual space
+                        for c in re.sub(r"%20"," ", self.path):
+                            # The only characters we should allow are ones we like -
+                            if c in "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.&?+_-/= ":
+                                url = url + c
 
 
-                else:
-                    # Try to open URL (if present) -
+                        # If self.path = "/" then rewrite url to "/index.html"
+                        if "/" == self.path:
+                            logging.debug("\nURL should be 'index.html'\n")
+                            url = "/index.html"
+
+                        # Strip off leading "/" (aka file-path is relative to the current (server) directory)
+                        try:
+                            url = url[1:]
+                        except:
+                            url = ""
+                        logging.debug("\nAfter stripping, url is: [%s]\n", str(url))
+
                     # -------------------------------------------------------------
                     #   CAUTION: THIS IS A *TERRIBLE* *SECURITY* *RISK*!!!!
                     #            YOU *BETTER* KNOW WHAT YOU ARE DOING HERE!!!!!!!
-                    #      -- (OR BE PREPARED TO BE COMPLETELY P0WNED!!!) --
+                    #            OR BE PREPARED TO BE COMPLETELY P0WNED!!!
                     # -------------------------------------------------------------
-                    try:
-                        logging.debug("\nInto potential file-serving code...\n")
 
-                        # Default to throwing 404 - Not Found error (This can be achieved by
-                        # setting the URL to an impossible location)
-                        url = "//dev/null/NothingToSeeHere"   # An impossible URL
-                        logging.debug("\nURL defaulted to NOT-FOUND-CONDITION\n")
+                    logging.debug("\nTrying to open file [%s]...\n",url)
+                    f = None
+                    # Open .ico/.png (both are PNGs) file -
+                    if url.endswith(".ico") or url.endswith(".png") or \
+                        url.endswith(".jpg") or url.endswith(".jpeg") or \
+                        url.endswith(".gif"):
 
-                        # TO-DO: DO MUCH MORE EXTENSIVE FILTERING OF THE ALLOWABLE URLs HERE ---
-                        if self.path.startswith("/") and \
-                            ("/" == self.path or self.path.endswith(".html") or \
-                            self.path.endswith(".htm") or self.path.endswith(".txt") or \
-                            self.path.endswith(".css") or self.path.endswith(".js") or \
-                            self.path.endswith(".jpg") or self.path.endswith(".jpeg") or \
-                            self.path.endswith(".gif") or \
-                            self.path.endswith(".png") or self.path.endswith(".ico")) and \
-                            not ".." in self.path:
+                        # Open file as BINARY DATA
+                        f = open(url, 'rb')
+                        temp = f.read()
+                        f.close()
 
-                            logging.debug("\nURL starts/ends correctly...\n")
+                        if url.endswith(".ico") or url.endswith(".png"):
+                            # Set return-type as PNG
+                            self._set_png_response()
 
-                            # HERE BE DRAGONS!
-                            url=""
-                            # The only percent-anything we should allow is "%20", which is a space, which we
-                            # should replace with an actual space
-                            for c in re.sub(r"%20"," ", self.path):
-                                # The only characters we should allow are ones we like -
-                                if c in "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.&?+_-/= ":
-                                    url = url + c
+                        if url.endswith(".jpg") or url.endswith(".jpeg"):
+                            # Set return-type as JPEG
+                            self._set_jpg_response()
 
+                        if url.endswith(".gif"):
+                            # Set return-type as GIF
+                            self._set_gif_response()
 
-                            # If self.path = "/" then rewrite url to "/index.html"
-                            if "/" == self.path:
-                                logging.debug("\nURL should be 'index.html'\n")
-                                url = "/index.html"
+                        # Write RAW contents to outupt
+                        self.wfile.write(temp)
 
-                            # Strip off leading "/" (aka file-path is relative to the current (server) directory)
-                            try:
-                                url = url[1:]
-                            except:
-                                url = ""
-                            logging.debug("\nAfter stripping, url is: [%s]\n", str(url))
+                    else:
+                        # Open file as TEXT
+                        f = open(url, 'r')
+                        temp = f.read()
+                        f.close()
 
-                        # -------------------------------------------------------------
-                        #   CAUTION: THIS IS A *TERRIBLE* *SECURITY* *RISK*!!!!
-                        #            YOU *BETTER* KNOW WHAT YOU ARE DOING HERE!!!!!!!
-                        #            OR BE PREPARED TO BE COMPLETELY P0WNED!!!
-                        # -------------------------------------------------------------
+                        # Set return-type as text
+                        self._set_200_text_response()
 
-                        logging.debug("\nTrying to open file [%s]...\n",url)
-                        f = None
-                        # Open .ico/.png (both are PNGs) file -
-                        if url.endswith(".ico") or url.endswith(".png") or \
-                            url.endswith(".jpg") or url.endswith(".jpeg") or \
-                            url.endswith(".gif"):
+                        # If url ends in .txt
+                        if url.endswith(".txt"):
+                            # Write HTML header/prefix/<pre>
+                            self.wfile.write("<html><head><title>".encode('utf-8'))
+                            self.wfile.write(url.encode('utf-8'))
+                            self.wfile.write("</title></head><body><pre>".encode('utf-8'))
 
-                            # Open file as BINARY DATA
-                            f = open(url, 'rb')
-                            temp = f.read()
-                            f.close()
+                        # Write ENCODED (utf-8) contents to outupt
+                        self.wfile.write(temp.encode('utf-8'))
 
-                            if url.endswith(".ico") or url.endswith(".png"):
-                                # Set return-type as PNG
-                                self._set_png_response()
-
-                            if url.endswith(".jpg") or url.endswith(".jpeg"):
-                                # Set return-type as JPEG
-                                self._set_jpg_response()
-
-                            if url.endswith(".gif"):
-                                # Set return-type as GIF
-                                self._set_gif_response()
-
-                            # Write RAW contents to outupt
-                            self.wfile.write(temp)
-
-                        else:
-                            # Open file as TEXT
-                            f = open(url, 'r')
-                            temp = f.read()
-                            f.close()
-
-                            # Set return-type as text
-                            self._set_200_text_response()
-
-                            # If url ends in .txt
-                            if url.endswith(".txt"):
-                                # Write HTML header/prefix/<pre>
-                                self.wfile.write("<html><head><title>".encode('utf-8'))
-                                self.wfile.write(url.encode('utf-8'))
-                                self.wfile.write("</title></head><body><pre>".encode('utf-8'))
-
-                            # Write ENCODED (utf-8) contents to outupt
-                            self.wfile.write(temp.encode('utf-8'))
-
-                            # If url ends in .txt
-                            if url.endswith(".txt"):
-                                # Write </pre>/end-body-(etc) HTML
-                                self.wfile.write("</pre></body></html>".encode('utf-8'))
+                        # If url ends in .txt
+                        if url.endswith(".txt"):
+                            # Write </pre>/end-body-(etc) HTML
+                            self.wfile.write("</pre></body></html>".encode('utf-8'))
 
 
-                    except IOError:
-                        logging.debug("\n****FAILED to open URL!\n")
-                        # File doesn't exist
-                        # Return "404 Not Found"
-                        self._set_404_response()
-                        self.wfile.write(html_404_not_found .encode('utf-8'))
+                except IOError:
+                    logging.debug("\n****FAILED to open URL!\n")
+                    # File doesn't exist
+                    # Return "404 Not Found"
+                    self._set_404_response()
+                    self.wfile.write(html_404_not_found .encode('utf-8'))
+
 
 
     def do_POST(self):
@@ -273,13 +291,12 @@ class S(BaseHTTPRequestHandler):
         self._set_200_text_response()
         self.wfile.write("POST {}".format(self.path).encode('utf-8'))
 
-def start():
-    # Write "START" to robot-command-socket
+def tell_robot(cmd):
     for i in range(0,3):
         try:
             address = ('127.0.0.1', ROBOT_CMD_PORT)
             conn = Client(address, authkey=ROBOT_SECRET_KEY)
-            conn.send(CMD_START)
+            conn.send(cmd)
             conn.close()
         except ConnectionRefusedError:
             time.sleep(1)
@@ -287,23 +304,6 @@ def start():
             time.sleep(1)
         except:
             time.sleep(1)
-
-
-def stop():
-    # Write "STOP" to robot-command-socket
-    for i in range(0,3):
-        try:
-            address = ('127.0.0.1', ROBOT_CMD_PORT)
-            conn = Client(address, authkey=ROBOT_SECRET_KEY)
-            conn.send(CMD_STOP)
-            conn.close()
-        except ConnectionRefusedError:
-            time.sleep(1)
-        except ConnectionResetError:
-            time.sleep(1)
-        except:
-            time.sleep(1)
-
 
 
 def run(server_class=HTTPServer, handler_class=S, port=8080):

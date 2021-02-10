@@ -252,6 +252,28 @@ def lidar(threadname):
     print("\n\t\t***Thread %s exiting." % threadname)
 
 
+def _set_servo_position(servo_pos):
+    pwm.set_pwm(PWM_CH_SERVO, 0, (int)(servo_pos))
+
+
+def servo_left():
+    print('SERVO LEFT...')
+    servo_pos = int(servo_max)
+    _set_servo_position(servo_pos)
+
+
+def servo_forward():
+    print('SERVO FWD...')
+    servo_pos = int((servo_max - servo_min)/2)+servo_min
+    _set_servo_position(servo_pos)
+
+
+def servo_right():
+    print('SERVO RIGHT...')
+    servo_pos = int(servo_min)
+    _set_servo_position(servo_pos)
+
+
 def ultrasonic(threadname):
 
     # Uncomment the following line if THIS THREAD
@@ -263,11 +285,12 @@ def ultrasonic(threadname):
     # Local (aka "internal") direction-decision variable
     ultrasonic_decision = ultrasonic_dir
 
-    print('ULTRASONIC RANGE SENSOR SERVO FWD...')
-    servo_pos = int((servo_max - servo_min)/2)+servo_min
-    #servo_stop = 1
-    pwm.set_pwm(PWM_CH_SERVO, 0, servo_pos)
-
+    servo_left()
+    time.sleep(1)
+    servo_right()
+    time.sleep(1)
+    servo_forward()
+    time.sleep(1)
 
     # set ALL triggers to LOW
     GPIO.output(GPIO_TRIGGER_L, False)
@@ -451,6 +474,21 @@ def cmds(threadname):
                             # Close the connection from the current user
                             conn.close()
                             conn = None
+
+                        if CMD_CAMERA_LEFT in cmd:
+                            # Turn camera servo LEFT
+                            servo_left()
+
+
+                        if CMD_CAMERA_FORWARD in cmd:
+                            # Turn camera servo FORWARD
+                            servo_forward()
+
+
+                        if CMD_CAMERA_RIGHT in cmd:
+                            # Turn camera servo RIGHT
+                            servo_right()
+
                 except EOFError:
                     # Close the connection from the (now-non-existent!) user
                     conn.close()
@@ -538,7 +576,7 @@ tracks.join()
 print("All threads stopped")
 
 # Center the servo
-pwm.set_pwm(PWM_CH_SERVO, 0, (int)(round( servo_min + ((servo_max - servo_min)/2) )))
+servo_forward()
 time.sleep(1)
 
 stop_tracks()
