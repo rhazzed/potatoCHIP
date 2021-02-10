@@ -14,6 +14,7 @@
 #  2021-02-08  msipin  Served up sensor values
 #  2021-02-09  msipin  Replaced robot's CMD_FILE with socket-based communications (had to adapt Python3 -vs- Python2
 #                      object-serialization!!!)
+#  2021-02-10  msipin  Added reset-lidar command
 #####################################
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -101,6 +102,11 @@ class S(BaseHTTPRequestHandler):
             if self.path.startswith("/" + CMD_CAMERA_RIGHT):
                 # Turn camera left
                 tell_robot(CMD_CAMERA_RIGHT)
+                self.wfile.write("{}".format("\n\n").encode('utf-8'))
+
+            if self.path.startswith("/" + CMD_RESET_LIDAR):
+                # Reset LIDAR server
+                tell_robot(CMD_RESET_LIDAR)
                 self.wfile.write("{}".format("\n\n").encode('utf-8'))
 
         else:
@@ -294,10 +300,11 @@ class S(BaseHTTPRequestHandler):
 def tell_robot(cmd):
     for i in range(0,3):
         try:
-            address = ('127.0.0.1', ROBOT_CMD_PORT)
+            address = ('localhost', ROBOT_CMD_PORT)
             conn = Client(address, authkey=ROBOT_SECRET_KEY)
             conn.send(cmd)
             conn.close()
+            break
         except ConnectionRefusedError:
             time.sleep(1)
         except ConnectionResetError:

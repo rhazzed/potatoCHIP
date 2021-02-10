@@ -70,6 +70,19 @@ window.addEventListener('load', function()
         xhr.send(null);
     };
 
+    reset_lidar = function()
+    {
+        var now = new Date();
+        // Date string is appended as a query with live data
+        // for not to use the cached version
+        var url = 'F.cmd?' + now.getTime();
+        xhr = getXmlHttpRequestObject();
+        // asynchronous requests
+        xhr.open("GET", url, true);
+        // Send the request over the network
+        xhr.send(null);
+    };
+
     updateLiveData();
 
     function eventHandler()
@@ -120,6 +133,9 @@ document.addEventListener('click', function(event) {
             <table border='1'>
                 <tr>
                     <td colspan='3' align='center'>Camera Control</td>
+                    <td align='center' bgcolor='#e8e8e8'>
+                        LIDAR
+                    </td>
                 </tr>
                     <tr>
                     <td align="center">
@@ -130,6 +146,9 @@ document.addEventListener('click', function(event) {
                     </td>
                     <td align="center">
                         <button style="background-color:white;border-color:white" onclick='camera_right()'>Pan Right</button>
+                    </td>
+                    <td align='center' bgcolor='#e8e8e8'>
+                        <button style="background-color:e8e8e8;border-color:ff6600" onclick='reset_lidar()'>Reset</button>
                     </td>
                 </tr>
             </table>

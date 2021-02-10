@@ -20,6 +20,7 @@
 #                      Made the ultrasonic and lidar range detector loops run faster
 #  2021-02-09  msipin  Replaced robot's CMD_FILE with socket-based communications (had to adapt Python3 -vs- Python2
 #                      object-serialization!!!)
+#  2021-02-10  msipin  Added command to reset LIDAR
 ##################################
 
 from __future__ import division
@@ -257,21 +258,28 @@ def _set_servo_position(servo_pos):
 
 
 def servo_left():
-    print('SERVO LEFT...')
+    print('SERVO LEFT')
     servo_pos = int(servo_max)
     _set_servo_position(servo_pos)
 
 
 def servo_forward():
-    print('SERVO FWD...')
+    print('SERVO FWD')
     servo_pos = int((servo_max - servo_min)/2)+servo_min
     _set_servo_position(servo_pos)
 
 
 def servo_right():
-    print('SERVO RIGHT...')
+    print('SERVO RIGHT')
     servo_pos = int(servo_min)
     _set_servo_position(servo_pos)
+
+
+def reset_lidar():
+    print('RESET LIDAR')
+    #os.spawnl(os.P_DETACH, "./restart_lidar")
+    #os.system("(nohup ./restart_lidar >/dev/null 2>&1)&")
+    subprocess.Popen("(nohup ./restart_lidar >/dev/null 2>&1)&", shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
 
 
 def ultrasonic(threadname):
@@ -481,6 +489,11 @@ def cmds(threadname):
                         if CMD_CAMERA_RIGHT in cmd:
                             # Turn camera servo RIGHT
                             servo_right()
+
+
+                        if CMD_RESET_LIDAR in cmd:
+                            # Reset LIDAR
+                            reset_lidar()
 
                 except EOFError:
                     # Close the connection from the (now-non-existent!) user

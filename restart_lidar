@@ -1,0 +1,25 @@
+#!/bin/sh
+#################################
+# restart_lidar - A script to kill then restart the LIDAR server (ultra_simple)
+#
+# HISTORICAL INFORMATION -
+#
+#  2021-02-10  msipin  Created
+#################################
+
+EXE_DIR=/home/pi/potatoCHIP
+PROG=ultra_simple
+
+cd ${EXE_DIR}
+
+# Kill the lidar server
+killall ${PROG} >>${EXE_DIR}/out.txt 2>&1
+
+# Wait a little...
+sleep 7
+
+# Restart LIDAR server in the background (nohup)
+(nohup ${EXE_DIR}/${PROG} >/dev/null 2>&1)&
+
+exit 0
+
