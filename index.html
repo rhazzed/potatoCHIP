@@ -24,7 +24,7 @@ window.addEventListener('load', function()
         // for not to use the cached version
         var url = 'sensors.txt?' + now.getTime();
         xhr = getXmlHttpRequestObject();
-        xhr.onreadystatechange = evenHandler;
+        xhr.onreadystatechange = eventHandler;
         // asynchronous requests
         xhr.open("GET", url, true);
         // Send the request over the network
@@ -38,7 +38,6 @@ window.addEventListener('load', function()
         // for not to use the cached version
         var url = 'C.cmd?' + now.getTime();
         xhr = getXmlHttpRequestObject();
-        xhr.onreadystatechange = evenHandler;
         // asynchronous requests
         xhr.open("GET", url, true);
         // Send the request over the network
@@ -52,7 +51,6 @@ window.addEventListener('load', function()
         // for not to use the cached version
         var url = 'D.cmd?' + now.getTime();
         xhr = getXmlHttpRequestObject();
-        xhr.onreadystatechange = evenHandler;
         // asynchronous requests
         xhr.open("GET", url, true);
         // Send the request over the network
@@ -66,7 +64,6 @@ window.addEventListener('load', function()
         // for not to use the cached version
         var url = 'E.cmd?' + now.getTime();
         xhr = getXmlHttpRequestObject();
-        xhr.onreadystatechange = evenHandler;
         // asynchronous requests
         xhr.open("GET", url, true);
         // Send the request over the network
@@ -75,7 +72,7 @@ window.addEventListener('load', function()
 
     updateLiveData();
 
-    function evenHandler()
+    function eventHandler()
     {
         // Check response is ready or not
         if(xhr.readyState == 4 && xhr.status == 200)
@@ -127,13 +124,13 @@ document.addEventListener('click', function(event) {
 </tr>
 <tr>
 <td align="center">
-<a href="#" onclick="camera_left(); return false;">Pan Left</a>
+<button style="background-color:white;border-color:white" onclick='camera_left()'>Pan Left</button>
 </td>
 <td align="center">
-<a href="#" onclick="camera_forward(); return false;">Forward</a>
+<button style="background-color:white;border-color:white" onclick='camera_forward()'>Forward</button>
 </td>
 <td align="center">
-<a href="#" onclick="camera_right(); return false;">Pan Right</a>
+<button style="background-color:white;border-color:white" onclick='camera_right()'>Pan Right</button>
 </td>
 </tr>
 </table>
