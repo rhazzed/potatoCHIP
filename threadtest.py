@@ -285,13 +285,6 @@ def ultrasonic(threadname):
     # Local (aka "internal") direction-decision variable
     ultrasonic_decision = ultrasonic_dir
 
-    servo_left()
-    time.sleep(1)
-    servo_right()
-    time.sleep(1)
-    servo_forward()
-    time.sleep(1)
-
     # set ALL triggers to LOW
     GPIO.output(GPIO_TRIGGER_L, False)
     GPIO.output(GPIO_TRIGGER_F, False)
@@ -541,6 +534,11 @@ def kybd(threadname):
 
 # Initialize the "robot response file"
 open(RSP_FILE, "w").close()
+
+
+# Point the servo forward (WAS: ultrasonic sensor. NOW IS: Camera)
+servo_forward()
+time.sleep(1)
 
 
 lidar = Thread( target=lidar, args=("lidar_thread", ) )
