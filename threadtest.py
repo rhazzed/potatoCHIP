@@ -18,6 +18,8 @@
 #                      Changed turns from 65 degrees to 15, per Nimrod "live testing"
 #  2021-02-07  msipin  Hid the ultrasonic "direction indication" from other threads until final determination
 #                      Made the ultrasonic and lidar range detector loops run faster
+#  2021-02-09  msipin  Replaced robot's CMD_FILE with socket-based communications (had to adapt Python3 -vs- Python2
+#                      object-serialization!!!)
 ##################################
 
 from __future__ import division
@@ -27,6 +29,7 @@ import subprocess
 import os
 from random import randrange
 import sys, select
+from multiprocessing.connection import Listener
 
 
 # Import the PCA9685 16-channel I2C PWM module.
@@ -416,28 +419,43 @@ def cmds(threadname):
     # need to uncomment it to just READ it...
     global run
 
+    # Start the command-listener (socket on localhost)
+    address = ('127.0.0.1', ROBOT_CMD_PORT)
+    listener = Listener(address, authkey=ROBOT_SECRET_KEY)
+
     while run:
         try:
-            with open(CMD_FILE, 'r+') as f:
-                temp = f.read().splitlines()
-                f.truncate(0)
-                f.close()
-                for cmd in temp:
-                    # Write cmd back to response-file
-                    with open(RSP_FILE, "a") as f2:
-                        f2.write(cmd)
-                        f2.write("\n")
-                        f2.close()
+            conn = listener.accept()
+            #print "RECEIVER accepted connection!"
+            while conn is not None:
+                try:
+                    temp = conn.recv()
+                    print("RECEIVED: %s" % temp)
+                    for cmd in temp:
 
-                    print("DEBUG: cmd = [%s]" % cmd)
+                        # Write cmd back to response-file
+                        with open(RSP_FILE, "a") as f2:
+                            f2.write(cmd)
+                            f2.write("\n")
+                            f2.close()
 
-                    if CMD_START in cmd and run == 1:
-                        # Tell robot to go!
-                        run = 2
+                        print("DEBUG: cmd = [%s]" % cmd)
 
-                    if CMD_STOP in cmd:
-                        # Tell all threads to stop!
-                        run = 0
+                        if CMD_START in cmd and run == 1:
+                            # Tell robot to go!
+                            run = 2
+
+                        if CMD_STOP in cmd:
+                            # Tell all threads to stop!
+                            run = 0
+                            # Close the connection from the current user
+                            conn.close()
+                            conn = None
+                except EOFError:
+                    # Close the connection from the (now-non-existent!) user
+                    conn.close()
+                    conn = None
+
                 time.sleep(0.25)
 
         except IOError:
@@ -449,6 +467,9 @@ def cmds(threadname):
             True
 
     run=0
+
+    # Close this thread's socket/listener
+    listener.close()
     print("\n\t\t***Thread %s exiting." % threadname)
 
 
@@ -480,9 +501,6 @@ def kybd(threadname):
 
 
 
-# Initialize the "robot command file"
-open(CMD_FILE, "w").close()
-
 # Initialize the "robot response file"
 open(RSP_FILE, "w").close()
 
@@ -490,6 +508,8 @@ open(RSP_FILE, "w").close()
 lidar = Thread( target=lidar, args=("lidar_thread", ) )
 ultrasonic = Thread( target=ultrasonic, args=("ultrasonic_thread", ) )
 cmds = Thread( target=cmds, args=("cmds_thread", ) )
+# Mark cmds thread as a "daemon", so it won't stop us from exiting
+cmds.daemon = True
 kybd = Thread( target=kybd, args=("kybd_thread", ) )
 tracks = Thread( target=tracks, args=("tracks_thread", ) )
 
@@ -507,7 +527,11 @@ run=0
 
 lidar.join()
 ultrasonic.join()
-cmds.join()
+# Since cmds is a daemon, try to stop it "nicely", but give up if it's stuck on an accept() call to "no one"
+cmds.join(2)
+if cmds.is_alive():
+    print("\n\t\t***Thread (cmds) is stuck/blocking. Exiting anyway!")
+# At this point, if we try to exit, cmds will get killed anyway...
 kybd.join()
 tracks.join()
 

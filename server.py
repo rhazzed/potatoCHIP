@@ -12,11 +12,23 @@
 #  2021-01-29  msipin  Closed CMD_FILE after writing anything to it
 #  2021-02-04  msipin  Truncated CMD_FILE on startup
 #  2021-02-08  msipin  Served up sensor values
+#  2021-02-09  msipin  Replaced robot's CMD_FILE with socket-based communications (had to adapt Python3 -vs- Python2
+#                      object-serialization!!!)
 #####################################
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import logging
 import re
+import pickle2reducer
+import multiprocessing as mp
+import time
+
+ctx = mp.get_context()
+ctx.reducer = pickle2reducer.Pickle2Reducer()
+
+from multiprocessing.connection import Client
+
+
 
 # Import the pin definition (a symbolic link to MyPins.<RobotName>.py)
 # for your particular robot -
@@ -81,51 +93,58 @@ class S(BaseHTTPRequestHandler):
                     # Set return-type as text
                     self._set_200_text_response()
 
-                    # Write HTML header/prefix/<pre>
-                    self.wfile.write("<html><head><title>".encode('utf-8'))
-                    self.wfile.write(self.path.encode('utf-8'))
-                    self.wfile.write("</title></head><body>".encode('utf-8'))
+                    try:
 
-                    self.wfile.write("<table border='1'><tr><td colspan='3' align='center'>Ultrasonic</td><td colspan='3' align='center'>LIDAR</td></tr><tr>".encode('utf-8'))
-                    self.wfile.write("<tr><td>&nbsp;&nbsp;LEFT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;FRONT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;RIGHT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;LEFT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;FRONT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;RIGHT&nbsp;&nbsp;</td></tr><tr>".encode('utf-8'))
-                    for A in US_L,US_F,US_R,LI_L,LI_F,LI_R:
-                        snsr = SENSOR_OUTPUT_DIR + "/" + A
-                        # Open file as TEXT
-                        f = open(snsr, 'r')
-                        temp = f.read()
-                        f.close()
+                        # Write HTML header/prefix/<pre>
+                        self.wfile.write("<html><head><title>".encode('utf-8'))
+                        self.wfile.write(self.path.encode('utf-8'))
+                        self.wfile.write("</title></head><body>".encode('utf-8'))
+
+                        self.wfile.write("<table border='1'><tr><td colspan='3' align='center'>Ultrasonic</td><td colspan='3' align='center'>LIDAR</td></tr><tr>".encode('utf-8'))
+                        self.wfile.write("<tr><td>&nbsp;&nbsp;LEFT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;FRONT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;RIGHT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;LEFT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;FRONT&nbsp;&nbsp;</td><td>&nbsp;&nbsp;RIGHT&nbsp;&nbsp;</td></tr><tr>".encode('utf-8'))
+                        for A in US_L,US_F,US_R,LI_L,LI_F,LI_R:
+                            snsr = SENSOR_OUTPUT_DIR + "/" + A
+                            # Open file as TEXT
+                            f = open(snsr, 'r')
+                            temp = f.read()
+                            f.close()
 
 
-                        # If threshold is too low, change font to RED
-                        cell_color="lightgreen"
+                            # If threshold is too low, change font to RED
+                            cell_color="lightgreen"
 
-                        try:
-                            if ((A == US_L and int(temp) < ULTRASONIC_MIN_DIST_L) or \
-                                (A == US_F and int(temp) < ULTRASONIC_MIN_DIST_F) or \
-                                (A == US_R and int(temp) < ULTRASONIC_MIN_DIST_R) or \
-                                (A == LI_L and int(temp) < SIDE_THRESHOLD) or \
-                                (A == LI_F and int(temp) < FWD_THRESHOLD) or \
-                                (A == LI_R and int(temp) < SIDE_THRESHOLD)):
+                            try:
+                                if ((A == US_L and int(temp) < ULTRASONIC_MIN_DIST_L) or \
+                                    (A == US_F and int(temp) < ULTRASONIC_MIN_DIST_F) or \
+                                    (A == US_R and int(temp) < ULTRASONIC_MIN_DIST_R) or \
+                                    (A == LI_L and int(temp) < SIDE_THRESHOLD) or \
+                                    (A == LI_F and int(temp) < FWD_THRESHOLD) or \
+                                    (A == LI_R and int(temp) < SIDE_THRESHOLD)):
 
-                                cell_color="red"
-                        except:
-                            True
+                                    cell_color="red"
+                            except:
+                                True
 
-                        self.wfile.write("<td align='center' bgcolor='".encode('utf-8'))
-                        self.wfile.write(cell_color.encode('utf-8'))
-                        self.wfile.write("'>".encode('utf-8'))
+                            self.wfile.write("<td align='center' bgcolor='".encode('utf-8'))
+                            self.wfile.write(cell_color.encode('utf-8'))
+                            self.wfile.write("'>".encode('utf-8'))
 
-                        # Write ENCODED (utf-8) contents to outupt
-                        self.wfile.write(temp.strip().encode('utf-8'))
+                            # Write ENCODED (utf-8) contents to outupt
+                            self.wfile.write(temp.strip().encode('utf-8'))
 
-                        self.wfile.write("</td>".encode('utf-8'))
+                            self.wfile.write("</td>".encode('utf-8'))
 
-                    self.wfile.write("</tr></table>".encode('utf-8'))
+                        self.wfile.write("</tr></table>".encode('utf-8'))
 
-                    #self.wfile.write("HERE BE (DRAGONS) SENSOR VALUES!!!".encode('utf-8'))
+                        #self.wfile.write("HERE BE (DRAGONS) SENSOR VALUES!!!".encode('utf-8'))
 
-                    # Write </body></html> HTML
-                    self.wfile.write("</body></html>".encode('utf-8'))
+                        # Write </body></html> HTML
+                        self.wfile.write("</body></html>".encode('utf-8'))
+
+                    # Keep getting various (closed) errors on self.wfile.write's above!
+                    except:
+                        True
+
 
                 else:
                     # Try to open URL (if present) -
@@ -255,19 +274,36 @@ class S(BaseHTTPRequestHandler):
         self.wfile.write("POST {}".format(self.path).encode('utf-8'))
 
 def start():
-    # Write "START" to command-file
-    with open(CMD_FILE, "a") as f:
-        f.write(CMD_START)
-        f.write("\n")
-        f.close()
+    # Write "START" to robot-command-socket
+    for i in range(0,3):
+        try:
+            address = ('127.0.0.1', ROBOT_CMD_PORT)
+            conn = Client(address, authkey=ROBOT_SECRET_KEY)
+            conn.send(CMD_START)
+            conn.close()
+        except ConnectionRefusedError:
+            time.sleep(1)
+        except ConnectionResetError:
+            time.sleep(1)
+        except:
+            time.sleep(1)
 
 
 def stop():
-    # Write "STOP" to command-file
-    with open(CMD_FILE, "a") as f:
-        f.write(CMD_STOP)
-        f.write("\n")
-        f.close()
+    # Write "STOP" to robot-command-socket
+    for i in range(0,3):
+        try:
+            address = ('127.0.0.1', ROBOT_CMD_PORT)
+            conn = Client(address, authkey=ROBOT_SECRET_KEY)
+            conn.send(CMD_STOP)
+            conn.close()
+        except ConnectionRefusedError:
+            time.sleep(1)
+        except ConnectionResetError:
+            time.sleep(1)
+        except:
+            time.sleep(1)
+
 
 
 def run(server_class=HTTPServer, handler_class=S, port=8080):
@@ -303,9 +339,6 @@ if __name__ == '__main__':
     except IOError:
         # File doesn't exist
         True
-
-    # Initialize robot command file
-    open(CMD_FILE, "w").close()
 
     if len(argv) == 2:
         run(port=int(argv[1]))

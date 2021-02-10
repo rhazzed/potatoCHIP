@@ -76,8 +76,6 @@ EXIT_DIR_STUCK=124
 CAMERA_ROTATION=180
 
 # COMMAND-PASSING FILE -
-# File to use to pass commands to the robot
-CMD_FILE="/dev/shm/IN"
 # File to use to retrieve responses from the robot
 RSP_FILE="/dev/shm/OUT"
 
@@ -100,6 +98,10 @@ LI_R="LI_R"
 # Where to put the "adjusted" compass files (*MUST* MATCH the dierctory used in fixLidarOffset!!!)
 ADJUSTED_DIR="/home/pi/potatoCHIP/RANGE"
 
+# Inter-process robot control (socket) parameters
+ROBOT_CMD_PORT=4242
+ROBOT_SECRET_KEY=b'Friggin Lazer!'
+
 # INDIVIDUAL COMMANDS -
-CMD_START="START"
-CMD_STOP="STOP"
+CMD_START="A"
+CMD_STOP="B"
