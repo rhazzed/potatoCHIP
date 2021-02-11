@@ -136,8 +136,8 @@ window.addEventListener('load', function()
             // Set current data text
             dataDiv.innerHTML = xhr1.responseText;
             // Update the live data every so often
-            //setTimeout(updateLiveData(), 500);
-            setTimeout(updateLidarPlot(), 500);
+            //setTimeout(updateLiveData(), 1000);
+            setTimeout(updateLidarPlot(), 1000);
             //setTimeout(updateAll(), 10000);
             xhr1.readyState = 0
         }
@@ -153,7 +153,7 @@ window.addEventListener('load', function()
             dataDiv.innerHTML = xhr2.responseText;
             // Update the live data every so often
             //setTimeout(updateLidarPlot(), 1000);
-            setTimeout(updateLiveData(), 500);
+            setTimeout(updateLiveData(), 1000);
             //setTimeout(updateAll(), 10000);
             xhr2.readyState = 0
         }
