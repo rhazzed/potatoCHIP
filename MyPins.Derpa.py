@@ -64,8 +64,8 @@ FWD_THRESHOLD=450  # If there is nothing in front of the LIDAR closer than this 
 SIDE_THRESHOLD=400 # If there is something to the side of the LIDAR that is closer than this value, a turn is necessary!
 
 # The "lidar compass-point" that aligns with the platform's (robot's) zero-degree-point
-#RH=92  # Far-field front skewed CCW
-RH=89  # Spreading error to favor forward
+RH=92  # Far-field front skewed CCW
+#RH=89  # Spreading error to favor forward
 #RH=85  # Near-field 90+ degrees skewed CW
 
 # Exit codes used as direction-indicators from shell scripts

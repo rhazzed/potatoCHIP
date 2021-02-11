@@ -5,16 +5,40 @@
 <script type="text/javascript">
 window.addEventListener('load', function()
 {
-    var xhr = null;
+    var xhr1 = null; // "Live" sensor data
+    var xhr2 = null; // LIDAR plot
+    var xhr3 = null; // Camera pan and LIDAR reset
 
-    getXmlHttpRequestObject = function()
+    getXmlHttpRequestObject1 = function()
     {
-        if(!xhr)
+        if(!xhr1)
         {               
             // Create a new XMLHttpRequest object 
-            xhr = new XMLHttpRequest();
+            xhr1 = new XMLHttpRequest();
+            xhr1.onreadystatechange = liveDataHandler;
         }
-        return xhr;
+        return xhr1;
+    };
+
+    getXmlHttpRequestObject2 = function()
+    {
+        if(!xhr2)
+        {               
+            // Create a new XMLHttpRequest object 
+            xhr2 = new XMLHttpRequest();
+            xhr2.onreadystatechange = lidarPlotHandler;
+        }
+        return xhr2;
+    };
+
+    getXmlHttpRequestObject3 = function()
+    {
+        if(!xhr3)
+        {               
+            // Create a new XMLHttpRequest object 
+            xhr3 = new XMLHttpRequest();
+        }
+        return xhr3;
     };
 
     updateLiveData = function()
@@ -23,12 +47,24 @@ window.addEventListener('load', function()
         // Date string is appended as a query with live data
         // for not to use the cached version
         var url = 'sensors.txt?' + now.getTime();
-        xhr = getXmlHttpRequestObject();
-        xhr.onreadystatechange = eventHandler;
+        xhr1 = getXmlHttpRequestObject1();
         // asynchronous requests
-        xhr.open("GET", url, true);
+        xhr1.open("GET", url, true);
         // Send the request over the network
-        xhr.send(null);
+        xhr1.send(null);
+    };
+
+    updateLidarPlot = function()
+    {
+        var now = new Date();
+        // Date string is appended as a query with live data
+        // for not to use the cached version
+        var url = 'lidar.html?' + now.getTime();
+        xhr2 = getXmlHttpRequestObject2();
+        // asynchronous requests
+        xhr2.open("GET", url, true);
+        // Send the request over the network
+        xhr2.send(null);
     };
 
     camera_left= function()
@@ -37,11 +73,11 @@ window.addEventListener('load', function()
         // Date string is appended as a query with live data
         // for not to use the cached version
         var url = 'C.cmd?' + now.getTime();
-        xhr = getXmlHttpRequestObject();
+        xhr3 = getXmlHttpRequestObject3();
         // asynchronous requests
-        xhr.open("GET", url, true);
+        xhr3.open("GET", url, true);
         // Send the request over the network
-        xhr.send(null);
+        xhr3.send(null);
     };
 
     camera_forward= function()
@@ -50,11 +86,11 @@ window.addEventListener('load', function()
         // Date string is appended as a query with live data
         // for not to use the cached version
         var url = 'D.cmd?' + now.getTime();
-        xhr = getXmlHttpRequestObject();
+        xhr3 = getXmlHttpRequestObject3();
         // asynchronous requests
-        xhr.open("GET", url, true);
+        xhr3.open("GET", url, true);
         // Send the request over the network
-        xhr.send(null);
+        xhr3.send(null);
     };
 
     camera_right= function()
@@ -63,11 +99,11 @@ window.addEventListener('load', function()
         // Date string is appended as a query with live data
         // for not to use the cached version
         var url = 'E.cmd?' + now.getTime();
-        xhr = getXmlHttpRequestObject();
+        xhr3 = getXmlHttpRequestObject3();
         // asynchronous requests
-        xhr.open("GET", url, true);
+        xhr3.open("GET", url, true);
         // Send the request over the network
-        xhr.send(null);
+        xhr3.send(null);
     };
 
     reset_lidar = function()
@@ -76,28 +112,57 @@ window.addEventListener('load', function()
         // Date string is appended as a query with live data
         // for not to use the cached version
         var url = 'F.cmd?' + now.getTime();
-        xhr = getXmlHttpRequestObject();
+        xhr3 = getXmlHttpRequestObject3();
         // asynchronous requests
-        xhr.open("GET", url, true);
+        xhr3.open("GET", url, true);
         // Send the request over the network
-        xhr.send(null);
+        xhr3.send(null);
     };
 
-    updateLiveData();
+    function updateAll()
+    {
+        updateLiveData();
+        updateLidarPlot();
+        // Set default timeout to retry all live-refreshes
+        //setTimeout(updateAll(), 100000);
+    }
 
-    function eventHandler()
+    function liveDataHandler()
     {
         // Check response is ready or not
-        if(xhr.readyState == 4 && xhr.status == 200)
+        if(xhr1.readyState == 4 && xhr1.status == 200)
         {
             dataDiv = document.getElementById('liveData');
             // Set current data text
-            dataDiv.innerHTML = xhr.responseText;
-            // Update the live data every 1 sec
-            setTimeout(updateLiveData(), 1000);
+            dataDiv.innerHTML = xhr1.responseText;
+            // Update the live data every so often
+            //setTimeout(updateLiveData(), 500);
+            setTimeout(updateLidarPlot(), 500);
+            //setTimeout(updateAll(), 10000);
+            xhr1.readyState = 0
         }
     }
+
+    function lidarPlotHandler()
+    {
+        // Check response is ready or not
+        if(xhr2.readyState == 4 && xhr2.status == 200)
+        {
+            dataDiv = document.getElementById('lidarPlot');
+            // Set current data text
+            dataDiv.innerHTML = xhr2.responseText;
+            // Update the live data every so often
+            //setTimeout(updateLidarPlot(), 1000);
+            setTimeout(updateLiveData(), 500);
+            //setTimeout(updateAll(), 10000);
+            xhr2.readyState = 0
+        }
+    }
+
+    updateAll()
+
 });
+
 </script>
 
 </head>
@@ -158,6 +223,13 @@ document.addEventListener('click', function(event) {
         <td align='center'>
             <div id="liveData">
                 <p>Loading Sensor Data...</p>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td align='center'>
+            <div id="lidarPlot">
+                <p>LIDAR Plot...</p>
             </div>
         </td>
     </tr>

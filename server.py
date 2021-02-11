@@ -186,8 +186,8 @@ class S(BaseHTTPRequestHandler):
 
                     # TO-DO: DO MUCH MORE EXTENSIVE FILTERING OF THE ALLOWABLE URLs HERE ---
                     if self.path.startswith("/") and \
-                        ("/" == self.path or self.path.endswith(".html") or \
-                        self.path.endswith(".htm") or self.path.endswith(".txt") or \
+                        ("/" == self.path or self.path.endswith(".html") or ".html?" in self.path or \
+                        self.path.endswith(".htm") or ".htm?" in self.path or self.path.endswith(".txt") or \
                         self.path.endswith(".css") or self.path.endswith(".js") or \
                         self.path.endswith(".jpg") or self.path.endswith(".jpeg") or \
                         self.path.endswith(".gif") or \
@@ -217,6 +217,10 @@ class S(BaseHTTPRequestHandler):
                         except:
                             url = ""
                         logging.debug("\nAfter stripping, url is: [%s]\n", str(url))
+
+                        # Strip off everything after a "?" -
+                        url = url.split("?")[0]
+
 
                     # -------------------------------------------------------------
                     #   CAUTION: THIS IS A *TERRIBLE* *SECURITY* *RISK*!!!!

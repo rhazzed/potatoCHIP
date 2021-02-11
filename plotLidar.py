@@ -66,6 +66,8 @@ ax.set_ylim(0,(max*11)) ##### THIS ONE SEEMS PERFECT for checking close-in
 ##ax.scatter(data['x'],data['y'])
 ax.scatter(new['x'],new['y'])
 
+# Save to JPEG
+plt.savefig(SENSOR_OUTPUT_DIR + "/lidar.png", bbox_inches="tight")
 
-plt.show()
+#plt.show()
 

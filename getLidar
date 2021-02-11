@@ -23,8 +23,8 @@ if (NR>1) printf("\n")
 
 printf("%d,%0.3f",(NR-1),$1);
 
-}' | tee lidar.csv
-#}' > lidar.csv
+}' > lidar.csv
+#}' | tee lidar.csv
 
 echo
 
