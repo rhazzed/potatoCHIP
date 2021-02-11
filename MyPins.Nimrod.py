@@ -74,7 +74,7 @@ EXIT_DIR_BACKUP_AND_TURN=100
 EXIT_DIR_STUCK=124
 
 # Camera orientation (in degrees)
-CAMERA_ROTATION=180
+CAMERA_ROTATION=0
 
 # COMMAND-PASSING FILE -
 # File to use to retrieve responses from the robot
