@@ -15,6 +15,7 @@
 #  2021-02-09  msipin  Replaced robot's CMD_FILE with socket-based communications (had to adapt Python3 -vs- Python2
 #                      object-serialization!!!)
 #  2021-02-10  msipin  Added reset-lidar command
+#  2021-02-10  msipin  Added No-Cache directives to all contents returned
 #####################################
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -48,29 +49,39 @@ class S(BaseHTTPRequestHandler):
             #    print("DEBUG: rsp = [%s]" % rsp)
         pass
 
+    def _no_cache_directives(self):
+        self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Expires", "0")
+
     def _set_200_text_response(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
+        self._no_cache_directives()
         self.end_headers()
 
     def _set_png_response(self):
         self.send_response(200)
         self.send_header('Content-type', 'image/png')
+        self._no_cache_directives()
         self.end_headers()
 
     def _set_gif_response(self):
         self.send_response(200)
         self.send_header('Content-type', 'image/gif')
+        self._no_cache_directives()
         self.end_headers()
 
     def _set_jpg_response(self):
         self.send_response(200)
         self.send_header('Content-type', 'image/jpeg')
+        self._no_cache_directives()
         self.end_headers()
 
     def _set_404_response(self):
         self.send_response(404)
         self.send_header('Content-type', 'text/html')
+        self._no_cache_directives()
         self.end_headers()
 
     def do_GET(self):

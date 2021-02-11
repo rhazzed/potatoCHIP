@@ -8,6 +8,7 @@ window.addEventListener('load', function()
     var xhr1 = null; // "Live" sensor data
     var xhr2 = null; // LIDAR plot
     var xhr3 = null; // Camera pan and LIDAR reset
+    myTimeout = null;
 
     getXmlHttpRequestObject1 = function()
     {
@@ -123,8 +124,7 @@ window.addEventListener('load', function()
     {
         updateLiveData();
         updateLidarPlot();
-        // Set default timeout to retry all live-refreshes
-        //setTimeout(updateAll(), 100000);
+        setInterval(updateLidarPlot, 4000);
     }
 
     function liveDataHandler()
@@ -132,14 +132,15 @@ window.addEventListener('load', function()
         // Check response is ready or not
         if(xhr1.readyState == 4 && xhr1.status == 200)
         {
+            if(!myTimeout)
+            {
+                clearTimeout(myTimeout);
+            }
             dataDiv = document.getElementById('liveData');
             // Set current data text
             dataDiv.innerHTML = xhr1.responseText;
             // Update the live data every so often
-            //setTimeout(updateLiveData(), 1000);
-            setTimeout(updateLidarPlot(), 1000);
-            //setTimeout(updateAll(), 10000);
-            xhr1.readyState = 0
+            myTimeout = setTimeout(updateLiveData, 333);
         }
     }
 
@@ -151,11 +152,6 @@ window.addEventListener('load', function()
             dataDiv = document.getElementById('lidarPlot');
             // Set current data text
             dataDiv.innerHTML = xhr2.responseText;
-            // Update the live data every so often
-            //setTimeout(updateLidarPlot(), 1000);
-            setTimeout(updateLiveData(), 1000);
-            //setTimeout(updateAll(), 10000);
-            xhr2.readyState = 0
         }
     }
 
