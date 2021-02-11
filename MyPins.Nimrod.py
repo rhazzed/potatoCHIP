@@ -5,7 +5,7 @@
 #set GPIO pins for Ultrasonic Range Detector
 #    FRONT
 GPIO_TRIGGER_F=6
-GPIO_ECHO_F=7
+GPIO_ECHO_F=5  #was changed to 7 mysteriously, moved back to gpio 5. epp  2/10/21
 #    LEFT
 GPIO_TRIGGER_L=13
 GPIO_ECHO_L=26
