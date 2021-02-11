@@ -69,7 +69,11 @@ ax.set_ylim(0,(max*3))
 ax.scatter(new['x'],new['y'])
 
 # Identify min thresholds being used
-plt.title("Thresholds:\nSide: " + str(SIDE_THRESHOLD) + "\nFwd : " + str(FWD_THRESHOLD), pad=0.0, loc="left")
+plt.title("Thresholds:\nFwd : " + str(FWD_THRESHOLD) + "(g)\nSide: " + str(SIDE_THRESHOLD) + "(r)", pad=0.0, loc="left")
+
+# Added collision ring(s) to plot
+ax.plot(np.linspace(0, 2*np.pi, 100), np.ones(100)*SIDE_THRESHOLD, color='r', linestyle='-')
+ax.plot(np.linspace(0, 2*np.pi, 100), np.ones(100)*FWD_THRESHOLD, color='g', linestyle='-')
 
 # Save to JPEG
 plt.savefig(SENSOR_OUTPUT_DIR + "/lidar.png", bbox_inches="tight")
