@@ -51,6 +51,7 @@ if (SIDE_THRESHOLD > FWD_THRESHOLD):
 ##ax.set_ylim(0,(max*11)) ##### THIS ONE SEEMS PERFECT for checking close-in
 ##ax.set_ylim(0,(max*5))
 ax.set_ylim(0,(max*3))
+##ax.set_ylim(0,(max*2))
 
 # Playing around -
 #ax.set_ylim(0,1000)
@@ -69,11 +70,23 @@ ax.set_ylim(0,(max*3))
 ax.scatter(new['x'],new['y'])
 
 # Identify min thresholds being used
-plt.title("Thresholds:\nFwd : " + str(FWD_THRESHOLD) + "(g)\nSide: " + str(SIDE_THRESHOLD) + "(r)", pad=0.0, loc="left")
+plt.title("Thresholds:\nFwd : " + str(FWD_THRESHOLD) + "\nSide: " + str(SIDE_THRESHOLD), pad=0.0, loc="left")
 
 # Added collision ring(s) to plot
-ax.plot(np.linspace(0, 2*np.pi, 100), np.ones(100)*SIDE_THRESHOLD, color='r', linestyle='-')
-ax.plot(np.linspace(0, 2*np.pi, 100), np.ones(100)*FWD_THRESHOLD, color='g', linestyle='-')
+## START ANGLE, RADIUS
+
+
+##     FWD_OFF_ANGLE=15   # 0 +/- this is considered "forward-looking"
+##     MAX_OFF_ANGLE=45   # Beyond FWD_OFF_ANGLE and up to (this) is considered "right-" or "left-looking"
+
+
+ax.plot(np.linspace(0                                  , 2*np.pi*(FWD_OFF_ANGLE/360)                , 100), np.ones(100)*FWD_THRESHOLD, color='r', linestyle='-')
+
+ax.plot(np.linspace(0+2*np.pi*(FWD_OFF_ANGLE/360)      , 2*np.pi*(MAX_OFF_ANGLE/360)                , 100), np.ones(100)*SIDE_THRESHOLD, color='r', linestyle='-')
+ax.plot(np.linspace(0+2*np.pi*((300+FWD_OFF_ANGLE)/360) , 2*np.pi*((300+MAX_OFF_ANGLE)/360)         , 100), np.ones(100)*SIDE_THRESHOLD, color='r', linestyle='-')
+
+ax.plot(np.linspace(0+2*np.pi*((315+MAX_OFF_ANGLE)/360) , 2*np.pi*( 345               /360)         , 100), np.ones(100)*FWD_THRESHOLD, color='r', linestyle='-')
+
 
 # Save to JPEG
 plt.savefig(SENSOR_OUTPUT_DIR + "/lidar.png", bbox_inches="tight")
