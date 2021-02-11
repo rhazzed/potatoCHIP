@@ -48,7 +48,9 @@ if (SIDE_THRESHOLD > FWD_THRESHOLD):
 #ax.set_ylim(0,(max*1.1))  # This seems to be a good "potential-collision", only view
 
 # Give some reference beyond "danger close"
-ax.set_ylim(0,(max*11)) ##### THIS ONE SEEMS PERFECT for checking close-in
+##ax.set_ylim(0,(max*11)) ##### THIS ONE SEEMS PERFECT for checking close-in
+##ax.set_ylim(0,(max*5))
+ax.set_ylim(0,(max*3))
 
 # Playing around -
 #ax.set_ylim(0,1000)
@@ -65,6 +67,9 @@ ax.set_ylim(0,(max*11)) ##### THIS ONE SEEMS PERFECT for checking close-in
 
 ##ax.scatter(data['x'],data['y'])
 ax.scatter(new['x'],new['y'])
+
+# Identify min thresholds being used
+plt.title("Thresholds:\nSide: " + str(SIDE_THRESHOLD) + "\nFwd : " + str(FWD_THRESHOLD), pad=0.0, loc="left")
 
 # Save to JPEG
 plt.savefig(SENSOR_OUTPUT_DIR + "/lidar.png", bbox_inches="tight")
