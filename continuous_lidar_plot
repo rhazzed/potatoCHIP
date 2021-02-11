@@ -8,6 +8,7 @@ while [ 1 ]
 do
 	getLidar
 	plotLidar.py
+	sleep 13
 done
 
 exit 0
