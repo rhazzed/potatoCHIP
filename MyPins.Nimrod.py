@@ -1,11 +1,12 @@
 ##############
 # Python include file for Nimrod
+# 2/10/21 changed Forward Ultrasonic Sensor from gpio 7 to 5. It changed  mysteriously - EPP
 ##############
 
 #set GPIO pins for Ultrasonic Range Detector
 #    FRONT
 GPIO_TRIGGER_F=6
-GPIO_ECHO_F=7
+GPIO_ECHO_F=5
 #    LEFT
 GPIO_TRIGGER_L=13
 GPIO_ECHO_L=26
@@ -73,7 +74,7 @@ EXIT_DIR_BACKUP_AND_TURN=100
 EXIT_DIR_STUCK=124
 
 # Camera orientation (in degrees)
-CAMERA_ROTATION=180
+CAMERA_ROTATION=0
 
 # COMMAND-PASSING FILE -
 # File to use to retrieve responses from the robot
