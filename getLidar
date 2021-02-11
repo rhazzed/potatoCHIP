@@ -1,10 +1,25 @@
 #!/bin/sh
 ###########################
 # getLidar - Pickup lidar readings from /dev/shm/??? files and put them into "lidar.csv" file
+#
+# HISTORICAL INFORMATION -
+#
+#  2021-02-10  msipin  Added VERBOSE flag, and turned it off by default
 ###########################
 
 # Incorporate MyPins.py (it is a "dual-use" Python/shell-script file!)
 . ./MyPins.py
+
+VERBOSE=0
+VERBOSE_FLAG="-v"
+
+for A in $*
+do
+if [ ""$A"" = ""$VERBOSE_FLAG"" ]
+    then
+	VERBOSE=1
+    fi
+done
 
 # Get the Lidar sensor data, starting at (possibly-compensated-for) "0 degrees"/straight ahead
 FILES=`echo ${ADJUSTED_DIR}/[0-9][0-9][0-9]`
@@ -26,7 +41,11 @@ printf("%d,%0.3f",(NR-1),$1);
 }' > lidar.csv
 #}' | tee lidar.csv
 
-echo
+if [ ""$VERBOSE"" = 1 ]
+then
+	cat lidar.csv
+	echo
+fi
 
 exit 0
 
