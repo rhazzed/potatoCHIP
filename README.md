@@ -9,8 +9,11 @@ REQUIREMENTS -
 
      pip install httpserver
 
+     ./fixLidarOffset
+
      touch /dev/shm/lidar.png
      ln -s /dev/shm/lidar.png ./lidar.png
+
 
 SEE "motd" FILE FOR STARTUP INSTRUCTIONS!
 
