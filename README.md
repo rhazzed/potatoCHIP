@@ -22,6 +22,6 @@ TO-DOs:
 1) DON'T ground motor GND-OUT to PWM power-gnd-in!
 2) Add left/right/fwd/back buttons to website
 3) Reload "MyPins.py" every time a "START" command is issued
-4) Find out why LIDAR-LEFT always trigger LIDAR-FRONT, while LIDAR-RIGHT doesn't
+4) Modify plotLidar.py to DYNAMICALLY determine sensor coverages (for now it's hard-coded)
 5) Modify obstacle-avoidance logic to be "turn, sense, go -or- turn-some-more" rather than just
    blindly turning "x" degrees 
