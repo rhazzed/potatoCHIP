@@ -1,0 +1,14 @@
+#!/bin/sh
+#########################################
+# continuous_lidar_plot - A shell script to continually pick up and plot LIDAR sensor values
+#########################################
+
+# Continually grab, then plot, LIDAR sensor data (goes to lidar.png, for display via webserver)
+while [ 1 ]
+do
+	getLidar
+	plotLidar.py
+done
+
+exit 0
+
