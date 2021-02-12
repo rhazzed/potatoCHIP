@@ -3,11 +3,15 @@
 # continuous_lidar_plot - A shell script to continually pick up and plot LIDAR sensor values
 #########################################
 
+EXE_DIR=/home/pi/potatoCHIP
+
+cd ${EXE_DIR}
+
 # Continually grab, then plot, LIDAR sensor data (goes to lidar.png, for display via webserver)
 while [ 1 ]
 do
-	getLidar
-	plotLidar.py
+	./getLidar
+	./plotLidar.py
 	sleep 13
 done
 
