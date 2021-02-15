@@ -38,12 +38,12 @@ if (NR>1) printf("\n")
 
 printf("%d,%0.3f",(NR-1),$1);
 
-}' > lidar.csv
+}' > /dev/shm/lidar.csv
 #}' | tee lidar.csv
 
 if [ ""$VERBOSE"" = 1 ]
 then
-	cat lidar.csv
+	cat /dev/shm/lidar.csv
 	echo
 fi
 

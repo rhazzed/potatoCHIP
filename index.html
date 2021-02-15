@@ -140,7 +140,7 @@ window.addEventListener('load', function()
             // Set current data text
             dataDiv.innerHTML = xhr1.responseText;
             // Update the live data every so often
-            myTimeout = setTimeout(updateLiveData, 333);
+            myTimeout = setTimeout(updateLiveData, 500);
         }
     }
 
@@ -228,7 +228,7 @@ document.addEventListener('click', function(event) {
     <tr>
         <td height='500px' align='center'>
             <div id="lidarPlot">
-                <p>LIDAR Plot...</p>
+                <!-- LIDAR Plot -->
             </div>
         </td>
     </tr>

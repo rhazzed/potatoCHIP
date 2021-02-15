@@ -6,9 +6,11 @@
 #
 #    sudo apt-get install python3-numpy python3-matplotlib
 #
-# NOTE: YOU MUST use "ssh -X pi@192.168.x.y" to allow X-Forwarding through your ssh session
-# NOTE: YOU MUST also be running an X-windows capable operating system (or use Xming for Winblows)
+# NOTE: If you want to use the "plt.show()" command at the end of this file,
+#       YOU MUST use "ssh -X pi@192.168.x.y" to allow X-Forwarding through your ssh session
+#       YOU MUST also be running an X-windows capable operating system (or use Xming for Winblows)
 #
+#  2021-02-14  msipin  Sped things up a bit by only processing datapoints that will be shown on final plot
 ####################################################
 
 import numpy as np
@@ -19,55 +21,46 @@ import math
 # for your particular robot -
 from MyPins import *
 
-data = np.genfromtxt("lidar.csv", delimiter=",", names=["x", "y"])
-
-##print("ORIG_X: %s\nORIG_Y: %s" % (data['x'],data['y']))
-
-new=data
-for i in range(0,360):
-	##new['x'][i] =  math.cos(math.radians(data['x'][i]))*data['y'][i]
-	##new['y'][i] =  math.sin(math.radians(data['x'][i]))*data['y'][i]
-
-	# Convert theta to radians
-	new['x'][i] =  math.radians(data['x'][i])
-	new['y'][i] =  data['y'][i]
-
-##print("NEW__X: %s\nNEW__Y: %s" % (new['x'],new['y']))
-
-ax = plt.subplot(111, projection='polar')
-ax.set_theta_zero_location('N')
-ax.set_theta_direction(-1)
-
 
 # Establish max collision-avoidance value
 max=FWD_THRESHOLD
 if (SIDE_THRESHOLD > FWD_THRESHOLD):
 	max=SIDE_THRESHOLD
 
-# Show only what we are in danger of running into
-#ax.set_ylim(0,(max*1.1))  # This seems to be a good "potential-collision", only view
-
-# Give some reference beyond "danger close"
-##ax.set_ylim(0,(max*11)) ##### THIS ONE SEEMS PERFECT for checking close-in
-##ax.set_ylim(0,(max*5))
-ax.set_ylim(0,(max*3))
-##ax.set_ylim(0,(max*2))
-
-# Playing around -
-#ax.set_ylim(0,1000)
-#ax.set_ylim(0,5000)
-
-# Sensible "inside house" value for "long-range view" -
-#ax.set_ylim(0,9000)
 
 # LIDAR sensor max seems to be *AT* *LEAST* 16,000 mm (at night, outside, reflecting off cars)
+#ylim=max*1.1  # This seems to be a good "potential-collision", only view
+#ylim=max*11 ##### THIS ONE SEEMS PERFECT for checking close-in
+#ylim=max*5
+#ylim=max*2
+# Playing around -
+#ylim=1000
+#ylim=5000
+# Sensible "inside house" value for "long-range view" -
+#ylim=9000
+# Good context, not too much processing -
+ylim=max*3
 
+ax = plt.subplot(111, projection='polar')
+ax.set_ylim(0,ylim)
+ax.set_theta_zero_location('N')
+ax.set_theta_direction(-1)
+data = np.genfromtxt("lidar.csv", delimiter=",", names=["x", "y"])
+#data = np.genfromtxt("lidar.csv.EXAMPLE", delimiter=",", names=["x", "y"])
 
-# THE FOLLOWING SHOULD BE RIGHT CALCULATION, just need it in an array...
-### (math.cos(math.radians(data['x']))*data['y'], math.sin(math.radians(data['x'])*data['y']))
+##print("ORIG_X: %s\nORIG_Y: %s" % (data['x'],data['y']))
 
-##ax.scatter(data['x'],data['y'])
-ax.scatter(new['x'],new['y'])
+num=0
+for i in range(0,360):
+	if data['y'][i] < ylim:
+		# Convert theta to radians
+		data['x'][num] =  math.radians(data['x'][i])
+		data['y'][num] =  data['y'][i]
+		num=num+1
+
+data=data[:num]
+##print("NEW__X: %s\nNEW__Y: %s" % (data['x'],data['y']))
+ax.scatter(data['x'],data['y'])
 
 # Identify min thresholds being used
 plt.title("Thresholds:\nFwd : " + str(FWD_THRESHOLD) + "\nSide: " + str(SIDE_THRESHOLD), pad=0.0, loc="left")

@@ -7,12 +7,18 @@ This is a (mostly) Python codebase to get various things going with -- like a 16
 
 REQUIREMENTS -
 
-     pip install httpserver
+     sudo pip install httpserver
+     sudo apt-get install python3-numpy python3-matplotlib
+
+     cd ~/potatoCHIP
 
      ./fixLidarOffset
 
      touch /dev/shm/lidar.png
      ln -s /dev/shm/lidar.png ./lidar.png
+
+     touch /dev/shm/lidar.csv
+     ln -s /dev/shm/lidar.csv ./lidar.csv
 
 
 SEE "motd" FILE FOR STARTUP INSTRUCTIONS!
