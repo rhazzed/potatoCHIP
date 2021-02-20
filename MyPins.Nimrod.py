@@ -33,7 +33,7 @@ TRACK_STOP=0		# Power OFF (0% "on") PWM to track motors
 
 # Configure min and max servo pulse lengths
 #servo_min=150  # Min pulse length out of 4096
-servo_min=270  # Min pulse length out of 4096
+servo_min=300  # Min pulse length out of 4096
 servo_max=500  # Max pulse length out of 4096 (600 torqued one servo too much)
 
 # Variable that approximates turning rate (seconds-per-degree)
@@ -74,7 +74,7 @@ EXIT_DIR_BACKUP_AND_TURN=100
 EXIT_DIR_STUCK=124
 
 # Camera orientation (in degrees)
-CAMERA_ROTATION=0
+CAMERA_ROTATION=180
 
 # COMMAND-PASSING FILE -
 # File to use to retrieve responses from the robot
