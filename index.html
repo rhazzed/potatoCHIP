@@ -9,6 +9,9 @@ window.addEventListener('load', function(event)
     var xhr3 = null; // Camera pan and LIDAR reset
     myTimeout = null;
 
+    dataDiv = document.getElementById('livestream');
+    dataDiv.innerHTML = "<iframe width='660px' height='500px' src='http://" + window.location.hostname + ":8000'></iframe>"
+
     getXmlHttpRequestObject1 = function()
     {
         if(!xhr1)
@@ -173,9 +176,10 @@ document.addEventListener('click', function(event) {
 
 <table width='500px'>
     <tr align='center'>
-        <td>
-            <iframe width='660px' height='500px' src="http://192.168.2.86:8000">
-            </iframe>
+        <td width='660px' height='500px'>
+            <div id="livestream">
+                <p>Loading livestream...</p>
+            </div>
         </td>
     </tr>
     <tr>
