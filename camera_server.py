@@ -27,9 +27,7 @@ PAGE="""\
 <html>
 <head>
 <title>Derpa/Nimrod Livestream</title>
-</head>
 <body>
-<center><h1>Derpa/Nimrod Livestream</h1></center>
 <center><img src="stream.mjpg" width="640" height="480"></center>
 </body>
 </html>

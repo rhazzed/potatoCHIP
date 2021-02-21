@@ -3,10 +3,9 @@
 <title>NIMROD/DERPA ROBOT CONTROL</title>
 
 <script type="text/javascript">
-window.addEventListener('load', function()
+window.addEventListener('load', function(event)
 {
     var xhr1 = null; // "Live" sensor data
-    var xhr2 = null; // LIDAR plot
     var xhr3 = null; // Camera pan and LIDAR reset
     myTimeout = null;
 
@@ -19,17 +18,6 @@ window.addEventListener('load', function()
             xhr1.onreadystatechange = liveDataHandler;
         }
         return xhr1;
-    };
-
-    getXmlHttpRequestObject2 = function()
-    {
-        if(!xhr2)
-        {               
-            // Create a new XMLHttpRequest object 
-            xhr2 = new XMLHttpRequest();
-            xhr2.onreadystatechange = lidarPlotHandler;
-        }
-        return xhr2;
     };
 
     getXmlHttpRequestObject3 = function()
@@ -55,17 +43,30 @@ window.addEventListener('load', function()
         xhr1.send(null);
     };
 
-    updateLidarPlot = function()
+    motors_start= function()
     {
         var now = new Date();
         // Date string is appended as a query with live data
         // for not to use the cached version
-        var url = 'lidar.html?' + now.getTime();
-        xhr2 = getXmlHttpRequestObject2();
+        var url = 'A.cmd?' + now.getTime();
+        xhr3 = getXmlHttpRequestObject3();
         // asynchronous requests
-        xhr2.open("GET", url, true);
+        xhr3.open("GET", url, true);
         // Send the request over the network
-        xhr2.send(null);
+        xhr3.send(null);
+    };
+
+    motors_stop= function()
+    {
+        var now = new Date();
+        // Date string is appended as a query with live data
+        // for not to use the cached version
+        var url = 'B.cmd?' + now.getTime();
+        xhr3 = getXmlHttpRequestObject3();
+        // asynchronous requests
+        xhr3.open("GET", url, true);
+        // Send the request over the network
+        xhr3.send(null);
     };
 
     camera_left= function()
@@ -123,8 +124,6 @@ window.addEventListener('load', function()
     function updateAll()
     {
         updateLiveData();
-        updateLidarPlot();
-        setInterval(updateLidarPlot, 4000);
     }
 
     function liveDataHandler()
@@ -144,17 +143,6 @@ window.addEventListener('load', function()
         }
     }
 
-    function lidarPlotHandler()
-    {
-        // Check response is ready or not
-        if(xhr2.readyState == 4 && xhr2.status == 200)
-        {
-            dataDiv = document.getElementById('lidarPlot');
-            // Set current data text
-            dataDiv.innerHTML = xhr2.responseText;
-        }
-    }
-
     updateAll()
 
 });
@@ -165,11 +153,6 @@ window.addEventListener('load', function()
 
 <body>
 <h1>NIMROD/DERPA ROBOT CONTROL</h1>
-<p style="font-size:24px">To start the robot, click <a href="/A.cmd">here</a></p><!-- CMD_START -->
-<p/>
-<p style="font-size:24px">To stop the robot, click <a href="/B.cmd">here</a></p><!-- CMD_STOP -->
-<p/>
-<p style="font-size:24px">To watch the robot camera livestream, click <a href=":8000" target="_blank" rel="noopener noreferrer">here</a></p>
 
 <script>
 // delegate event for performance, and save attaching a million events to each anchor
@@ -189,16 +172,29 @@ document.addEventListener('click', function(event) {
 
 
 <table width='500px'>
+    <tr align='center'>
+        <td>
+            <iframe width='660px' height='500px' src="http://192.168.2.86:8000">
+            </iframe>
+        </td>
+    </tr>
     <tr>
         <td align='center'>
             <table border='1'>
                 <tr>
+                    <td colspan='2' align='center'>Motors</td>
                     <td colspan='3' align='center'>Camera Control</td>
                     <td align='center' bgcolor='#e8e8e8'>
                         LIDAR
                     </td>
                 </tr>
-                    <tr>
+                <tr>
+                    <td align="center">
+                        <button style="background-color:white;border-color:white" onclick='motors_start()'>Start</button>
+                    </td>
+                    <td align="center">
+                        <button style="background-color:white;border-color:white" onclick='motors_stop()'>Stop</button>
+                    </td>
                     <td align="center">
                         <button style="background-color:white;border-color:white" onclick='camera_left()'>Pan Left</button>
                     </td>
@@ -216,24 +212,18 @@ document.addEventListener('click', function(event) {
         </td>
     </tr>
     <tr>
-        <td align='center'>
+        <td width='500px' align='center'>
             <div id="liveData">
                 <p>Loading Sensor Data...</p>
             </div>
-        </td>
     </tr>
-</table>
-
-<table width='500px'>
     <tr>
-        <td height='500px' align='center'>
-            <div id="lidarPlot">
-                <!-- LIDAR Plot -->
-            </div>
+        <td align='center'>
+            <iframe width='500px' height='480px' src="lidar.html">
+            </iframe>
         </td>
     </tr>
 </table>
-
 
 
 </body>
