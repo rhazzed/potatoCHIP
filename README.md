@@ -32,7 +32,3 @@ TO-DOs:
 5) Modify obstacle-avoidance logic to be "turn, sense, go -or- turn-some-more" rather than just
    blindly turning "x" degrees 
 
-Eric's Wishes:
-
-1. Add the pan buttons to the CAM screen. Currently, can't watch cam and control it at the same time on mobile or tablet.  
-2. For the same reasons as #1,  Start/Stop buttons on cam screen makes sense too.
