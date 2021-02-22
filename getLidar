@@ -5,10 +5,14 @@
 # HISTORICAL INFORMATION -
 #
 #  2021-02-10  msipin  Added VERBOSE flag, and turned it off by default
+#  2021-02-22  msipin  Delayed modifying lidar.csv until the last moment to prevent the plot tool
+#                      from seeing an empty file during this script's calculations.
 ###########################
 
 # Incorporate MyPins.py (it is a "dual-use" Python/shell-script file!)
 . ./MyPins.py
+
+tmp_file1=/dev/shm/temp.csv
 
 VERBOSE=0
 VERBOSE_FLAG="-v"
@@ -38,8 +42,9 @@ if (NR>1) printf("\n")
 
 printf("%d,%0.3f",(NR-1),$1);
 
-}' > /dev/shm/lidar.csv
-#}' | tee lidar.csv
+}' > $tmp_file1
+
+mv $tmp_file1 /dev/shm/lidar.csv
 
 if [ ""$VERBOSE"" = 1 ]
 then

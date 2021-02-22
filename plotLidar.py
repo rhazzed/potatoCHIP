@@ -11,78 +11,83 @@
 #       YOU MUST also be running an X-windows capable operating system (or use Xming for Winblows)
 #
 #  2021-02-14  msipin  Sped things up a bit by only processing datapoints that will be shown on final plot
+#  2021-02-22  msipin  Completely refactored. TOTALLY RELIANT on pre-computed "lidar.blank.png", and all
+#                      current values for the LIDAR minimum thresholds (450/400mm, fron and sides,
+#                      respectively). If ANY of those values changes, so must the "lidar.blank.png" file!
 ####################################################
-
-import numpy as np
-import matplotlib.pyplot as plt
+from PIL import Image
 import math
+import numpy as np
 
 # Import the pin definition (a symbolic link to MyPins.<RobotName>.py)
 # for your particular robot -
 from MyPins import *
 
 
-# Establish max collision-avoidance value
-max=FWD_THRESHOLD
-if (SIDE_THRESHOLD > FWD_THRESHOLD):
-	max=SIDE_THRESHOLD
+
+def putpoint(arr,x,y,val):
+    for i in range(-3,4):
+        for ii in range(-3,4):
+            arr[midx+x+i,midy+y+ii] = val
+            arr[midx+x-i,midy+y+ii] = val
+
+def plotAt(deg,dist,color):
+    rad=math.radians(90-deg)
+    xOffset = int(math.cos(rad)*dist*pixels_per_mm)
+    yOffset = int(math.sin(rad)*dist*pixels_per_mm)
+    #print("xOffset=%d  yOffset=%d" %(xOffset,yOffset))
+    putpoint(pixelsNew,xOffset,-yOffset,color)
 
 
-# LIDAR sensor max seems to be *AT* *LEAST* 16,000 mm (at night, outside, reflecting off cars)
-#ylim=max*1.1  # This seems to be a good "potential-collision", only view
-#ylim=max*11 ##### THIS ONE SEEMS PERFECT for checking close-in
-#ylim=max*5
-#ylim=max*2
-# Playing around -
-#ylim=1000
-#ylim=5000
-# Sensible "inside house" value for "long-range view" -
-#ylim=9000
-# Good context, not too much processing -
-ylim=max*3
 
-ax = plt.subplot(111, projection='polar')
-ax.set_ylim(0,ylim)
-ax.set_theta_zero_location('N')
-ax.set_theta_direction(-1)
-data = np.genfromtxt("lidar.csv", delimiter=",", names=["x", "y"])
-#data = np.genfromtxt("lidar.csv.EXAMPLE", delimiter=",", names=["x", "y"])
+#print()
 
-##print("ORIG_X: %s\nORIG_Y: %s" % (data['x'],data['y']))
+im1 = Image.open('lidar.blank.png')
+#print("Image1 Mode: %s" % im1.mode)
+#print("im1.size[0]: %d  im1.size[1]: %d" %(im1.size[0],im1.size[1]))
+pixelMap1 = im1.load()
 
-num=0
+midx=int(im1.size[0]/2)+3
+midy=int(im1.size[1]/2)+10
+pixels_per_mm=137.4/1000
+
+#print("midx=%d  midy=%d" % (midx,midy))
+
+im3 = Image.new(im1.mode, im1.size)
+pixelsNew = im3.load()
+for i in range(im1.size[0]):
+    for j in range(im1.size[1]):
+        pixelsNew[i,j] = pixelMap1[i,j]
+
+
+
+black = (0,0,0,255)
+red = (255,0,0,255)
+green = (0,255,0,255)
+blue = (0,0,255,255)
+
+
+# Put red cross on 0,0
+plotAt(0,0,red)
+
+# Put blue cross on 135 degrees, 1200mm
+##plotAt(135,1200,blue)
+# Put blue cross on 180 degrees, 1200mm
+##plotAt(180,1200,blue)
+# Try red cross at 45 deg, 600mm
+##plotAt(45,600,red)
+
+
+data = np.genfromtxt("lidar.csv", delimiter=",", names=["d", "r"])
+# For each point in lidar.csv...
 for i in range(0,360):
-	if data['y'][i] < ylim:
-		# Convert theta to radians
-		data['x'][num] =  math.radians(data['x'][i])
-		data['y'][num] =  data['y'][i]
-		num=num+1
-
-data=data[:num]
-##print("NEW__X: %s\nNEW__Y: %s" % (data['x'],data['y']))
-ax.scatter(data['x'],data['y'])
-
-# Identify min thresholds being used
-plt.title("Thresholds:\nFwd : " + str(FWD_THRESHOLD) + "\nSide: " + str(SIDE_THRESHOLD), pad=0.0, loc="left")
-
-# Added collision ring(s) to plot
-## START ANGLE, RADIUS
+    if data['r'][i] > 0 and data['r'][i] < 1300:
+        #print("DEG: %s  RANGE: %s" % (data['d'],data['r']))
+        plotAt(data['d'][i],data['r'][i],blue)
 
 
-##     FWD_OFF_ANGLE=15   # 0 +/- this is considered "forward-looking"
-##     MAX_OFF_ANGLE=45   # Beyond FWD_OFF_ANGLE and up to (this) is considered "right-" or "left-looking"
 
-
-ax.plot(np.linspace(0                                  , 2*np.pi*(FWD_OFF_ANGLE/360)                , 100), np.ones(100)*FWD_THRESHOLD, color='r', linestyle='-')
-
-ax.plot(np.linspace(0+2*np.pi*(FWD_OFF_ANGLE/360)      , 2*np.pi*(MAX_OFF_ANGLE/360)                , 100), np.ones(100)*SIDE_THRESHOLD, color='r', linestyle='-')
-ax.plot(np.linspace(0+2*np.pi*((300+FWD_OFF_ANGLE)/360) , 2*np.pi*((300+MAX_OFF_ANGLE)/360)         , 100), np.ones(100)*SIDE_THRESHOLD, color='r', linestyle='-')
-
-ax.plot(np.linspace(0+2*np.pi*((315+MAX_OFF_ANGLE)/360) , 2*np.pi*( 345               /360)         , 100), np.ones(100)*FWD_THRESHOLD, color='r', linestyle='-')
-
-
-# Save to JPEG
-plt.savefig(SENSOR_OUTPUT_DIR + "/lidar.png", bbox_inches="tight")
-
-#plt.show()
-
+#print("im3.size[0]: %d  im3.size[1]: %d" %(im3.size[0],im3.size[1]))
+#im3.show()
+im3.save(SENSOR_OUTPUT_DIR + "/lidar.png", bbox_inches="tight")
+#print()
