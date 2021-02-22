@@ -29,6 +29,7 @@ TO-DOs:
 2) Add left/right/fwd/back buttons to website
 3) Reload "MyPins.py" every time a "START" command is issued
 4) Modify plotLidar.py to DYNAMICALLY determine sensor coverages (for now it's hard-coded)
-5) Modify obstacle-avoidance logic to be "turn, sense, go -or- turn-some-more" rather than just
+5) Speed up getLidar (by eliminating it, perhaps, and add generation of "lidar.csv" to "ultra_simple")
+6) Modify obstacle-avoidance logic to be "turn, sense, go -or- turn-some-more" rather than just
    blindly turning "x" degrees 
 
